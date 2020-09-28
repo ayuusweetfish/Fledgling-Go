@@ -1,6 +1,7 @@
 TOOLCHAIN_PREFIX ?= arm-none-eabi-
 
 AS = $(TOOLCHAIN_PREFIX)as
+CC = $(TOOLCHAIN_PREFIX)gcc
 LD = $(TOOLCHAIN_PREFIX)ld
 OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
 
@@ -10,11 +11,13 @@ V := @
 BUILD_DIR := build
 
 ASFLAGS := -march=armv6 -mfpu=vfp -mfloat-abi=hard
-LDFLAGS := --entry 0
+CCFLAGS := -c -std=c99 -O2
+LDFLAGS := -T link.ld
 
-SRCS := $(wildcard **.s)
+SRCS := $(wildcard **.[sc])
 
 OBJS := $(patsubst %.s, %.o, $(SRCS))
+OBJS := $(patsubst %.c, %.o, $(OBJS))
 OBJS := $(sort $(OBJS))
 OBJS := $(addprefix $(BUILD_DIR)/, $(OBJS))
 
@@ -24,16 +27,21 @@ APP_BIN := $(BUILD_DIR)/a.bin
 all: $(APP_BIN)
 
 $(BUILD_DIR)/%.o: %.s
-	@ printf "  %-7s %s\n" AS $(notdir $<)
+	@ echo "  AS      $(notdir $<)"
 	$(V) mkdir -p $(BUILD_DIR)/$(dir $<)
 	$(V) $(AS) $< -o $@ $(ASFLAGS)
 
+$(BUILD_DIR)/%.o: %.c
+	@ echo "  CC      $(notdir $<)"
+	$(V) mkdir -p $(BUILD_DIR)/$(dir $<)
+	$(V) $(CC) $< -o $@ $(CCFLAGS)
+
 $(APP_ELF): $(OBJS)
-	@ printf "  %-7s %s\n" LD $@
+	@ echo "  LD      $@"
 	$(V) $(LD) $(OBJS) -o $@ $(LDFLAGS)
 
 $(APP_BIN): $(APP_ELF)
-	@ printf "  %-7s %s\n" OBJCOPY $@
+	@ echo "  OBJCOPY $@"
 	$(V) $(OBJCOPY) -O binary $< $@
 
 clean:
