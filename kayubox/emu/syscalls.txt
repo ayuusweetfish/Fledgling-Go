@@ -1,0 +1,19 @@
+#   name        r0_in   r1_in   r2_in   r3_in   r0_out  r1_out  r2_out  r3_out
+  0 debug       pause
+  1 log         text
+  f trap
+ 10 time                                        tick
+ 11 key         key0    key1    key2    key3    down0   down1   down2   down3
+ 12 rand                                        rand0   rand1   rand2   rand3
+
+100 clear_frame colour
+101 end_frame
+110 tex_new     width   height                  tex_id
+111 tex_update  tex_id  pix_ptr
+11f tex_release tex_id
+120 point_attr  tex_id  colour
+121 point_at    u       v       x       y
+
+200 snd_new     pcm_ptr                         snd_id
+201 snd_play    snd_id  offset  volume
+20f snd_release snd_id
