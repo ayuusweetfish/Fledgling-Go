@@ -1,10 +1,11 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
+#include "emulation.h"
+#include "video.h"
 
 #include "unicorn/unicorn.h"
 
-#include "emulation.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 static inline const char *mem_type_str(uc_mem_type t)
 {
@@ -89,6 +90,12 @@ void run_emulation(const char *program, long program_size)
   // Set up stack
   val = PROG_ENTRY + PROG_MEMSIZE;
   uc_expect(uc_reg_write, uc, UC_ARM_REG_SP, &val);
+
+  video_init();
+  while (video_running()) {
+    video_test();
+    video_flush();
+  }
 
   uc_expect(uc_emu_start, uc, PROG_ENTRY, 0, 0, 0);
 }

@@ -1,3 +1,6 @@
-[submodule "kayubox/emu/unicorn"]
-	path = kayubox/emu/unicorn
+[submodule "kayubox/emu/ext/unicorn"]
+	path = kayubox/emu/ext/unicorn
 	url = https://github.com/unicorn-engine/unicorn.git
+[submodule "kayubox/emu/ext/glfw"]
+	path = kayubox/emu/ext/glfw
+	url = https://github.com/glfw/glfw.git

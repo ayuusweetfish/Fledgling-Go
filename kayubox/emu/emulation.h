@@ -1,6 +1,7 @@
 #ifndef kayubox_emu__emulation_h
 #define kayubox_emu__emulation_h
 
+#include "unicorn/unicorn.h"
 #include <inttypes.h>
 
 #define PROG_ENTRY    0x80000000

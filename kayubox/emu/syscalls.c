@@ -9,13 +9,13 @@
 #define SYSCALL_ARGS \
   uc_engine *uc, uint32_t *r0, uint32_t *r1, uint32_t *r2, uint32_t *r3
 
-void debug(SYSCALL_ARGS)
+static void debug(SYSCALL_ARGS)
 {
   fprintf(stderr, FMT_32x " " FMT_32x " " FMT_32x " " FMT_32x "\n",
     *r0, *r1, *r2, *r3);
 }
 
-void log(SYSCALL_ARGS)
+static void log(SYSCALL_ARGS)
 {
   uint32_t addr = *r0;
   char ch;
@@ -27,9 +27,9 @@ void log(SYSCALL_ARGS)
   putchar('\n');
 }
 
-void trap(SYSCALL_ARGS)
+static void trap(SYSCALL_ARGS)
 {
-  while (1) usleep(1000000);
+  // while (1) usleep(1000000);
 }
 
 // End of implementations
