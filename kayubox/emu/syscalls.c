@@ -30,6 +30,7 @@ static void log(SYSCALL_ARGS)
 static void trap(SYSCALL_ARGS)
 {
   // while (1) usleep(1000000);
+  exit(0);
 }
 
 // End of implementations
