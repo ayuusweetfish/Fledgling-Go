@@ -9,7 +9,8 @@
 100 clear_frame colour
 101 end_frame
 110 tex_new     width   height                  tex_id
-111 tex_update  tex_id  pix_ptr
+111 tex_image   tex_id  pix_ptr
+112 tex_config  tex_id  config
 11f tex_release tex_id
 120 point_attr  tex_id  colour
 121 point_at    u       v       x       y
