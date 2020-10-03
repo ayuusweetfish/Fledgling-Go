@@ -1,13 +1,13 @@
 #   name        r0_in   r1_in   r2_in   r3_in   r0_out  r1_out  r2_out  r3_out
-  0 debug       pause
-  1 log         text
-  f trap
+ 00 debug       pause
+ 01 log         text
+ 0f trap
  10 time                                        tick
  11 key         key0    key1    key2    key3    down0   down1   down2   down3
  12 rand                                        rand0   rand1   rand2   rand3
 
 100 clear_frame colour
-101 end_frame
+10f end_frame
 110 tex_new     width   height                  tex_id
 111 tex_image   tex_id  pix_ptr
 112 tex_config  tex_id  config

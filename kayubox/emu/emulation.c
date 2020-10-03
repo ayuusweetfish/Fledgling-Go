@@ -59,7 +59,7 @@ void run_emulation(const char *program, long program_size)
   uc_engine *uc;
 
   // Initialize Unicorn
-  uc_expect(uc_open, UC_ARCH_ARM, UC_MODE_ARM, &uc);
+  uc_expect(uc_open, UC_ARCH_ARM, UC_MODE_ARM | UC_MODE_ARM1176, &uc);
 
   // Enable VFP
   uint32_t val;

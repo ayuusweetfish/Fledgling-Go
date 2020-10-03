@@ -10,8 +10,9 @@ V := @
 
 BUILD_DIR := build
 
-ASFLAGS := -march=armv6 -mfpu=vfp -mfloat-abi=hard
-CCFLAGS := -c -std=c99 -O2
+ARCHFLAGS := -march=armv6 -mfpu=vfp -mfloat-abi=hard
+ASFLAGS := $(ARCHFLAGS)
+CCFLAGS := $(ARCHFLAGS) -mtune=arm1176jzf-s -c -std=c99 -O2
 LDFLAGS := -T link.ld
 
 SRCS := $(wildcard **.[sc])
