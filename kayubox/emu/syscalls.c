@@ -7,17 +7,17 @@
 #include "emulation.h"
 
 #define SYSCALL_ARGS \
-  uc_engine *uc, uint32_t *r0, uint32_t *r1, uint32_t *r2, uint32_t *r3
+  uc_engine *uc, syscall_args *args
 
 static void debug(SYSCALL_ARGS)
 {
   fprintf(stderr, FMT_32x " " FMT_32x " " FMT_32x " " FMT_32x "\n",
-    *r0, *r1, *r2, *r3);
+    args->r0, args->r1, args->r2, args->r3);
 }
 
 static void log(SYSCALL_ARGS)
 {
-  uint32_t addr = *r0;
+  uint32_t addr = args->r0;
   char ch;
   while (1) {
     uc_expect(uc_mem_read, uc, addr++, &ch, 1);
@@ -37,10 +37,9 @@ static void trap(SYSCALL_ARGS)
 
 typedef void (*syscall_fn_t)(SYSCALL_ARGS);
 
-void syscall_invoke(uc_engine *uc, uint32_t call_num,
-  uint32_t *r0, uint32_t *r1, uint32_t *r2, uint32_t *r3)
+void syscall_invoke(uc_engine *uc, uint32_t call_num, syscall_args *args)
 {
-#define _(_num, _fn)  case (0x##_num): _fn(uc, r0, r1, r2, r3); return;
+#define _(_num, _fn)  case (0x##_num): _fn(uc, args); return;
   switch (call_num) {
     _(  0, debug)
     _(  1, log)
@@ -48,8 +47,6 @@ void syscall_invoke(uc_engine *uc, uint32_t call_num,
   }
 #undef _
 
-  uint32_t pc;
-  uc_expect(uc_reg_read, uc, UC_ARM_REG_PC, &pc);
   fprintf(stderr, FMT_32x ": Invalid syscall: " FMT_32x " (" FMT_32u ")\n",
-    pc - 4, call_num, call_num);
+    args->pc - 4, call_num, call_num);
 }

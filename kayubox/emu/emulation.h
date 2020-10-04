@@ -19,7 +19,14 @@
 #define FMT_32x   "%08" PRIx32
 #define FMT_32u   "%" PRIu32
 
-void syscall_invoke(uc_engine *uc, uint32_t call_num,
-  uint32_t *r0, uint32_t *r1, uint32_t *r2, uint32_t *r3);
+// Ensure that float is 32 bits
+typedef char _ensure_float_32[sizeof(float) == 4 ? 1 : -1];
+
+typedef struct syscall_args_s {
+  uint32_t r0, r1, r2, r3, pc;
+  float s0, s1, s2, s3;
+} syscall_args;
+
+void syscall_invoke(uc_engine *uc, uint32_t call_num, syscall_args *args);
 
 #endif
