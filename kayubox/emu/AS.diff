@@ -1,14 +1,16 @@
 diff --git a/gas/config/tc-arm.c b/gas/config/tc-arm.c
-index e0d0cbd..9561a3c 100644
+index e0d0cbd..fb04ab3 100644
 --- a/gas/config/tc-arm.c
 +++ b/gas/config/tc-arm.c
-@@ -5221,6 +5221,26 @@ parse_big_immediate (char **str, int i, expressionS *in_exp,
+@@ -5221,6 +5221,28 @@ parse_big_immediate (char **str, int i, expressionS *in_exp,
  
    my_get_expression (exp_p, &ptr, GE_OPT_PREFIX_BIG);
  
 +  if (exp_p->X_op == O_big
 +      && exp_p->X_add_number < 0)
 +    {
++      if (!inst.operands[0].isvec) return FAIL;
++
 +      /* Emit an IEEE single/double precision floating point number. */
 +      bfd_boolean is_single = inst.operands[0].issingle;
 +      int prec = is_single ? 2 : 4;
