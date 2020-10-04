@@ -1,0 +1,7 @@
+# https://www.gnu.org/software/binutils/
+tar xf binutils-2.35.1.tar.xz
+cd binutils-2.35.1
+./configure --target=arm-none-eabi --program-prefix=kayu-
+make -j4
+cd gas
+make install-exec

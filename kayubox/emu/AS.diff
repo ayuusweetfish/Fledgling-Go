@@ -1,0 +1,67 @@
+diff --git a/gas/config/tc-arm.c b/gas/config/tc-arm.c
+index e0d0cbd..48bf17e 100644
+--- a/gas/config/tc-arm.c
++++ b/gas/config/tc-arm.c
+@@ -5221,6 +5221,30 @@ parse_big_immediate (char **str, int i, expressionS *in_exp,
+ 
+   my_get_expression (exp_p, &ptr, GE_OPT_PREFIX_BIG);
+ 
++  if (exp_p->X_op == O_big
++	   && exp_p->X_add_number < 0)
++    {
++      int j;
++      if (- exp_p->X_add_number == 'f' ||
++          - exp_p->X_add_number == 'g')
++        {
++          /* Emit an IEEE single/double precision floating point number. */
++          int prec = (- exp_p->X_add_number == 'f') ? 2 : 4;
++          int expo = (- exp_p->X_add_number == 'f') ? 8 : 11;
++          LITTLENUM_TYPE w[4];
++          gen_to_words(w, prec, expo);
++
++          offsetT imm = 0;
++          for (j = 0; j < prec; j++)
++            imm |= (offsetT) w[j]
++                   << (LITTLENUM_NUMBER_OF_BITS * (prec - j - 1));
++
++          exp_p->X_op = O_constant;
++          exp_p->X_add_number = imm;
++        }
++      else return FAIL;
++    }
++
+   if (exp_p->X_op == O_constant)
+     {
+       inst.operands[i].imm = exp_p->X_add_number & 0xffffffff;
+diff --git a/gas/testsuite/gas/arm/vfpv2-ldr_immediate.d b/gas/testsuite/gas/arm/vfpv2-ldr_immediate.d
+index 4c0c1dd..4003938 100644
+--- a/gas/testsuite/gas/arm/vfpv2-ldr_immediate.d
++++ b/gas/testsuite/gas/arm/vfpv2-ldr_immediate.d
+@@ -47,4 +47,10 @@ Disassembly of section \.text:
+ 0[0-9a-fx]+ .*(00000000|40400000) 	.*
+ 0[0-9a-fx]+ .*(40400000|00000000) 	.*
+ 0[0-9a-fx]+ .*42000000 	.*
++.*
++0[0-9a-fx]+ .*ed9f0b00 	vldr	d0, \[pc\].*
++0[0-9a-fx]+ .*ed9f0a01 	vldr	s0, \[pc, #4\].*
++0[0-9a-fx]+ .*(80000000|407863e5) 	.*
++0[0-9a-fx]+ .*(407863e5|80000000) 	.*
++0[0-9a-fx]+ .*4123c000 	.*
+ #pass
+diff --git a/gas/testsuite/gas/arm/vfpv2-ldr_immediate.s b/gas/testsuite/gas/arm/vfpv2-ldr_immediate.s
+index 650d9b8..13faaf8 100644
+--- a/gas/testsuite/gas/arm/vfpv2-ldr_immediate.s
++++ b/gas/testsuite/gas/arm/vfpv2-ldr_immediate.s
+@@ -43,6 +43,12 @@
+   vldr d0,=0x4040000000000000
+   vldr s0,=0x42000000
+   .pool
++
++  # Floating point literal values
++  .align 3
++  vldr d0,=#0g390.2435302734375
++  vldr s0,=#0f10.234375
++  .pool
+ 	
+   nop
+ 	
