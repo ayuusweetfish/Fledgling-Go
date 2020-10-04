@@ -33,6 +33,11 @@ static void trap(SYSCALL_ARGS)
   exit(0);
 }
 
+static void point_at(SYSCALL_ARGS)
+{
+  printf("%f %f\n", args->s0, args->s1);
+}
+
 // End of implementations
 
 typedef void (*syscall_fn_t)(SYSCALL_ARGS);
@@ -41,9 +46,11 @@ void syscall_invoke(uc_engine *uc, uint32_t call_num, syscall_args *args)
 {
 #define _(_num, _fn)  case (0x##_num): _fn(uc, args); return;
   switch (call_num) {
-    _(  0, debug)
-    _(  1, log)
-    _(  f, trap)
+    _( 00, debug)
+    _( 01, log)
+    _( 0f, trap)
+
+    _(121, point_at)
   }
 #undef _
 

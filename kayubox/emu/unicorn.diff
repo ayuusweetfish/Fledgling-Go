@@ -1,0 +1,36 @@
+diff --git a/qemu/target-arm/unicorn_arm.c b/qemu/target-arm/unicorn_arm.c
+index d5b9a7d..d508b19 100644
+--- a/qemu/target-arm/unicorn_arm.c
++++ b/qemu/target-arm/unicorn_arm.c
+@@ -66,7 +66,13 @@ int arm_reg_read(struct uc_struct *uc, unsigned int *regs, void **vals, int coun
+             *(int32_t *)value = ARM_CPU(uc, mycpu)->env.regs[regid - UC_ARM_REG_R0];
+         else if (regid >= UC_ARM_REG_D0 && regid <= UC_ARM_REG_D31)
+             *(float64 *)value = ARM_CPU(uc, mycpu)->env.vfp.regs[regid - UC_ARM_REG_D0];
+-        else {
++        else if (regid >= UC_ARM_REG_S0 && regid <= UC_ARM_REG_S31) {
++            int index = regid - UC_ARM_REG_S0;
++            int shift = (index & 1) ? 32 : 0;
++            *(float32 *)value = make_float32(
++                float64_val(ARM_CPU(uc, mycpu)->env.vfp.regs[index / 2]) >> shift
++            );
++        } else {
+             switch(regid) {
+                 case UC_ARM_REG_APSR:
+                     *(int32_t *)value = cpsr_read(&ARM_CPU(uc, mycpu)->env) & (CPSR_NZCV | CPSR_Q | CPSR_GE);
+@@ -132,7 +138,15 @@ int arm_reg_write(struct uc_struct *uc, unsigned int *regs, void* const* vals, i
+             ARM_CPU(uc, mycpu)->env.regs[regid - UC_ARM_REG_R0] = *(uint32_t *)value;
+         else if (regid >= UC_ARM_REG_D0 && regid <= UC_ARM_REG_D31)
+             ARM_CPU(uc, mycpu)->env.vfp.regs[regid - UC_ARM_REG_D0] = *(float64 *)value;
+-        else {
++        else if (regid >= UC_ARM_REG_S0 && regid <= UC_ARM_REG_S31) {
++            int index = regid - UC_ARM_REG_S0;
++            int shift = (index & 1) ? 32 : 0;
++            float64 mask = (0xffffffffull << shift);
++            ARM_CPU(uc, mycpu)->env.vfp.regs[index / 2] = make_float64(
++                float64_val(ARM_CPU(uc, mycpu)->env.vfp.regs[index / 2] & ~mask) |
++                (float32_val(*(float32 *)value) << shift)
++            );
++        } else {
+             switch(regid) {
+                 case UC_ARM_REG_APSR:
+                     cpsr_write(&ARM_CPU(uc, mycpu)->env, *(uint32_t *)value, (CPSR_NZCV | CPSR_Q | CPSR_GE));
