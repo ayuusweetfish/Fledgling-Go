@@ -1,5 +1,5 @@
-#ifndef kayubox_emu__video_h
-#define kayubox_emu__video_h
+#ifndef kayubox_emu__av_h
+#define kayubox_emu__av_h
 
 #include <stdbool.h>
 #include <stdint.h>
