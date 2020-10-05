@@ -14,8 +14,10 @@
   adr   r0, text
   svc   #0x01
 
+  mov   r4, #0
+
 main_loop:
-  ldr   r0, =#0xf2e6e6ff
+  ldr   r0, =#0xffffeeff
   svc   #0x100  // Clear frame
 
   // Draw a triangle
@@ -30,8 +32,14 @@ main_loop:
   vldrs s1, 0.7
   svc   #0x121  // Point at
   ldr   r0, =0xffddddff
-  vldrs s0, 0.6
-  vldrs s1, -0.1
+  add   r4, #1
+  vmov          s4, r4
+  vcvt.f32.u32  s4, s4
+  vldrs         s0, 0.001
+  vmul.f32      s4, s0
+  vldrs         s0, 0.6
+  vadd.f32      s0, s4
+  vldrs         s1, -0.1
   svc   #0x121  // Point at
 
   svc   #0x10f  // End frame

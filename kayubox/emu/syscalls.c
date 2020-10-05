@@ -34,26 +34,36 @@ static void sys_trap(SYSCALL_ARGS)
   exit(0);
 }
 
+#define EXTRACT_COMPONENTS(_c, _r, _g, _b, _a) \
+  float _r = (((_c) >> 24) & 0xff) / 255.0f; \
+  float _g = (((_c) >> 16) & 0xff) / 255.0f; \
+  float _b = (((_c) >>  8) & 0xff) / 255.0f; \
+  float _a = (((_c) >>  0) & 0xff) / 255.0f;
+
 static void sys_clear_frame(SYSCALL_ARGS)
 {
-  float R = ((args->r0 >> 24) & 0xff) / 255.0f;
-  float G = ((args->r0 >> 16) & 0xff) / 255.0f;
-  float B = ((args->r0 >>  8) & 0xff) / 255.0f;
-  float A = ((args->r0 >>  0) & 0xff) / 255.0f;
+  EXTRACT_COMPONENTS(args->r0, R, G, B, A);
   video_clear_frame(R, G, B, A);
 }
 
-static void sys_point_add(SYSCALL_ARGS)
+static void sys_draw_setup(SYSCALL_ARGS)
 {
-  printf("%f %f\n", args->s0, args->s1);
-  static int t = 0;
-  if (++t == 3) { video_test(); t = 0; }
+  video_draw_setup();
+}
+
+static void sys_draw(SYSCALL_ARGS)
+{
+  EXTRACT_COMPONENTS(args->r0, R, G, B, A);
+  video_draw(&(video_point) {
+    .r = R, .g = G, .b = B, .a = A,
+    .x = args->s0, .y = args->s1,
+    .u = args->s2, .v = args->s3,
+  });
 }
 
 static void sys_end_frame(SYSCALL_ARGS)
 {
   video_end_frame();
-  usleep(500000);
 }
 
 // End of implementations
@@ -70,7 +80,8 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
 
     _(100, clear_frame)
     _(10f, end_frame)
-    _(121, point_add)
+    _(120, draw_setup)
+    _(121, draw)
   }
 #undef _
 

@@ -8,6 +8,7 @@
 #endif
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,15 +83,52 @@ void video_acquire_context()
   glfwMakeContextCurrent(window);
 }
 
+static bool frame_cleared = false;
+static bool draw_setup = false;
+
 void video_clear_frame(float R, float G, float B, float A)
 {
   glClearColor(R, G, B, A);
   glClear(GL_COLOR_BUFFER_BIT);
+  frame_cleared = true;
+  draw_setup = false;
 }
 
 void video_end_frame()
 {
-  glfwSwapBuffers(window);
+  if (draw_setup) glEnd();
+  if (frame_cleared) glfwSwapBuffers(window);
+  frame_cleared = false;
+  draw_setup = false;
+}
+
+static video_point buf[3];
+static int buf_ptr = 0;
+
+void video_draw_setup()
+{
+  if (!frame_cleared) return;
+  if (buf_ptr != 0) {
+    fprintf(stderr, "Warning: %d points dropped\n", buf_ptr);
+    buf_ptr = 0;
+  }
+  if (draw_setup) glEnd();
+
+  glBegin(GL_TRIANGLES);
+  draw_setup = true;
+}
+
+void video_draw(const video_point *p)
+{
+  if (!frame_cleared) return;
+  buf[buf_ptr++] = *p;
+  if (buf_ptr == 3) {
+    for (int i = 0; i < 3; i++) {
+      glColor4f(buf[i].r, buf[i].g, buf[i].b, buf[i].a);
+      glVertex2f(buf[i].x, buf[i].y);
+    }
+    buf_ptr = 0;
+  }
 }
 
 void video_test()
