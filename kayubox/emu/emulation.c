@@ -63,6 +63,8 @@ static void handler_syscall(uc_engine *uc, uint32_t exc_index, void *user_data)
 
 void *emu_thread_fn(void *uc)
 {
+  video_acquire_context();
+
   uc_expect(uc_emu_start, uc, PROG_ENTRY, 0, 0, 0);
   return NULL;
 }
@@ -118,7 +120,5 @@ void run_emulation(const char *program, long program_size)
     exit(1);
   }
 
-  while (video_running()) {
-    video_poll_events();
-  }
+  video_loop();
 }

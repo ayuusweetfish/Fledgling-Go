@@ -5,9 +5,12 @@
 #include <stdint.h>
 
 void video_init();
-bool video_running();
-void video_flush();
-void video_poll_events();
+void video_loop();
+
+void video_acquire_context();
+
+void video_clear_frame(float R, float G, float B, float A);
+void video_end_frame();
 
 void video_test();
 

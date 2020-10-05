@@ -15,7 +15,7 @@
   svc   #0x01
 
 main_loop:
-  ldr   r0, =#0xffffeeff
+  ldr   r0, =#0xf2e6e6ff
   svc   #0x100  // Clear frame
 
   // Draw a triangle

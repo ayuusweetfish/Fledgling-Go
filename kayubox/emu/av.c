@@ -67,28 +67,34 @@ void video_init()
     GL_RGBA, GL_UNSIGNED_BYTE, pix);
 
   glfwPollEvents();
+  glfwMakeContextCurrent(NULL);
 }
 
-bool video_running()
+void video_loop()
 {
-  return !glfwWindowShouldClose(window);
+  while (!glfwWindowShouldClose(window)) {
+    glfwPollEvents();
+  }
 }
 
-void video_flush()
+void video_acquire_context()
+{
+  glfwMakeContextCurrent(window);
+}
+
+void video_clear_frame(float R, float G, float B, float A)
+{
+  glClearColor(R, G, B, A);
+  glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void video_end_frame()
 {
   glfwSwapBuffers(window);
 }
 
-void video_poll_events()
-{
-  glfwPollEvents();
-}
-
 void video_test()
 {
-  glClearColor(0.95f, 0.9f, 0.9f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
   glDisable(GL_TEXTURE_2D);
   glBegin(GL_TRIANGLES);
     glColor3f(1.0f, 0.7f, 0.3f);
