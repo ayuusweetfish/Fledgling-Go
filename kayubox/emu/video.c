@@ -65,6 +65,8 @@ void video_init()
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0,
     GL_RGBA, GL_UNSIGNED_BYTE, pix);
+
+  glfwPollEvents();
 }
 
 bool video_running()
@@ -73,6 +75,11 @@ bool video_running()
 }
 
 void video_flush()
+{
+  glfwSwapBuffers(window);
+}
+
+void video_poll_events()
 {
   glfwPollEvents();
 }
@@ -105,6 +112,4 @@ void video_test()
       glVertex2f(0.3 + (-1 + i) * 1.2f, 0.3 - i * 1.2f);
     }
   glEnd();
-
-  glfwSwapBuffers(window);
 }

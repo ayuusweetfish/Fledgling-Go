@@ -1,3 +1,4 @@
+# vim: set ft=asm:
 .macro  vldrs reg, imm
   vldr  \reg, 0f
   b     1f
@@ -34,6 +35,7 @@ main_loop:
   svc   #0x121  // Point at
 
   svc   #0x10f  // End frame
+  b     main_loop
 
   svc   #0x0f
 

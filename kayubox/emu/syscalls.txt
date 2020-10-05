@@ -12,7 +12,7 @@
 111 tex_image   tex_id  pix_ptr
 112 tex_config  tex_id  config
 11f tex_release tex_id
-120 point_at    colour
+120 point_add   colour
     s0 = x, s1 = y; s2 = u, s3 = v (if using textures)
 121 point_tex   tex_id
 

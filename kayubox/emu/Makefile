@@ -29,7 +29,7 @@ STATIC_LIB_TARGETS := $(patsubst %.a, %.a.target, $(STATIC_LIBS))
 UNAME := $(shell uname)
 
 ifeq ($(CROSS_WIN), 1)
-  LDFLAGS := -lm -lopengl32 -lgdi32
+  LDFLAGS := -lm -lopengl32 -lgdi32 -static -lpthread
 else
   ifeq ($(UNAME), Darwin)
     C_OPTIONS += -D_DARWIN_C_SOURCE

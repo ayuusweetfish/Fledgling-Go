@@ -7,6 +7,7 @@
 void video_init();
 bool video_running();
 void video_flush();
+void video_poll_events();
 
 void video_test();
 

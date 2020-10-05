@@ -9,13 +9,13 @@
 #define SYSCALL_ARGS \
   uc_engine *uc, syscall_args *args
 
-static void debug(SYSCALL_ARGS)
+static void sys_debug(SYSCALL_ARGS)
 {
   fprintf(stderr, FMT_32x " " FMT_32x " " FMT_32x " " FMT_32x "\n",
     args->r0, args->r1, args->r2, args->r3);
 }
 
-static void log(SYSCALL_ARGS)
+static void sys_log(SYSCALL_ARGS)
 {
   uint32_t addr = args->r0;
   char ch;
@@ -27,30 +27,36 @@ static void log(SYSCALL_ARGS)
   putchar('\n');
 }
 
-static void trap(SYSCALL_ARGS)
+static void sys_trap(SYSCALL_ARGS)
 {
   // while (1) usleep(1000000);
   exit(0);
 }
 
-static void point_at(SYSCALL_ARGS)
+static void sys_point_add(SYSCALL_ARGS)
 {
   printf("%f %f\n", args->s0, args->s1);
+}
+
+static void sys_end_frame(SYSCALL_ARGS)
+{
+  usleep(500000);
 }
 
 // End of implementations
 
 typedef void (*syscall_fn_t)(SYSCALL_ARGS);
 
-void syscall_invoke(uc_engine *uc, uint32_t call_num, syscall_args *args)
+void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
 {
-#define _(_num, _fn)  case (0x##_num): _fn(uc, args); return;
+#define _(_num, _fn)  case (0x##_num): sys_##_fn(uc, args); return;
   switch (call_num) {
     _( 00, debug)
     _( 01, log)
     _( 0f, trap)
 
-    _(121, point_at)
+    _(10f, end_frame)
+    _(121, point_add)
   }
 #undef _
 

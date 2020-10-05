@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 
 static inline const char *mem_type_str(uc_mem_type t)
 {
@@ -60,6 +61,12 @@ static void handler_syscall(uc_engine *uc, uint32_t exc_index, void *user_data)
   uc_expect(uc_reg_write_batch, uc, (int *)regids, ptrs, 8);
 }
 
+void *emu_thread_fn(void *uc)
+{
+  uc_expect(uc_emu_start, uc, PROG_ENTRY, 0, 0, 0);
+  return NULL;
+}
+
 void run_emulation(const char *program, long program_size)
 {
   uc_engine *uc;
@@ -98,10 +105,20 @@ void run_emulation(const char *program, long program_size)
   uc_expect(uc_reg_write, uc, UC_ARM_REG_SP, &val);
 
   video_init();
-  while (video_running()) {
-    video_test();
-    video_flush();
+
+  pthread_t emu_thread;
+  int err;
+
+  if ((err = pthread_create(&emu_thread, NULL, emu_thread_fn, uc)) != 0) {
+    printf("pthread_create() returned error %d (%s)\n", err, strerror(err));
+    exit(1);
+  }
+  if ((err = pthread_detach(emu_thread)) != 0) {
+    printf("pthread_detach() returned error %d (%s)\n", err, strerror(err));
+    exit(1);
   }
 
-  uc_expect(uc_emu_start, uc, PROG_ENTRY, 0, 0, 0);
+  while (video_running()) {
+    video_poll_events();
+  }
 }
