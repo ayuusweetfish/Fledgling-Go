@@ -5,6 +5,19 @@ CC = $(TOOLCHAIN_PREFIX)gcc
 LD = $(TOOLCHAIN_PREFIX)ld
 OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
 
+WINDOWS := 0
+ifeq ($(OS), Windows_NT)
+  WINDOWS := 1
+endif
+
+ifeq ($(WINDOWS), 1)
+  rm_rf = del /S /Q $(subst /,\,$1)
+  mkdir = if not exist $(subst /,\,$1) mkdir $(subst /,\,$1)
+else
+  rm_rf = rm -rf $1
+  mkdir = mkdir -p $1
+endif
+
 # Verbosity. Change to empty string for verbose output
 V := @
 
@@ -29,12 +42,12 @@ all: $(APP_BIN)
 
 $(BUILD_DIR)/%.o: %.s
 	@ echo "  AS      $(notdir $<)"
-	$(V) mkdir -p $(BUILD_DIR)/$(dir $<)
+	$(V) $(call mkdir, $(BUILD_DIR)/$(dir $<))
 	$(V) $(AS) $< -o $@ $(ASFLAGS)
 
 $(BUILD_DIR)/%.o: %.c
 	@ echo "  CC      $(notdir $<)"
-	$(V) mkdir -p $(BUILD_DIR)/$(dir $<)
+	$(V) $(call mkdir, $(BUILD_DIR)/$(dir $<))
 	$(V) $(CC) $< -o $@ $(CCFLAGS)
 
 $(APP_ELF): $(OBJS)
@@ -46,7 +59,7 @@ $(APP_BIN): $(APP_ELF)
 	$(V) $(OBJCOPY) -O binary $< $@
 
 clean:
-	$(RM) $(BUILD_DIR)
+	$(call rm_rf, $(BUILD_DIR))
 
 run: $(APP_BIN)
 	echo "Not implemented"
