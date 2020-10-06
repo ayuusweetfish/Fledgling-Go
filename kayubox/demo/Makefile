@@ -46,7 +46,7 @@ $(APP_BIN): $(APP_ELF)
 	$(V) $(OBJCOPY) -O binary $< $@
 
 clean:
-	rm -rf $(BUILD_DIR)
+	$(RM) $(BUILD_DIR)
 
 run: $(APP_BIN)
 	echo "Not implemented"

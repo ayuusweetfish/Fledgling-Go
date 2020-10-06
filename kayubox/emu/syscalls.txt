@@ -16,6 +16,6 @@
 121 draw        colour
     s0 = x, s1 = y; s2 = u, s3 = v (if using textures)
 
-200 snd_new     pcm_ptr                         snd_id
+200 snd_new     length  pcm_ptr                 snd_id
 201 snd_play    snd_id  offset  volume
 20f snd_release snd_id
