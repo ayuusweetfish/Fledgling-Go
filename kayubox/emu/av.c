@@ -15,8 +15,6 @@
 
 static GLFWwindow *window;
 
-static GLuint tex;
-
 void video_init()
 {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
@@ -37,35 +35,6 @@ void video_init()
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  int w = 32, h = 16;
-  uint8_t *pix = (uint8_t *)malloc(w * h * 4);
-  for (int r = 0; r < h; r++)
-    for (int c = 0; c < w; c++) {
-      int R, G, B, A;
-      R = (uint8_t)((1 - (float)r / h) * 255.5f);
-      G = 0x7f;
-      B = (uint8_t)((1 - (float)c / w) * 255.5f);
-      A = 0xff;
-      if (r == 0 && c == 0) {
-        R = G = B = 0x3f;
-      } else if (((r ^ c) & 1) == 0) {
-        A = 0;
-      }
-      pix[(r * w + c) * 4 + 0] = R;
-      pix[(r * w + c) * 4 + 1] = G;
-      pix[(r * w + c) * 4 + 2] = B;
-      pix[(r * w + c) * 4 + 3] = A;
-    }
-
-  glGenTextures(1, &tex);
-  glBindTexture(GL_TEXTURE_2D, tex);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0,
-    GL_RGBA, GL_UNSIGNED_BYTE, pix);
 
   glfwPollEvents();
   glfwMakeContextCurrent(NULL);
@@ -97,15 +66,78 @@ void video_clear_frame(float R, float G, float B, float A)
 void video_end_frame()
 {
   if (draw_setup) glEnd();
+  video_test();
   if (frame_cleared) glfwSwapBuffers(window);
   frame_cleared = false;
   draw_setup = false;
 }
 
+#define MAX_TEXTURES  1024
+static bool tex_used[MAX_TEXTURES] = { false };
+static struct tex_record {
+  GLuint id;
+  uint32_t w, h;
+} texs[MAX_TEXTURES];
+static int tex_ptr = 0;
+
+static int cur_tex = -1;
 static video_point buf[3];
 static int buf_ptr = 0;
 
-void video_draw_setup()
+uint32_t video_tex_new(uint32_t w, uint32_t h)
+{
+  while (tex_used[tex_ptr])
+    tex_ptr = (tex_ptr + 1) % MAX_TEXTURES;
+
+  GLuint id;
+  glGenTextures(1, &id);
+
+  tex_used[tex_ptr] = true;
+  texs[tex_ptr].w = w;
+  texs[tex_ptr].h = h;
+  texs[tex_ptr].id = id;
+
+  video_tex_config(tex_ptr, 0);
+
+  return tex_ptr++;
+}
+
+size_t video_tex_size(uint32_t tex_id)
+{
+  if (!tex_used[tex_id]) return 0;
+  return texs[tex_id].w * texs[tex_id].h * 4;
+}
+
+void video_tex_image(uint32_t tex_id, const void *pix_ptr)
+{
+  if (!tex_used[tex_id]) return;
+
+  glBindTexture(GL_TEXTURE_2D, texs[tex_id].id);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+    texs[tex_id].w, texs[tex_id].h,
+    0, GL_RGBA, GL_UNSIGNED_BYTE, pix_ptr);
+}
+
+void video_tex_config(uint32_t tex_id, uint32_t flags)
+{
+  if (!tex_used[tex_id]) return;
+
+  glBindTexture(GL_TEXTURE_2D, texs[tex_id].id);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
+
+void video_tex_release(uint32_t tex_id)
+{
+  if (!tex_used[tex_id]) return;
+
+  tex_used[tex_id] = false;
+  glDeleteTextures(1, &texs[tex_id].id);
+}
+
+void video_draw_setup(uint32_t tex_id)
 {
   if (!frame_cleared) return;
   if (buf_ptr != 0) {
@@ -113,6 +145,18 @@ void video_draw_setup()
     buf_ptr = 0;
   }
   if (draw_setup) glEnd();
+
+  if (cur_tex != tex_id) {
+    cur_tex = tex_id;
+
+    if (tex_id == (uint32_t)-1) {
+      glDisable(GL_TEXTURE_2D);
+    } else {
+      glEnable(GL_TEXTURE_2D);
+      // TODO: Check texture validity
+      glBindTexture(GL_TEXTURE_2D, texs[tex_id].id);
+    }
+  }
 
   glBegin(GL_TRIANGLES);
   draw_setup = true;
@@ -146,7 +190,7 @@ void video_test()
   glEnd();
 
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, tex);
+  glBindTexture(GL_TEXTURE_2D, 1);
   glBegin(GL_TRIANGLES);
     glColor4f(1.0, 1.0, 1.0, 0.7);
     for (int i = 0; i < 2; i++) {

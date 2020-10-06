@@ -46,9 +46,31 @@ static void sys_clear_frame(SYSCALL_ARGS)
   video_clear_frame(R, G, B, A);
 }
 
+static void sys_tex_new(SYSCALL_ARGS)
+{
+  uint32_t id = video_tex_new(args->r0, args->r1);
+  args->r0 = id;
+}
+
+static void sys_tex_image(SYSCALL_ARGS)
+{
+  size_t sz = video_tex_size(args->r0);
+  void *buf = (void *)malloc(sz);
+  if (sz == 0 || buf == NULL) {
+    // TODO: Error message
+    return;
+  }
+  uc_expect(uc_mem_read, uc, args->r1, buf, sz);
+  video_tex_image(args->r0, buf);
+}
+
+static void sys_tex_release(SYSCALL_ARGS)
+{
+}
+
 static void sys_draw_setup(SYSCALL_ARGS)
 {
-  video_draw_setup();
+  video_draw_setup(args->r0);
 }
 
 static void sys_draw(SYSCALL_ARGS)
@@ -80,6 +102,9 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
 
     _(100, clear_frame)
     _(10f, end_frame)
+    _(110, tex_new)
+    _(111, tex_image)
+    _(11f, tex_release)
     _(120, draw_setup)
     _(121, draw)
   }

@@ -10,7 +10,7 @@
 10f end_frame
 110 tex_new     width   height                  tex_id
 111 tex_image   tex_id  pix_ptr
-112 tex_config  tex_id  config
+112 tex_config  tex_id  flags
 11f tex_release tex_id
 120 draw_setup  tex_id
 121 draw        colour
