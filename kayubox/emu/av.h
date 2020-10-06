@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+uint64_t av_time();
+uint64_t av_rand();
+bool av_key(uint32_t code);
+
 void video_init();
 void video_loop();
 

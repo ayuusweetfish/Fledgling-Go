@@ -35,6 +35,31 @@ static void sys_trap(SYSCALL_ARGS)
   exit(0);
 }
 
+static void sys_time(SYSCALL_ARGS)
+{
+  uint64_t t = av_time();
+  args->r0 = (uint32_t)(t & 0xffffffff);
+  args->r1 = (uint32_t)((t >> 32) & 0xffffffff);
+}
+
+static void sys_key(SYSCALL_ARGS)
+{
+  args->r0 = av_key(args->r0);
+  args->r1 = av_key(args->r1);
+  args->r2 = av_key(args->r2);
+  args->r3 = av_key(args->r3);
+}
+
+static void sys_rand(SYSCALL_ARGS)
+{
+  uint64_t a = av_rand();
+  uint64_t b = av_rand();
+  args->r0 = (uint32_t)(a & 0xffffffff);
+  args->r1 = (uint32_t)((a >> 32) & 0xffffffff);
+  args->r2 = (uint32_t)(b & 0xffffffff);
+  args->r3 = (uint32_t)((b >> 32) & 0xffffffff);
+}
+
 #define EXTRACT_COMPONENTS(_c, _r, _g, _b, _a) \
   float _r = (((_c) >> 24) & 0xff) / 255.0f; \
   float _g = (((_c) >> 16) & 0xff) / 255.0f; \
@@ -105,6 +130,9 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
     _( 00, debug)
     _( 01, log)
     _( 0f, trap)
+    _( 10, time)
+    _( 11, key)
+    _( 12, rand)
 
     _(100, clear_frame)
     _(10f, end_frame)

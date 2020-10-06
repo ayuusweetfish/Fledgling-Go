@@ -14,6 +14,11 @@
   adr   r0, text
   svc   #0x01
 
+  svc   #0x10   // Time
+  svc   #0x00
+  svc   #0x12   // Random
+  svc   #0x00
+
   // Create texture
   mov   r0, #32
   mov   r1, #16
@@ -56,10 +61,16 @@ main_loop:
   vldrs s0, 0.6
   vldrs s1, 0.7
   svc   #0x121  // Draw
-  ldr   r0, =0xffddddff
-  add   r4, #1
+
+  mov   r0, #32 // Space key
+  svc   #0x11   // Key
+  cmp   r0, #0
+  addeq r4, #1
+  subne r4, #1
+  ldreq r0, =0xffddddff
+  ldrne r0, =0xffeeccff
   vmov          s4, r4
-  vcvt.f32.u32  s4, s4
+  vcvt.f32.s32  s4, s4
   vldrs         s0, 0.001
   vmul.f32      s4, s0
   vldrs         s0, 0.6

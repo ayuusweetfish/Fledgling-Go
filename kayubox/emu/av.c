@@ -1,3 +1,8 @@
+#if _WIN32
+#define _CRT_RAND_S
+#include <stdlib.h>
+#endif
+
 #include "av.h"
 #include "emulation.h"
 
@@ -8,12 +13,64 @@
 #include <GL/glext.h>
 #endif
 
+#include <errno.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include <unistd.h>
+
+// Time
+
+uint64_t av_time()
+{
+  double t = glfwGetTime();
+  return (uint64_t)(t * 1000000);
+}
+
+// Random
+
+#define LCG_DURABILITY  100000
+static uint64_t lcg;
+static int lcg_count = LCG_DURABILITY - 1;
+
+static void reinit_rng()
+{
+#if _WIN32
+  unsigned int a, b;
+  if (rand_s(&a) != 0 || rand_s(&b) != 0)
+    fprintf(stderr, "rand_s() failed. "
+      "Random numbers will be based on current time.\n");
+  lcg = ((uint64_t)a << 32) | (uint64_t)b;
+#else
+  FILE *fp_random;
+  if ((fp_random = fopen("/dev/urandom", "r")) == NULL ||
+      fread(&lcg, 8, 1, fp_random) < 1)
+    fprintf(stderr, "Cannot read from /dev/urandom. "
+      "Random numbers will be based on current time.\n");
+  if (fp_random) fclose(fp_random);
+#endif
+
+  lcg += ((uint64_t)time(NULL) ^ av_time());
+}
+
+uint64_t av_rand()
+{
+  if (++lcg_count >= LCG_DURABILITY) {
+    reinit_rng();
+    lcg_count = 0;
+  }
+  // Newlib/Musl LCG implementation
+  uint64_t ret;
+  lcg = (lcg * 6364136223846793005LL + 1);
+  ret = (lcg >> 32) << 32;
+  lcg = (lcg * 6364136223846793005LL + 1);
+  ret = ret | (lcg >> 32);
+  return ret;
+}
 
 static GLFWwindow *window;
 
@@ -52,6 +109,11 @@ void video_loop()
 void video_acquire_context()
 {
   glfwMakeContextCurrent(window);
+}
+
+bool av_key(uint32_t code)
+{
+  return glfwGetKey(window, (int)code);
 }
 
 // State variables
