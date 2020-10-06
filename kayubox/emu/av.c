@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 static GLFWwindow *window;
 
@@ -44,6 +45,7 @@ void video_loop()
 {
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
+    usleep(2500);
   }
 }
 
