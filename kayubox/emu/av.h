@@ -24,7 +24,7 @@ typedef struct video_point_s {
   float x, y, u, v;
 } video_point;
 
-void video_draw_setup(uint32_t tex_id);
+void video_draw_config(uint32_t tex_id);
 void video_draw(const video_point *p);
 
 void video_test();

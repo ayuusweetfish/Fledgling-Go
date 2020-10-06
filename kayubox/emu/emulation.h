@@ -30,5 +30,7 @@ typedef struct syscall_args_s {
 } syscall_args;
 
 void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args);
+void syscall_warn(const char *fmt, ...);
+void syscall_panic(const char *fmt, ...);
 
 #endif

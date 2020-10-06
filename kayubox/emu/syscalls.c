@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -68,9 +69,9 @@ static void sys_tex_release(SYSCALL_ARGS)
 {
 }
 
-static void sys_draw_setup(SYSCALL_ARGS)
+static void sys_draw_config(SYSCALL_ARGS)
 {
-  video_draw_setup(args->r0);
+  video_draw_config(args->r0);
 }
 
 static void sys_draw(SYSCALL_ARGS)
@@ -92,8 +93,13 @@ static void sys_end_frame(SYSCALL_ARGS)
 
 typedef void (*syscall_fn_t)(SYSCALL_ARGS);
 
+static uint32_t pc, num;
+
 void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
 {
+  pc = args->pc - 4;
+  num = call_num;
+
 #define _(_num, _fn)  case (0x##_num): sys_##_fn(uc, args); return;
   switch (call_num) {
     _( 00, debug)
@@ -105,11 +111,36 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
     _(110, tex_new)
     _(111, tex_image)
     _(11f, tex_release)
-    _(120, draw_setup)
+    _(120, draw_config)
     _(121, draw)
   }
 #undef _
 
   fprintf(stderr, FMT_32x ": Invalid syscall: " FMT_32x " (" FMT_32u ")\n",
-    args->pc - 4, call_num, call_num);
+    pc, call_num, call_num);
+}
+
+void syscall_warn(const char *fmt, ...)
+{
+  fprintf(stderr, FMT_32x ": Syscall " FMT_32u " warning: ", pc, num);
+
+  va_list args;
+  va_start(args, fmt);
+  vfprintf(stderr, fmt, args);
+  va_end(args);
+
+  fputc('\n', stderr);
+}
+
+void syscall_panic(const char *fmt, ...)
+{
+  fprintf(stderr, FMT_32x ": Syscall " FMT_32u " panicked: ", pc, num);
+
+  va_list args;
+  va_start(args, fmt);
+  vfprintf(stderr, fmt, args);
+  va_end(args);
+
+  fputc('\n', stderr);
+  exit(1);
 }

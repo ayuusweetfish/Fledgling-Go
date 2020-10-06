@@ -12,7 +12,7 @@
 111 tex_image   tex_id  pix_ptr
 112 tex_config  tex_id  flags
 11f tex_release tex_id
-120 draw_setup  tex_id
+120 draw_config tex_id
 121 draw        colour
     s0 = x, s1 = y; s2 = u, s3 = v (if using textures)
 

@@ -47,7 +47,7 @@ main_loop:
 
   // Draw a triangle
   mov   r0, #-1
-  svc   #0x120  // Draw attributes
+  svc   #0x120  // Draw config
   ldr   r0, =0xffddddff
   vldrs s0, 0.0
   vldrs s1, 0.3
@@ -66,6 +66,64 @@ main_loop:
   vadd.f32      s0, s4
   vldrs         s1, -0.1
   svc   #0x121  // Draw
+
+  tst   r4, #63
+  bne   8f
+
+  ldr   r1, =image
+  tst   r4, #64
+  ldreq r0, =0xffeeddff
+  ldrne r0, =0xffddffff
+  strb  r0, [r1, #3]
+  ror   r0, #8
+  strb  r0, [r1, #2]
+  ror   r0, #8
+  strb  r0, [r1, #1]
+  ror   r0, #8
+  strb  r0, [r1, #0]
+  ldr   r0, =tex_first
+  ldr   r0, [r0]
+  svc   #0x111
+
+8:
+  // Draw a checkboard
+  ldr   r0, =tex_first
+  ldr   r0, [r0]
+  svc   #0x120  // Draw config
+
+  mov   r5, #0
+9:
+  ldr   r0, =0xffffffff
+  vldrs s0,  0.3
+  vldrs s1,  0.3
+  vldrs s2,  1.05
+  vldrs s3, -0.05
+  svc   #0x121  // Draw
+  ldr   r0, =0xffffffff
+  vldrs s0, -0.9
+  vldrs s1, -0.9
+  vldrs s2, -0.05
+  vldrs s3,  1.05
+  svc   #0x121  // Draw
+  ldr   r0, =0xffffffff
+  // s0 = -0.9 + 1.2 * i
+  // s1 =  0.3 - 1.2 * i
+  // s2 = s3 = -0.05 + 1.1 * i
+  vldrs s0, -0.9
+  vldrs s1,  0.3
+  vldrs s2, -0.05
+  vldrs s4,  1.2
+  vldrs s5,  1.1
+  cmp   r5, #0
+  vaddne.f32  s0, s4
+  vsubne.f32  s1, s4
+  vaddne.f32  s2, s5
+  vmov  s3, s2
+  svc   #0x121  // Draw
+
+  add   r5, #1
+  cmp   r5, #2
+  bne   9b
 
   svc   #0x10f  // End frame
   b     main_loop

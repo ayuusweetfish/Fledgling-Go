@@ -1,5 +1,7 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void run_emulation(const char *program, long program_size);
 
@@ -34,16 +36,19 @@ int main(int argc, char *argv[])
   }
 
   const char *prog_path = argv[1];
-  FILE *f = fopen(prog_path, "r");
+  FILE *f = fopen(prog_path, "rb");
   if (f == NULL) {
-    fprintf(stderr, "Cannot open file %s\n", prog_path);
+    fprintf(stderr, "Cannot open file %s: %s (%d)\n",
+      prog_path, strerror(errno), errno);
     exit(1);
   }
 
   long len = -1;
   char *contents = read_file(f, &len);
   if (contents == NULL) {
-    fprintf(stderr, "Cannot read from file %s\n", prog_path);
+    int err = (errno != 0 ? errno : ferror(f));
+    fprintf(stderr, "Cannot read from file %s: %s (%d)\n",
+      prog_path, strerror(err), err);
     exit(1);
   }
   fclose(f);
