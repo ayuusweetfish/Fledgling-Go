@@ -8,6 +8,16 @@
 #include "emulation.h"
 #include "av.h"
 
+#define _clobber_count(_0, _1, _2, _3, _n, ...) (_n)
+#define _clobber_argc(...) _clobber_count(__VA_ARGS__, 4, 3, 2, 1, 0)
+#define _clobber(_argc, _0, _1, _2, _3, ...) do { \
+  if (_argc > 0) args->r##_0 = (uint32_t)av_rand(); \
+  if (_argc > 1) args->r##_1 = (uint32_t)av_rand(); \
+  if (_argc > 2) args->r##_2 = (uint32_t)av_rand(); \
+  if (_argc > 3) args->r##_3 = (uint32_t)av_rand(); \
+} while (0)
+#define clobber(...) _clobber(_clobber_argc(__VA_ARGS__), __VA_ARGS__, 0, 0, 0, 0)
+
 #define SYSCALL_ARGS \
   uc_engine *uc, syscall_args *args
 
@@ -40,6 +50,7 @@ static void sys_time(SYSCALL_ARGS)
   uint64_t t = av_time();
   args->r0 = (uint32_t)(t & 0xffffffff);
   args->r1 = (uint32_t)((t >> 32) & 0xffffffff);
+  clobber(2, 3);
 }
 
 static void sys_key(SYSCALL_ARGS)
@@ -70,12 +81,14 @@ static void sys_clear_frame(SYSCALL_ARGS)
 {
   EXTRACT_COMPONENTS(args->r0, R, G, B, A);
   video_clear_frame(R, G, B, A);
+  clobber(0, 1, 2, 3);
 }
 
 static void sys_tex_new(SYSCALL_ARGS)
 {
   uint32_t id = video_tex_new(args->r0, args->r1);
   args->r0 = id;
+  clobber(1, 2, 3);
 }
 
 static void sys_tex_image(SYSCALL_ARGS)
@@ -88,6 +101,7 @@ static void sys_tex_image(SYSCALL_ARGS)
   }
   uc_expect(uc_mem_read, uc, args->r1, buf, sz);
   video_tex_image(args->r0, buf);
+  clobber(0, 1, 2, 3);
 }
 
 static void sys_tex_release(SYSCALL_ARGS)
