@@ -108,19 +108,39 @@ static void sys_tex_release(SYSCALL_ARGS)
 {
 }
 
-static void sys_draw_config(SYSCALL_ARGS)
-{
-  video_draw_config(args->r0);
-}
-
 static void sys_draw(SYSCALL_ARGS)
 {
-  EXTRACT_COMPONENTS(args->r0, R, G, B, A);
-  video_draw(&(video_point) {
-    .r = R, .g = G, .b = B, .a = A,
-    .x = args->s0, .y = args->s1,
-    .u = args->s2, .v = args->s3,
-  });
+  // Read s0-s11 registers
+  float s[12];
+  static const int regids[] = {
+    UC_ARM_REG_S0, UC_ARM_REG_S1, UC_ARM_REG_S2, UC_ARM_REG_S3,
+    UC_ARM_REG_S4, UC_ARM_REG_S5, UC_ARM_REG_S6, UC_ARM_REG_S7,
+    UC_ARM_REG_S8, UC_ARM_REG_S9, UC_ARM_REG_S10, UC_ARM_REG_S11,
+  };
+  void *ptrs[] = {
+    &s[0], &s[1], &s[2], &s[3],
+    &s[4], &s[5], &s[6], &s[7],
+    &s[8], &s[9], &s[10], &s[11],
+  };
+  uc_expect(uc_reg_read_batch, uc, (int *)regids, ptrs, 12);
+
+  EXTRACT_COMPONENTS(args->r0, R0, G0, B0, A0);
+  EXTRACT_COMPONENTS(args->r1, R1, G1, B1, A1);
+  EXTRACT_COMPONENTS(args->r2, R2, G2, B2, A2);
+  video_point p[3] = {{
+    .r = R0, .g = G0, .b = B0, .a = A0,
+    .x = s[0], .y = s[1],
+    .u = s[2], .v = s[3],
+  }, {
+    .r = R1, .g = G1, .b = B1, .a = A1,
+    .x = s[4], .y = s[5],
+    .u = s[6], .v = s[7],
+  }, {
+    .r = R2, .g = G2, .b = B2, .a = A2,
+    .x = s[8], .y = s[9],
+    .u = s[10], .v = s[11],
+  }};
+  video_draw(args->r3, p);
 }
 
 static void sys_end_frame(SYSCALL_ARGS)
@@ -153,18 +173,16 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
     _(110, tex_new)
     _(111, tex_image)
     _(11f, tex_release)
-    _(120, draw_config)
-    _(121, draw)
+    _(120, draw)
   }
 #undef _
 
-  fprintf(stderr, FMT_32x ": Invalid syscall: " FMT_32x " (" FMT_32u ")\n",
-    pc, call_num, call_num);
+  fprintf(stderr, FMT_32x ": Invalid syscall: " FMT_32xn "\n", pc, call_num);
 }
 
 void syscall_warn(const char *fmt, ...)
 {
-  fprintf(stderr, FMT_32x ": Syscall " FMT_32u " warning: ", pc, num);
+  fprintf(stderr, FMT_32x ": Syscall " FMT_32xn " warning: ", pc, num);
 
   va_list args;
   va_start(args, fmt);
@@ -176,7 +194,7 @@ void syscall_warn(const char *fmt, ...)
 
 void syscall_panic(const char *fmt, ...)
 {
-  fprintf(stderr, FMT_32x ": Syscall " FMT_32u " panicked: ", pc, num);
+  fprintf(stderr, FMT_32x ": Syscall " FMT_32xn " panicked: ", pc, num);
 
   va_list args;
   va_start(args, fmt);

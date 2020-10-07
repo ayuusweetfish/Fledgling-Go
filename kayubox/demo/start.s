@@ -51,24 +51,21 @@ main_loop:
   svc   #0x100  // Clear frame
 
   // Draw a triangle
-  mov   r0, #-1
-  svc   #0x120  // Draw config
   ldr   r0, =0xffddddff
   vldrs s0, 0.0
   vldrs s1, 0.3
-  svc   #0x121  // Draw
-  ldr   r0, =0xffddddff
-  vldrs s0, 0.6
-  vldrs s1, 0.7
-  svc   #0x121  // Draw
 
-  mov   r0, #32 // Space key
+  ldr   r1, =0xffddddff
+  vldrs s4, 0.6
+  vldrs s5, 0.7
+
+  mov   r3, #32 // Space key
   svc   #0x11   // Key
-  cmp   r0, #0
+  cmp   r3, #0
   addeq r4, #1
   subne r4, #1
-  ldreq r0, =0xffddddff
-  ldrne r0, =0xffeeccff
+  ldreq r2, =0xffddddff
+  ldrne r2, =0xffeeccff
   vmov          s4, r4
   vcvt.f32.s32  s4, s4
   vldrs         s0, 0.001
@@ -76,7 +73,9 @@ main_loop:
   vldrs         s0, 0.6
   vadd.f32      s0, s4
   vldrs         s1, -0.1
-  svc   #0x121  // Draw
+
+  mov   r3, #-1
+  svc   #0x120  // Draw
 
   tst   r4, #63
   bne   8f
@@ -98,9 +97,6 @@ main_loop:
 
 8:
   // Draw a checkboard
-  ldr   r0, =tex_first
-  ldr   r0, [r0]
-  svc   #0x120  // Draw config
 
   mov   r5, #0
 9:
@@ -109,28 +105,31 @@ main_loop:
   vldrs s1,  0.3
   vldrs s2,  1.05
   vldrs s3, -0.05
-  svc   #0x121  // Draw
-  ldr   r0, =0xffffffff
-  vldrs s0, -0.9
-  vldrs s1, -0.9
-  vldrs s2, -0.05
-  vldrs s3,  1.05
-  svc   #0x121  // Draw
-  ldr   r0, =0xffffffff
-  // s0 = -0.9 + 1.2 * i
-  // s1 =  0.3 - 1.2 * i
-  // s2 = s3 = -0.05 + 1.1 * i
-  vldrs s0, -0.9
-  vldrs s1,  0.3
-  vldrs s2, -0.05
-  vldrs s4,  1.2
-  vldrs s5,  1.1
+
+  ldr   r1, =0xffffffff
+  vldrs s4, -0.9
+  vldrs s5, -0.9
+  vldrs s6, -0.05
+  vldrs s7,  1.05
+
+  ldr   r2, =0xffffffff
+  // s8 = -0.9 + 1.2 * i
+  // s9 =  0.3 - 1.2 * i
+  // s10 = s11 = -0.05 + 1.1 * i
+  vldrs s8, -0.9
+  vldrs s9,  0.3
+  vldrs s10, -0.05
+  vldrs s14,  1.2
+  vldrs s15,  1.1
   cmp   r5, #0
-  vaddne.f32  s0, s4
-  vsubne.f32  s1, s4
-  vaddne.f32  s2, s5
-  vmov  s3, s2
-  svc   #0x121  // Draw
+  vaddne.f32  s8, s14
+  vsubne.f32  s9, s14
+  vaddne.f32  s10, s15
+  vmov  s11, s10
+
+  ldr   r3, =tex_first
+  ldr   r3, [r3]
+  svc   #0x120  // Draw
 
   add   r5, #1
   cmp   r5, #2

@@ -18,6 +18,7 @@
 } while (0)
 
 #define FMT_32x   "%08" PRIx32
+#define FMT_32xn  "0x%" PRIx32
 #define FMT_32u   "%" PRIu32
 
 // Ensure that float is 32 bits
@@ -25,7 +26,6 @@ typedef char _ensure_float_32[sizeof(float) == 4 ? 1 : -1];
 
 typedef struct syscall_args_s {
   uint32_t r0, r1, r2, r3;
-  float s0, s1, s2, s3;
   uint32_t pc;
 } syscall_args;
 

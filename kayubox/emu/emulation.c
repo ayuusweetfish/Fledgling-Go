@@ -41,16 +41,14 @@ static void handler_syscall(uc_engine *uc, uint32_t exc_index, void *user_data)
 {
   static const int regids[] = {
     UC_ARM_REG_R0, UC_ARM_REG_R1, UC_ARM_REG_R2, UC_ARM_REG_R3,
-    UC_ARM_REG_S0, UC_ARM_REG_S1, UC_ARM_REG_S2, UC_ARM_REG_S3,
     UC_ARM_REG_PC,
   };
   syscall_args args;
   void *ptrs[] = {
     &args.r0, &args.r1, &args.r2, &args.r3,
-    &args.s0, &args.s1, &args.s2, &args.s3,
     &args.pc,
   };
-  uc_expect(uc_reg_read_batch, uc, (int *)regids, ptrs, 9);
+  uc_expect(uc_reg_read_batch, uc, (int *)regids, ptrs, 5);
 
   uint32_t instr;
   uc_expect(uc_mem_read, uc, args.pc - 4, &instr, 4);
@@ -58,7 +56,7 @@ static void handler_syscall(uc_engine *uc, uint32_t exc_index, void *user_data)
   uint32_t call_num = instr & 0xffffff;
   syscall_invoke(uc, call_num, &args);
 
-  uc_expect(uc_reg_write_batch, uc, (int *)regids, ptrs, 8);
+  uc_expect(uc_reg_write_batch, uc, (int *)regids, ptrs, 4);
 }
 
 void *emu_thread_fn(void *uc)
