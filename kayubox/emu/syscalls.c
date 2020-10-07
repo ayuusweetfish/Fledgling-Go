@@ -91,6 +91,17 @@ static void sys_probe(SYSCALL_ARGS)
   );
 }
 
+static inline float reinterpret_f32(uint32_t value)
+{
+  // return *(float *)&value;
+  union {
+    uint32_t u32;
+    float f32;
+  } x;
+  x.u32 = value;
+  return x.f32;
+}
+
 static void sys_probe_float(SYSCALL_ARGS)
 {
   uint32_t regs[32];
@@ -109,7 +120,7 @@ static void sys_probe_float(SYSCALL_ARGS)
 #undef _a
 #undef _b
 #undef _c
-#define _(_i)   , *(float *)&regs[_i], regs[_i]
+#define _(_i)   , reinterpret_f32(regs[_i]), regs[_i]
     _( 0) _(16) _( 1) _(17) _( 2) _(18) _( 3) _(19)
     _( 4) _(20) _( 5) _(21) _( 6) _(22) _( 7) _(23)
     _( 8) _(24) _( 9) _(25) _(10) _(26) _(11) _(27)
