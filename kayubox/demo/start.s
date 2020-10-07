@@ -19,6 +19,10 @@
   svc   #0x12   // Random
   svc   #0x01   // Probe long
 
+  ldr   r5, =0x80000003
+  ldr   r6, =0x80000080
+  svc   #0x03
+
   // Create texture
   mov   r0, #32
   mov   r1, #16
@@ -77,8 +81,8 @@ main_loop:
   vadd.f32      s8, s15
   vldrs         s9, -0.1
 
-  svc   #0x01
-  svc   #0x02
+  //svc   #0x01
+  //svc   #0x02
 
   mov   r3, #-1
   svc   #0x120  // Draw

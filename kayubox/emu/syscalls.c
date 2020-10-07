@@ -118,6 +118,42 @@ static void sys_probe_float(SYSCALL_ARGS)
   );
 }
 
+static void sys_probe_mem(SYSCALL_ARGS)
+{
+  uint32_t regs[16];
+  read_regs(uc, regs, 0, 16);
+
+  char buf[2048];
+  char *buf_p = buf;
+  buf[0] = '\0';
+
+  static const char *r_names[] = {
+    " r0", " r1", " r2", " r3",
+    " r4", " r5", " r6", " r7",
+    " r8", " r9", "r10", "r11",
+    " ip", " sp", " lr", " pc",
+  };
+
+  for (int i = 0; i < 16; i++)
+    if (regs[i] >= PROG_ENTRY && regs[i] < PROG_ENTRY + PROG_MEMSIZE) {
+      buf_p += sprintf(buf_p, "%s = 0x" FMT_32x "\n", r_names[i], regs[i]);
+      uint32_t addr = regs[i] & ~15;
+      for (uint32_t a = addr - 16; a != addr + 32; a += 16)
+        if (a >= PROG_ENTRY && a < PROG_ENTRY + PROG_MEMSIZE) {
+          // Read
+          unsigned char buf[16];
+          uc_expect(uc_mem_read, uc, a, buf, 16);
+          // Print
+          buf_p += sprintf(buf_p, "  " FMT_32x " | ", a);
+          for (uint32_t i = 0; i < 16; i++)
+            buf_p += sprintf(buf_p, "%02x%c", (unsigned int)buf[i],
+              i == 7 ? '-' : (i == 15 ? '\n' : ' '));
+        }
+    }
+
+  syscall_log("\n%s", buf);
+}
+
 static void sys_log(SYSCALL_ARGS)
 {
   syscall_log("");
@@ -256,6 +292,7 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
     _( 00, probe_min)
     _( 01, probe)
     _( 02, probe_float)
+    _( 03, probe_mem)
     _( 0e, log)
     _( 0f, debug)
     _( 10, time)
