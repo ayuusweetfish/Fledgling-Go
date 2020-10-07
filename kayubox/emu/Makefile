@@ -1,5 +1,6 @@
 CC := gcc
 CMAKE := cmake
+STRIP := strip
 
 # Verbosity
 # Change to empty string for verbose output
@@ -15,8 +16,11 @@ MAKE_FLAGS := -j4
 C_OPTIONS := -std=c99 -Wall $(OPT_FLAGS)
 INCLUDES := -I. -I./ext/unicorn/include -I./ext/glfw/include
 
+DIST_DIR := dist
+
 ifeq ($(CROSS_WIN), 1)
   CC := x86_64-w64-mingw32-gcc
+  STRIP := x86_64-w64-mingw32-strip
   BUILD_DIR := build_win
   STATIC_LIBS := ext/build_win/libunicorn.a ext/build_win/glfw/src/libglfw3.a
 else
@@ -60,6 +64,11 @@ all:
 	$(V) $(MAKE) libs
 	$(V) $(MAKE) exec
 
+dist: exec
+	$(V) mkdir -p $(DIST_DIR)
+	$(V) cp $(EMU_EXEC) $(DIST_DIR)
+	$(V) $(STRIP) $(DIST_DIR)/$(notdir $(EMU_EXEC))
+
 ext/build/libunicorn.a.target: CMD=$(MAKE) -C ext/unicorn unicorn UNICORN_DEBUG=no UNICORN_ARCHS=arm UNICORN_STATIC=yes UNICORN_SHARED=no $(MAKE_FLAGS)
 ext/build/libunicorn.a.target:
 	@ printf "  %-7s %s\n" MAKE $@
@@ -96,6 +105,7 @@ $(EMU_EXEC): $(OBJS) $(STATIC_LIBS)
 
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -rf $(DIST_DIR)
 
 clean_libs:
 	cd ext/unicorn && make clean
@@ -104,4 +114,4 @@ clean_libs:
 clean_all: clean_libs
 	rm -rf build build_win
 
-.PHONY: clean all exec libs $(STATIC_LIB_TARGETS)
+.PHONY: clean all exec dist libs $(STATIC_LIB_TARGETS)
