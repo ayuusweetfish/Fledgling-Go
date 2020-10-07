@@ -1,21 +1,100 @@
-#   name        r0_in   r1_in   r2_in   r3_in   r0_out  r1_out  r2_out  r3_out
- 00 debug       pause
- 01 log         text
- 0f trap
- 10 time                                        us_low  us_high
- 11 key         key0    key1    key2    key3    down0   down1   down2   down3
- 12 rand                                        rand0   rand1   rand2   rand3
+# 通用
 
-100 clear_frame colour
-10f end_frame
-110 tex_new     width   height                  tex_id
-111 tex_image   tex_id  pix_ptr
-112 tex_config  tex_id  flags
-11f tex_release tex_id
-120 draw_config tex_id
-121 draw        colour
-    s0 = x, s1 = y; s2 = u, s3 = v (if using textures)
+ 00 probe_min   在控制台打印寄存器内容（r0-r7）
 
-200 snd_new     length  pcm_ptr                 snd_id
-201 snd_play    snd_id  offset  volume
-20f snd_release snd_id
+ 01 probe       在控制台打印寄存器内容（r0-r15, flags）
+
+ 02 probe_max   在控制台打印寄存器内容（r0-r15, flags, s0-s15）
+
+ 0e log         在控制台打印一个以字符 \0 结尾的字符串
+    in  r0      字符串起始地址
+
+ 0f debug       断点
+      模拟器：暂停执行，控制台按下 Enter 后继续。后续可以增加一些调试指令
+      设备：无作用
+
+ 10 time        自启动以来的时间，以微秒为单位
+    out r0      结果的低 32 位
+    out r1      结果的高 32 位
+
+ 11 key         查询键盘按键是否被按下
+    in  r0      按键码
+    in  r1      按键码
+    in  r2      按键码
+    in  r3      按键码
+    out r0      0/1 表示未按下/按下
+    out r1      0/1 表示未按下/按下
+    out r2      0/1 表示未按下/按下
+    out r3      0/1 表示未按下/按下
+
+ 12 rand        随机数
+    out r0      32 位随机数
+    out r1      32 位随机数
+    out r2      32 位随机数
+    out r3      32 位随机数
+
+# 图形
+
+100 clear_frame 清除屏幕
+    in r0       填充色
+      颜色都是 RGBA8 格式，即从高到低分别为红、绿、蓝、alpha，各占 8 位。如
+    R=0xff，G=0xee，B=0xdd，A=0xcc，则表示为 0xffeeddcc。
+      清除屏幕时忽略 alpha 通道，均视为不透明色。
+
+10f end_frame   结束当前帧
+      当绘图结束时返回
+
+110 tex_new     创建纹理
+    in  r0      宽，以像素为单位
+    in  r1      高，以像素为单位
+    out r0      纹理 ID
+
+111 tex_image   更新纹理图像
+    in  r0      纹理 ID
+    in  r1      图像数据起始地址
+      图像数据以 RGBA8 格式存储，每个像素用 4 字节依次表示红、绿、蓝、alpha。
+    像素按行优先顺序排列。总大小为 (长×宽×4) 字节。
+
+112 tex_config  设置纹理（暂时不用）
+    in  r0      纹理 ID
+    in  r1      设置标志位
+
+11f tex_release 释放纹理
+    in  r0      纹理 ID
+
+120 draw        绘制三角形
+    in  r0      顶点 A 颜色
+    in  r1      顶点 B 颜色
+    in  r2      顶点 C 颜色
+    in  r3      纹理 ID，-1 表示不使用纹理
+    in  s0      顶点 A 的 X（横坐标）
+    in  s1      顶点 A 的 Y（纵坐标）
+    in  s2      顶点 A 的 U（纹理横坐标），不使用纹理时忽略
+    in  s3      顶点 A 的 V（纹理纵坐标），不使用纹理时忽略
+    in  s4      顶点 B 的 X（横坐标）
+    in  s5      顶点 B 的 Y（纵坐标）
+    in  s6      顶点 B 的 U（纹理横坐标），不使用纹理时忽略
+    in  s7      顶点 B 的 V（纹理纵坐标），不使用纹理时忽略
+    in  s8      顶点 C 的 X（横坐标）
+    in  s9      顶点 C 的 Y（纵坐标）
+    in  s10     顶点 C 的 U（纹理横坐标），不使用纹理时忽略
+    in  s11     顶点 C 的 V（纹理纵坐标），不使用纹理时忽略
+
+# 声音
+
+200 snd_new     创建音频
+    in  r0      长度，以采样为单位
+    in  r1      采样数据
+    out r0      音频 ID
+      音频数据均为 44100 Hz 采样率的 16 位有符号整形采样。
+
+201 snd_play    播放音频
+    in  r0      音频 ID
+    in  r1      偏移，以采样为单位
+    in  r2      音量
+      一个音频可以播放多次。
+      音量表示 (r2 / 0x80000000) 倍线性增益。如 0 表示静音，0x80000000 表示原
+    音量，0xffffffff 表示 2 倍增益（+6 dB）。
+
+20f snd_release 释放音频
+    in  r0      音频 ID
