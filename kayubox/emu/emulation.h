@@ -20,6 +20,7 @@
 #define FMT_32x   "%08" PRIx32
 #define FMT_32xn  "0x%" PRIx32
 #define FMT_32u   "%" PRIu32
+#define FMT_32d0  "%11" PRId32
 
 // Ensure that float is 32 bits
 typedef char _ensure_float_32[sizeof(float) == 4 ? 1 : -1];
@@ -30,6 +31,8 @@ typedef struct syscall_args_s {
 } syscall_args;
 
 void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args);
+void syscall_print(const char *fmt, ...);
+void syscall_log(const char *fmt, ...);
 void syscall_warn(const char *fmt, ...);
 void syscall_panic(const char *fmt, ...);
 

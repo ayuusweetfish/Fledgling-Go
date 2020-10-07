@@ -12,12 +12,12 @@
   svc   #2018   // Invalid
   svc   #0x00   // r0=79, r1=435, r2=2020, r3=63
   adr   r0, text
-  svc   #0x01
+  svc   #0x0e   // Log
 
   svc   #0x10   // Time
-  svc   #0x00
+  svc   #0x00   // Probe short
   svc   #0x12   // Random
-  svc   #0x00
+  svc   #0x01   // Probe long
 
   // Create texture
   mov   r0, #32
@@ -77,6 +77,9 @@ main_loop:
 
   mov   r3, #-1
   svc   #0x120  // Draw
+
+  cmp   r4, #120
+  svceq #0x0f   // Debug
 
   tst   r4, #63
   bne   8f
@@ -138,8 +141,6 @@ main_loop:
 
   svc   #0x10f  // End frame
   b     main_loop
-
-  svc   #0x0f
 
 text:
   .ascii "hello world"
