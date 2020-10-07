@@ -49,11 +49,11 @@ static void sys_probe_min(SYSCALL_ARGS)
   uint32_t regs[8];
   read_regs(uc, regs, 0, 8);
 
-  syscall_log("\n"
+  syscall_log("\n "
     "r0 = " FMT_32x "  "
     "r1 = " FMT_32x "  "
     "r2 = " FMT_32x "  "
-    "r3 = " FMT_32x "\n"
+    "r3 = " FMT_32x "\n "
     "r4 = " FMT_32x "  "
     "r5 = " FMT_32x "  "
     "r6 = " FMT_32x "  "
@@ -69,30 +69,52 @@ static void sys_probe(SYSCALL_ARGS)
   read_regs(uc, regs, 0, 17);
 
   syscall_log("\n"
-    " r0 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r1 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r2 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r3 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r4 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r5 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r6 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r7 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r8 = " FMT_32d0 " (" FMT_32x ")\n"
-    " r9 = " FMT_32d0 " (" FMT_32x ")\n"
-    "r10 = " FMT_32d0 " (" FMT_32x ")\n"
-    "r11 = " FMT_32d0 " (" FMT_32x ")\n"
-    " ip = " FMT_32d0 " (" FMT_32x ")\n"
-    " sp = " FMT_32d0 " (" FMT_32x ")\n"
-    " lr = " FMT_32d0 " (" FMT_32x ")\n"
-    " pc = " FMT_32d0 " (" FMT_32x ")\n"
-    , regs[0], regs[0], regs[1], regs[1]
-    , regs[2], regs[2], regs[3], regs[3]
-    , regs[4], regs[4], regs[5], regs[5]
-    , regs[6], regs[6], regs[7], regs[7]
-    , regs[8], regs[8], regs[9], regs[9]
-    , regs[10], regs[10], regs[11], regs[11]
-    , regs[12], regs[12], regs[13], regs[13]
-    , regs[14], regs[14], regs[15], regs[15]
+#define _(_r)   _r " = " FMT_32d0 " (" FMT_32x ")"
+    _(" r0") "  " _(" r8") "\n"
+    _(" r1") "  " _(" r9") "\n"
+    _(" r2") "  " _("r10") "\n"
+    _(" r3") "  " _("r11") "\n"
+    _(" r4") "  " _(" ip") "\n"
+    _(" r5") "  " _(" sp") "\n"
+    _(" r6") "  " _(" lr") "\n"
+    _(" r7") "  " _(" pc") "\n"
+    " cc = %c %c %c %c\n"
+#undef _
+#define _(_i)   , regs[_i], regs[_i]
+    _( 0) _( 8) _( 1) _( 9) _( 2) _(10) _( 3) _(11)
+    _( 4) _(12) _( 5) _(13) _( 6) _(14) _( 7) _(15)
+#undef _
+    , (regs[16] & (1 << 31)) ? 'N' : '-'
+    , (regs[16] & (1 << 30)) ? 'Z' : '-'
+    , (regs[16] & (1 << 29)) ? 'C' : '-'
+    , (regs[16] & (1 << 28)) ? 'V' : '-'
+  );
+}
+
+static void sys_probe_float(SYSCALL_ARGS)
+{
+  uint32_t regs[32];
+  read_regs(uc, regs, 17, 32);
+
+  syscall_log("\n"
+#define _f(_i)  "s" #_i " = %11.4f (" FMT_32x ")"
+#define _a(_i)  " " _f(_i) "  "
+#define _b(_i)      _f(_i) "  "
+#define _c(_i)      _f(_i) "\n"
+    _a( 0) _c(16)   _a( 1) _c(17)   _a( 2) _c(18)   _a( 3) _c(19)
+    _a( 4) _c(20)   _a( 5) _c(21)   _a( 6) _c(22)   _a( 7) _c(23)
+    _a( 8) _c(24)   _a( 9) _c(25)   _b(10) _c(26)   _b(11) _c(27)
+    _b(12) _c(28)   _b(13) _c(29)   _b(14) _c(30)   _b(15) _c(31)
+#undef _fmt
+#undef _a
+#undef _b
+#undef _c
+#define _(_i)   , *(float *)&regs[_i], regs[_i]
+    _( 0) _(16) _( 1) _(17) _( 2) _(18) _( 3) _(19)
+    _( 4) _(20) _( 5) _(21) _( 6) _(22) _( 7) _(23)
+    _( 8) _(24) _( 9) _(25) _(10) _(26) _(11) _(27)
+    _(12) _(28) _(13) _(29) _(14) _(30) _(15) _(31)
+#undef _
   );
 }
 
@@ -233,6 +255,7 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
   switch (call_num) {
     _( 00, probe_min)
     _( 01, probe)
+    _( 02, probe_float)
     _( 0e, log)
     _( 0f, debug)
     _( 10, time)

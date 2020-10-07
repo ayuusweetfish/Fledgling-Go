@@ -38,6 +38,8 @@
   ldr   r2, =image
   blx   generate_image
 
+  svc   #0x02   // Probe float
+
   // Buffer
   ldr   r1, =tex_first
   ldr   r0, [r1]
@@ -75,10 +77,13 @@ main_loop:
   vadd.f32      s8, s15
   vldrs         s9, -0.1
 
+  svc   #0x01
+  svc   #0x02
+
   mov   r3, #-1
   svc   #0x120  // Draw
 
-  cmp   r4, #120
+  cmp   r4, #300
   svceq #0x0f   // Debug
 
   tst   r4, #63
