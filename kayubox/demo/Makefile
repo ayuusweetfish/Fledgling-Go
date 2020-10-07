@@ -4,6 +4,7 @@ AS = $(TOOLCHAIN_PREFIX)as
 CC = $(TOOLCHAIN_PREFIX)gcc
 LD = $(TOOLCHAIN_PREFIX)ld
 OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
+READELF = $(TOOLCHAIN_PREFIX)readelf
 
 WINDOWS := 0
 ifeq ($(OS), Windows_NT)
@@ -24,8 +25,8 @@ V := @
 BUILD_DIR := build
 
 ARCHFLAGS := -march=armv6 -mfpu=vfp -mfloat-abi=hard
-ASFLAGS := $(ARCHFLAGS)
-CCFLAGS := $(ARCHFLAGS) -mtune=arm1176jzf-s -c -std=c99 -O2
+ASFLAGS := $(ARCHFLAGS) -g
+CCFLAGS := $(ARCHFLAGS) -mtune=arm1176jzf-s -c -std=c99 -O2 -g
 LDFLAGS := -T link.ld
 
 SRCS := $(wildcard **.[sc])
@@ -37,8 +38,9 @@ OBJS := $(addprefix $(BUILD_DIR)/, $(OBJS))
 
 APP_ELF := $(BUILD_DIR)/a.out
 APP_BIN := $(BUILD_DIR)/a.bin
+APP_MAP := $(BUILD_DIR)/a.map
 
-all: $(APP_BIN)
+all: $(APP_BIN) $(APP_MAP)
 
 $(BUILD_DIR)/%.o: %.s
 	@ echo "  AS      $(notdir $<)"
@@ -57,6 +59,10 @@ $(APP_ELF): $(OBJS)
 $(APP_BIN): $(APP_ELF)
 	@ echo "  OBJCOPY $@"
 	$(V) $(OBJCOPY) -O binary $< $@
+
+$(APP_MAP): $(APP_ELF)
+	@ echo "  READELF $@"
+	$(V) $(READELF) --debug-dump=decodedline -W $< > $@
 
 clean:
 	$(call rm_rf, $(BUILD_DIR))
