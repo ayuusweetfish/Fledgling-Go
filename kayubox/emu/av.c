@@ -95,6 +95,10 @@ void video_init()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
   glfwMakeContextCurrent(NULL);
 }
 
@@ -126,6 +130,12 @@ static struct tex_record {
 } texs[MAX_TEXTURES];
 static int tex_ptr = 0;
 
+static uint32_t using_tex;
+
+#define PBUF_SIZE (4096 * 3)
+static video_point pbuf[PBUF_SIZE];
+static int pbuf_ptr;
+
 static void ensure_tex_valid(uint32_t tex_id)
 {
   if (tex_id >= MAX_TEXTURES || !tex_used[tex_id])
@@ -134,6 +144,21 @@ static void ensure_tex_valid(uint32_t tex_id)
 
 static void submit_calls()
 {
+  if (pbuf_ptr == 0) return;
+
+  glVertexPointer(2, GL_FLOAT, sizeof(video_point), &pbuf[0].x);
+  glColorPointer(4, GL_FLOAT, sizeof(video_point), &pbuf[0].r);
+
+  if (using_tex != (uint32_t)-1) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, texs[using_tex].id);
+    glTexCoordPointer(2, GL_FLOAT, sizeof(video_point), &pbuf[0].u);
+  } else {
+    glDisable(GL_TEXTURE_2D);
+  }
+
+  glDrawArrays(GL_TRIANGLES, 0, pbuf_ptr);
+  pbuf_ptr = 0;
 }
 
 // Interface implementations
@@ -144,6 +169,10 @@ void video_clear_frame(float R, float G, float B, float A)
 
   glClearColor(R, G, B, A);
   glClear(GL_COLOR_BUFFER_BIT);
+
+  using_tex = (uint32_t)-1;
+  glDisable(GL_TEXTURE_2D);
+  pbuf_ptr = 0;
 }
 
 void video_end_frame()
@@ -182,7 +211,7 @@ void video_tex_image(uint32_t tex_id, const void *pix_ptr)
   submit_calls();
 
   glBindTexture(GL_TEXTURE_2D, texs[tex_id].id);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
     texs[tex_id].w, texs[tex_id].h,
     0, GL_RGBA, GL_UNSIGNED_BYTE, pix_ptr);
 }
@@ -211,4 +240,12 @@ void video_tex_release(uint32_t tex_id)
 void video_draw(uint32_t tex_id, const video_point p[3])
 {
   if (tex_id != (uint32_t)-1) ensure_tex_valid(tex_id);
+
+  if (pbuf_ptr >= PBUF_SIZE || tex_id != using_tex)
+    submit_calls();
+
+  using_tex = tex_id;
+
+  memcpy(&pbuf[pbuf_ptr], p, 3 * sizeof(video_point));
+  pbuf_ptr += 3;
 }

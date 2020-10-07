@@ -50,6 +50,9 @@ main_loop:
   ldr   r0, =#0xffffeeff
   svc   #0x100  // Clear frame
 
+  mov   r3, #32 // Space key
+  svc   #0x11   // Key
+
   // Draw a triangle
   ldr   r0, =0xffddddff
   vldrs s0, 0.0
@@ -59,20 +62,18 @@ main_loop:
   vldrs s4, 0.6
   vldrs s5, 0.7
 
-  mov   r3, #32 // Space key
-  svc   #0x11   // Key
-  cmp   r3, #0
+  cmp   r3, #0  // Is space key down?
   addeq r4, #1
   subne r4, #1
   ldreq r2, =0xffddddff
   ldrne r2, =0xffeeccff
-  vmov          s4, r4
-  vcvt.f32.s32  s4, s4
-  vldrs         s0, 0.001
-  vmul.f32      s4, s0
-  vldrs         s0, 0.6
-  vadd.f32      s0, s4
-  vldrs         s1, -0.1
+  vmov          s15, r4
+  vcvt.f32.s32  s15, s15
+  vldrs         s14, 0.001
+  vmul.f32      s15, s14
+  vldrs         s8, 0.6
+  vadd.f32      s8, s15
+  vldrs         s9, -0.1
 
   mov   r3, #-1
   svc   #0x120  // Draw
