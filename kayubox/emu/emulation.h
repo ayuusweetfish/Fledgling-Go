@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #define PROG_ENTRY    0x80000000
@@ -14,7 +15,9 @@ typedef struct source_map_entry_s {
   int line;
 } source_map_entry;
 
-void run_emulation(const char *program, long program_size);
+void run_emulation(
+  const char *program, long program_size,
+  const source_map_entry *source_map);
 
 #define uc_expect(_fn, ...) do { \
   uc_err err; \
@@ -29,6 +32,8 @@ void run_emulation(const char *program, long program_size);
 #define FMT_32xn  "0x%" PRIx32
 #define FMT_32u   "%" PRIu32
 #define FMT_32d0  "%11" PRId32
+
+void print_location(FILE *stream, uint32_t pc);
 
 // Ensure that float is 32 bits
 typedef char _ensure_float_32[sizeof(float) == 4 ? 1 : -1];

@@ -167,20 +167,25 @@ static void sys_probe_mem(SYSCALL_ARGS)
 
 static void sys_log(SYSCALL_ARGS)
 {
-  syscall_log("");
   uint32_t addr = args->r0;
-  char ch;
+  size_t cap = 4, ptr = 0;
+  char *s = malloc(cap);
   while (1) {
-    uc_expect(uc_mem_read, uc, addr++, &ch, 1);
-    if (ch == 0) break;
-    putchar(ch);
+    if (ptr >= cap) {
+      cap <<= 1;
+      s = realloc(s, cap);
+    }
+    uc_expect(uc_mem_read, uc, addr++, &s[ptr], 1);
+    if (s[ptr] == 0) break;
+    ptr++;
   }
-  putchar('\n');
+  syscall_log("%s", s);
+  free(s);
 }
 
 static void sys_debug(SYSCALL_ARGS)
 {
-  fprintf(stderr, "Program paused, press Enter to continue\n");
+  syscall_log("Program paused, press Enter to continue");
   while (fgetc(stdin) != '\n') { }
 }
 
@@ -319,11 +324,13 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
   }
 #undef _
 
-  fprintf(stderr, FMT_32x ": Invalid syscall: " FMT_32xn "\n", pc, call_num);
+  print_location(stderr, pc);
+  fprintf(stderr, ": Invalid syscall: " FMT_32xn "\n", call_num);
 }
 
 #define syscall_vprintf(_word, ...) do { \
-  fprintf(stderr, FMT_32x ": Syscall " FMT_32xn _word ": ", pc, num); \
+  print_location(stderr, pc); \
+  fputs(": " _word, stderr); \
   va_list args; \
   va_start(args, fmt); \
   vfprintf(stderr, fmt, args); \
@@ -338,11 +345,11 @@ void syscall_log(const char *fmt, ...)
 
 void syscall_warn(const char *fmt, ...)
 {
-  syscall_vprintf(" warning");
+  syscall_vprintf("warning: ");
 }
 
 void syscall_panic(const char *fmt, ...)
 {
-  syscall_vprintf(" panic");
+  syscall_vprintf("panic: ");
   exit(1);
 }

@@ -16,7 +16,7 @@ static void *read_file(const char *path, long *o_len)
   if (f == NULL) {
     fprintf(stderr, "Cannot open file %s: %s (%d)\n",
       path, strerror(errno), errno);
-    exit(1);
+    return NULL;
   }
 
   fseek(f, 0, SEEK_END);
@@ -33,7 +33,7 @@ static void *read_file(const char *path, long *o_len)
     int err = (errno != 0 ? errno : ferror(f));
     fprintf(stderr, "Cannot read from file %s: %s (%d)\n",
       path, strerror(err), err);
-    exit(1);
+    return NULL;
   }
   fclose(f);
   buf[len] = '\0';
@@ -50,12 +50,13 @@ int entry_cmp(const void *a, const void *b)
 
 static source_map_entry *read_source_map(const char *path)
 {
+  size_t cap = 4, ptr = 0;
+  source_map_entry *entries = malloc(cap * sizeof(source_map_entry));
+
   long len = -1;
   char *contents = (char *)read_file(path, &len);
   char *end = contents + len;
-
-  size_t cap = 4, ptr = 0;
-  source_map_entry *entries = malloc(cap * sizeof(source_map_entry));
+  if (contents == NULL) goto end;
 
   char file[64];
   char *last_file = NULL;
@@ -89,10 +90,8 @@ static source_map_entry *read_source_map(const char *path)
   }
 
   qsort(entries, ptr, sizeof(source_map_entry), entry_cmp);
-  for (ssize_t i = 0; i < ptr; i++)
-    printf(FMT_32x " %s:%d\n",
-      entries[i].addr, entries[i].file, entries[i].line);
 
+end:
   entries[ptr].addr = 0x0;
   entries[ptr].file = NULL;
   entries[ptr].line = 0;
@@ -109,6 +108,7 @@ int main(int argc, char *argv[])
   const char *prog_path = argv[1];
   long len = -1;
   void *contents = read_file(prog_path, &len);
+  if (contents == NULL) exit(1);
 
   char *map_path = (char *)malloc(strlen(prog_path) + 6);
   strcpy(map_path, prog_path);
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   source_map_entry *map_entries = read_source_map(map_path);
 
   fprintf(stderr, "Program size: %ld\n", len);
-  run_emulation(contents, len);
+  run_emulation(contents, len, map_entries);
 
   return 0;
 }

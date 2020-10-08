@@ -67,11 +67,19 @@ void *emu_thread_fn(void *uc)
   return NULL;
 }
 
-void run_emulation(const char *program, long program_size)
+static const source_map_entry *map;
+static int map_len;
+
+void run_emulation(
+  const char *program, long program_size,
+  const source_map_entry *source_map)
 {
-  uc_engine *uc;
+  // Load source map
+  map = source_map;
+  for (map_len = 0; source_map[map_len].addr != 0; map_len++) { }
 
   // Initialize Unicorn
+  uc_engine *uc;
   uc_expect(uc_open, UC_ARCH_ARM, UC_MODE_ARM | UC_MODE_ARM1176, &uc);
 
   // Enable VFP
@@ -119,4 +127,21 @@ void run_emulation(const char *program, long program_size)
   }
 
   video_loop();
+}
+
+void print_location(FILE *stream, uint32_t pc)
+{
+  int lo = -1, hi = map_len, mid;
+  while (lo < hi - 1) {
+    mid = (lo + hi) / 2;
+    if (map[mid].addr <= pc) lo = mid;
+    else hi = mid;
+  }
+  // TODO: DW_LNE_end_sequence should also be considered
+  // when determining unknown locations
+  if (lo == -1) {
+    fprintf(stream, FMT_32x " (unknown source)", pc);
+  } else {
+    fprintf(stream, FMT_32x " (%s:%d)", pc, map[lo].file, map[lo].line);
+  }
 }
