@@ -8,6 +8,14 @@
 #define PROG_ENTRY    0x80000000
 #define PROG_MEMSIZE  0x100000 * 16
 
+typedef struct source_map_entry_s {
+  uint32_t addr;
+  const char *file;
+  int line;
+} source_map_entry;
+
+void run_emulation(const char *program, long program_size);
+
 #define uc_expect(_fn, ...) do { \
   uc_err err; \
   if ((err = _fn(__VA_ARGS__)) != UC_ERR_OK) { \

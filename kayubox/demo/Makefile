@@ -38,7 +38,7 @@ OBJS := $(addprefix $(BUILD_DIR)/, $(OBJS))
 
 APP_ELF := $(BUILD_DIR)/a.out
 APP_BIN := $(BUILD_DIR)/a.bin
-APP_MAP := $(BUILD_DIR)/a.map
+APP_MAP := $(APP_BIN).map
 
 all: $(APP_BIN) $(APP_MAP)
 
@@ -62,7 +62,7 @@ $(APP_BIN): $(APP_ELF)
 
 $(APP_MAP): $(APP_ELF)
 	@ echo "  READELF $@"
-	$(V) $(READELF) --debug-dump=decodedline -W $< > $@
+	$(V) $(READELF) --debug-dump=decodedline $< > $@
 
 clean:
 	$(call rm_rf, $(BUILD_DIR))
