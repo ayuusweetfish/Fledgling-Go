@@ -23,12 +23,23 @@
   ldr   r6, =0x80000080
   svc   #0x03
 
+  // Load image
+  ldr   r0, =_32573493_png
+  ldr   r1, =_32573493_png_size
+  blx   decode_image
+  svc   #0x01
+  mov   r4, r0  // r4 is the pointer to the pixel buffer
+
   // Create texture
-  mov   r0, #32
-  mov   r1, #16
+  mov   r0, r1
+  mov   r1, r2
   svc   #0x110
   ldr   r1, =tex_first
   str   r0, [r1]
+
+  // Update image
+  mov   r1, r4
+  svc   #0x111
 
   mov   r0, #32
   mov   r1, #16
@@ -43,12 +54,6 @@
   blx   generate_image
 
   svc   #0x02   // Probe float
-
-  // Buffer
-  ldr   r1, =tex_first
-  ldr   r0, [r1]
-  ldr   r1, =image
-  svc   #0x111
 
   mov   r4, #0
 
@@ -106,7 +111,7 @@ main_loop:
   strb  r0, [r1, #0]
   ldr   r0, =tex_first
   ldr   r0, [r0]
-  svc   #0x111
+  //svc   #0x111
 
 8:
   // Draw a checkboard

@@ -32,9 +32,10 @@ static void handler_mem(
 
   uint32_t pc;
   uc_expect(uc_reg_read, uc, UC_ARM_REG_PC, &pc);
-  fprintf(stderr, FMT_32x ": Invalid memory access 0x" FMT_32x " "
+  print_location(stderr, pc);
+  fprintf(stderr, ": Invalid memory access 0x" FMT_32x " "
     "(type = %s, value = 0x" FMT_32x ")\n",
-    pc, (uint32_t)address, mem_type_str(type), (uint32_t)value);
+    (uint32_t)address, mem_type_str(type), (uint32_t)value);
 }
 
 static void handler_syscall(uc_engine *uc, uint32_t exc_index, void *user_data)

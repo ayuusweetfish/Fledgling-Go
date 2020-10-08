@@ -4,3 +4,6 @@
 [submodule "kayubox/emu/ext/glfw"]
 	path = kayubox/emu/ext/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "kayubox/ext/stb"]
+	path = kayubox/ext/stb
+	url = https://github.com/nothings/stb
