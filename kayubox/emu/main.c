@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,6 +61,7 @@ static source_map_entry *read_source_map(const char *path)
 
   char file[64];
   char *last_file = NULL;
+  bool last_file_used = false;
   int line, last_line;
   uint32_t addr, last_addr;
 
@@ -79,8 +81,11 @@ static source_map_entry *read_source_map(const char *path)
         entries[ptr].file = last_file;
         entries[ptr].line = last_line;
         ptr++;
+        last_file_used = true;
       } else {
+        if (last_file != NULL && !last_file_used) free(last_file);
         last_file = strdup(file);
+        last_file_used = false;
       }
       last_line = line;
       last_addr = addr;
@@ -90,6 +95,9 @@ static source_map_entry *read_source_map(const char *path)
   }
 
   qsort(entries, ptr, sizeof(source_map_entry), entry_cmp);
+
+  if (last_file != NULL && !last_file_used) free(last_file);
+  free(contents);
 
 end:
   entries[ptr].addr = 0x0;
@@ -114,6 +122,7 @@ int main(int argc, char *argv[])
   strcpy(map_path, prog_path);
   strcat(map_path, ".map");
   source_map_entry *map_entries = read_source_map(map_path);
+  free(map_path);
 
   fprintf(stderr, "Program size: %ld\n", len);
   run_emulation(contents, len, map_entries);

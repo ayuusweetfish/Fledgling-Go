@@ -239,12 +239,12 @@ static void sys_tex_image(SYSCALL_ARGS)
 {
   size_t sz = video_tex_size(args->r0);
   void *buf = (void *)malloc(sz);
-  if (sz == 0 || buf == NULL) {
-    // TODO: Error message
-    return;
-  }
+  if (sz == 0 || buf == NULL)
+    syscall_panic("Cannot allocate texture buffer");
+
   uc_expect(uc_mem_read, uc, args->r1, buf, sz);
   video_tex_image(args->r0, buf);
+  free(buf);
   clobber(0, 1, 2, 3);
 }
 
