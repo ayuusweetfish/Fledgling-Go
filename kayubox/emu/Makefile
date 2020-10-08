@@ -67,6 +67,7 @@ all:
 dist: exec
 	$(V) mkdir -p $(DIST_DIR)
 	$(V) cp $(EMU_EXEC) $(DIST_DIR)
+	@ printf "  %-7s %s\n" STRIP $(DIST_DIR)/$(notdir $(EMU_EXEC))
 	$(V) $(STRIP) $(DIST_DIR)/$(notdir $(EMU_EXEC))
 
 ext/build/libunicorn.a.target: CMD=$(MAKE) -C ext/unicorn unicorn UNICORN_DEBUG=no UNICORN_ARCHS=arm UNICORN_STATIC=yes UNICORN_SHARED=no $(MAKE_FLAGS)
