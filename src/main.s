@@ -61,10 +61,6 @@ main_loop:
   cmp   r4, #300
   svceq #0x0f   // Debug
 
-  // Draw the image
-  mov   r5, #0
-
-9:
   ldr   r0, =0xffffffff
   vldrs s0,  0.3
   vldrs s1,  0.3
@@ -78,27 +74,14 @@ main_loop:
   vldrs s7,  1.05
 
   ldr   r2, =0xffffffff
-  // s8 = -0.9 + 1.2 * i
-  // s9 =  0.3 - 1.2 * i
-  // s10 = s11 = -0.05 + 1.1 * i
   vldrs s8, -0.9
   vldrs s9,  0.3
   vldrs s10, -0.05
-  vldrs s14,  1.2
-  vldrs s15,  1.1
-  cmp   r5, #0
-  vaddne.f32  s8, s14
-  vsubne.f32  s9, s14
-  vaddne.f32  s10, s15
-  vmov  s11, s10
+  vldrs  s11, -0.05
 
   ldr   r3, =tex_first
   ldr   r3, [r3]
-  svc   #0x120  // Draw
-
-  add   r5, #1
-  cmp   r5, #2
-  bne   9b
+  bl    _draw_square
 
   svc   #0x10f  // End frame
   b     main_loop
