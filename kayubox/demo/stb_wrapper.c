@@ -38,7 +38,7 @@ static void *my_realloc(void *p, size_t old_size, size_t new_size)
 #define STBI_ONLY_PNG
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "../ext/stb/stb_image.h"
+#include "../../ext/stb/stb_image.h"
 
 unsigned char *decode_image(unsigned char *enc, unsigned int len)
 {
