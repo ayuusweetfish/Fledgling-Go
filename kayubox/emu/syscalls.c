@@ -181,6 +181,7 @@ static void sys_log(SYSCALL_ARGS)
   }
   syscall_log("%s", s);
   free(s);
+  clobber(0, 1, 2, 3);
 }
 
 static void sys_debug(SYSCALL_ARGS)
@@ -244,12 +245,14 @@ static void sys_tex_image(SYSCALL_ARGS)
 
   uc_expect(uc_mem_read, uc, args->r1, buf, sz);
   video_tex_image(args->r0, buf);
+
   free(buf);
   clobber(0, 1, 2, 3);
 }
 
 static void sys_tex_release(SYSCALL_ARGS)
 {
+  clobber(0, 1, 2, 3);
 }
 
 static void sys_draw(SYSCALL_ARGS)
@@ -285,11 +288,14 @@ static void sys_draw(SYSCALL_ARGS)
     .u = s[10], .v = s[11],
   }};
   video_draw(args->r3, p);
+
+  clobber(0, 1, 2, 3);
 }
 
 static void sys_end_frame(SYSCALL_ARGS)
 {
   video_end_frame();
+  clobber(0, 1, 2, 3);
 }
 
 // End of implementations
@@ -303,34 +309,29 @@ void syscall_invoke(void *uc, uint32_t call_num, syscall_args *args)
   pc = args->pc - 4;
   num = call_num;
 
-#define _(_num, _fn)  case (0x##_num): sys_##_fn(uc, args); return;
   switch (call_num) {
-    _( 00, probe_min)
-    _( 01, probe)
-    _( 02, probe_float)
-    _( 03, probe_mem)
-    _( 0e, log)
-    _( 0f, debug)
-    _( 10, time)
-    _( 11, key)
-    _( 12, rand)
-
-    _(100, clear_frame)
-    _(10f, end_frame)
-    _(110, tex_new)
-    _(111, tex_image)
-    _(11f, tex_release)
-    _(120, draw)
+    #define _(_num, _fn)  case (0x##_num): sys_##_fn(uc, args); return;
+    #include "syscall_list.inc"
+    #undef _
   }
-#undef _
 
   print_location(stderr, pc);
   fprintf(stderr, ": Invalid syscall: " FMT_32xn "\n", call_num);
 }
 
+static const char *syscall_name(uint32_t call_num)
+{
+  switch (call_num) {
+    #define _(_num, _fn)  case (0x##_num): return #_fn;
+    #include "syscall_list.inc"
+    #undef _
+  }
+  return NULL;
+}
+
 #define syscall_vprintf(_word, ...) do { \
   print_location(stderr, pc); \
-  fputs(": " _word, stderr); \
+  fprintf(stderr, ": [%s] " _word, syscall_name(num)); \
   va_list args; \
   va_start(args, fmt); \
   vfprintf(stderr, fmt, args); \
