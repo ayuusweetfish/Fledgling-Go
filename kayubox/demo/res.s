@@ -9,4 +9,5 @@
 .endm
 
 .section .rodata
+  // Exports symbols `_32573493_png` and `_32573493_png_size`
   res _32573493_png, 32573493.png

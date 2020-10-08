@@ -7,53 +7,27 @@
 .endm
 
 .section .text.startup
-  bl    foo
-  mov   r3, #63
-  svc   #2018   // Invalid
-  svc   #0x00   // r0=79, r1=435, r2=2020, r3=63
-  adr   r0, text
-  svc   #0x0e   // Log
-
-  svc   #0x10   // Time
-  svc   #0x00   // Probe short
-  svc   #0x12   // Random
-  svc   #0x01   // Probe long
-
-  ldr   r5, =0x80000003
-  ldr   r6, =0x80000080
-  svc   #0x03
-
   // Load image
+  // See res.s
   ldr   r0, =_32573493_png
   ldr   r1, =_32573493_png_size
   blx   decode_image
   svc   #0x01
-  mov   r4, r0  // r4 is the pointer to the pixel buffer
+  // r0 - pointer to the pixel buffer
+  // r1 - width in pixels
+  // r2 - height in pixels
+  mov   r4, r0
 
   // Create texture
   mov   r0, r1
   mov   r1, r2
   svc   #0x110
   ldr   r1, =tex_first
-  str   r0, [r1]
+  str   r0, [r1]  // Store texture ID in memory
 
   // Update image
   mov   r1, r4
   svc   #0x111
-
-  mov   r0, #32
-  mov   r1, #16
-  svc   #0x110
-  ldr   r1, =tex_second
-  str   r0, [r1]
-
-  // Generate image
-  mov   r0, #32
-  mov   r1, #16
-  ldr   r2, =image
-  blx   generate_image
-
-  svc   #0x02   // Probe float
 
   mov   r4, #0
 
@@ -86,37 +60,15 @@ main_loop:
   vadd.f32      s8, s15
   vldrs         s9, -0.1
 
-  //svc   #0x01
-  //svc   #0x02
-
   mov   r3, #-1
   svc   #0x120  // Draw
 
   cmp   r4, #300
   svceq #0x0f   // Debug
 
-  tst   r4, #63
-  bne   8f
-
-  ldr   r1, =image
-  tst   r4, #64
-  ldreq r0, =0xffeeddff
-  ldrne r0, =0xffddffff
-  strb  r0, [r1, #3]
-  ror   r0, #8
-  strb  r0, [r1, #2]
-  ror   r0, #8
-  strb  r0, [r1, #1]
-  ror   r0, #8
-  strb  r0, [r1, #0]
-  ldr   r0, =tex_first
-  ldr   r0, [r0]
-  //svc   #0x111
-
-8:
-  // Draw a checkboard
-
+  // Draw the image
   mov   r5, #0
+
 9:
   ldr   r0, =0xffffffff
   vldrs s0,  0.3
@@ -156,14 +108,6 @@ main_loop:
   svc   #0x10f  // End frame
   b     main_loop
 
-text:
-  .ascii "hello world"
-  .byte 0
-
 .section .data
 tex_first:
   .int  0
-tex_second:
-  .int  0
-image:
-  .space  32 * 16 * 4
