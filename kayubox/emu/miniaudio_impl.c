@@ -6,4 +6,4 @@
 #define MA_NO_GENERATION
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "ext/miniaudio/miniaudio.h"
+#include "miniaudio.h"

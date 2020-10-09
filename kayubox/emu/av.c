@@ -13,6 +13,8 @@
 #include <GL/glext.h>
 #endif
 
+#include "miniaudio.h"
+
 #include <errno.h>
 #include <math.h>
 #include <stdbool.h>
@@ -254,6 +256,30 @@ void video_draw(uint32_t tex_id, const video_point p[3])
 
 // Audio
 
+static void audio_data_callback(
+  ma_device *device, int16_t *output, const void *_input, ma_uint32 nframes)
+{
+  ma_mutex_lock(&device->lock);
+
+  ma_zero_pcm_frames(output, nframes, ma_format_s16, 2);
+
+  ma_mutex_unlock(&device->lock);
+}
+
+static ma_device audio_device;
+
 void audio_init()
 {
+  ma_device_config dev_config = ma_device_config_init(ma_device_type_playback);
+  dev_config.playback.format = ma_format_s16;
+  dev_config.playback.channels = 2;
+  dev_config.sampleRate = 44100;
+  dev_config.dataCallback = (ma_device_callback_proc)audio_data_callback;
+
+  if (ma_device_init(NULL, &dev_config, &audio_device) != MA_SUCCESS ||
+      ma_device_start(&audio_device) != MA_SUCCESS)
+  {
+    fprintf(stderr, "Cannot initialize audio\n");
+    exit(1);
+  }
 }

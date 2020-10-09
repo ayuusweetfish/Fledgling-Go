@@ -229,7 +229,7 @@ static void sys_clear_frame(SYSCALL_ARGS)
   clobber(0, 1, 2, 3);
 }
 
-static void sys_tex_new(SYSCALL_ARGS)
+static void sys_tex_alloc(SYSCALL_ARGS)
 {
   uint32_t id = video_tex_new(args->r0, args->r1);
   args->r0 = id;

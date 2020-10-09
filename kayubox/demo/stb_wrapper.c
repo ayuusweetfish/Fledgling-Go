@@ -1,7 +1,3 @@
-#define STBI_NO_STDIO
-#define STBI_ASSERT(x)
-#define STBI_MAX_DIMENSIONS 2560
-
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
@@ -31,6 +27,10 @@ static void *my_realloc(void *p, size_t old_size, size_t new_size)
   return ret;
 }
 
+#define STBI_NO_STDIO
+#define STBI_ASSERT(x)
+#define STBI_MAX_DIMENSIONS 2560
+
 #define STBI_MALLOC(sz) my_malloc(sz)
 #define STBI_FREE(p)
 #define STBI_REALLOC_SIZED(p, oldsz, newsz) my_realloc(p, oldsz, newsz)
@@ -58,4 +58,10 @@ unsigned char *decode_image(unsigned char *enc, unsigned int len)
     : : "r"(pix), "r"(w), "r"(h)
     : "r0", "r1", "r2"
   );
+}
+
+#define STB_VORBIS_NO_STDIO
+
+unsigned char *decode_ogg(unsigned char *enc, unsigned int len)
+{
 }

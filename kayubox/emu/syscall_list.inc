@@ -10,7 +10,7 @@ _( 12, rand)
 
 _(100, clear_frame)
 _(10f, end_frame)
-_(110, tex_new)
+_(110, tex_alloc)
 _(111, tex_image)
 _(11f, tex_release)
 _(120, draw)

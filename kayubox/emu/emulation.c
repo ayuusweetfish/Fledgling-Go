@@ -114,6 +114,7 @@ void run_emulation(
   uc_expect(uc_reg_write, uc, UC_ARM_REG_SP, &val);
 
   video_init();
+  audio_init();
 
   pthread_t emu_thread;
   int err;
