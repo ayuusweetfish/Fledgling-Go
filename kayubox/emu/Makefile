@@ -106,13 +106,12 @@ $(EMU_EXEC): $(OBJS) $(STATIC_LIBS)
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -rf $(DIST_DIR)
 
 clean_libs:
 	cd ext/unicorn && make clean
 	rm -rf ext/build ext/build_win
 
 clean_all: clean_libs
-	rm -rf build build_win
+	rm -rf build build_win $(DIST_DIR)
 
 .PHONY: clean all exec dist libs $(STATIC_LIB_TARGETS)

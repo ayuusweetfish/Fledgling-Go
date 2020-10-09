@@ -4,6 +4,9 @@
 [submodule "kayubox/emu/ext/glfw"]
 	path = kayubox/emu/ext/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "kayubox/emu/ext/miniaudio"]
+	path = kayubox/emu/ext/miniaudio
+	url = https://github.com/mackron/miniaudio
 [submodule "ext/stb"]
 	path = ext/stb
 	url = https://github.com/nothings/stb.git
