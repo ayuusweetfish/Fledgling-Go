@@ -11,23 +11,11 @@
   // See res.s
   ldr   r0, =_32573493_png
   ldr   r1, =_32573493_png_size
-  blx   decode_image
-  svc   #0x01
-  // r0 - pointer to the pixel buffer
-  // r1 - width in pixels
-  // r2 - height in pixels
-  mov   r4, r0
+  svc   #0x112
+  svc   #0x01     // r1 = width, r2 = height
 
-  // Create texture
-  mov   r0, r1
-  mov   r1, r2
-  svc   #0x110
   ldr   r1, =tex_first
   str   r0, [r1]  // Store texture ID in memory
-
-  // Update image
-  mov   r1, r4
-  svc   #0x111
 
   mov   r4, #0
 

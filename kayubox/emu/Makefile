@@ -14,7 +14,7 @@ endif
 
 MAKE_FLAGS := -j4
 C_OPTIONS := -std=c99 -Wall $(OPT_FLAGS)
-INCLUDES := -I. -I./ext/unicorn/include -I./ext/glfw/include -I./ext/miniaudio
+INCLUDES := -I. -I./ext/unicorn/include -I./ext/glfw/include -I./ext/miniaudio -I../../ext
 
 DIST_DIR := dist
 

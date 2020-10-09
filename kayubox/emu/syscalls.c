@@ -8,6 +8,8 @@
 #include "emulation.h"
 #include "av.h"
 
+#include "stb/stb_image.h"
+
 #define _clobber_count(_0, _1, _2, _3, _n, ...) (_n)
 #define _clobber_argc(...) _clobber_count(__VA_ARGS__, 4, 3, 2, 1, 0)
 #define _clobber(_argc, _0, _1, _2, _3, ...) do { \
@@ -241,13 +243,37 @@ static void sys_tex_image(SYSCALL_ARGS)
   size_t sz = video_tex_size(args->r0);
   void *buf = (void *)malloc(sz);
   if (sz == 0 || buf == NULL)
-    syscall_panic("Cannot allocate texture buffer");
+    syscall_panic("Cannot allocate buffer");
 
   uc_expect(uc_mem_read, uc, args->r1, buf, sz);
   video_tex_image(args->r0, buf);
 
   free(buf);
   clobber(0, 1, 2, 3);
+}
+
+static void sys_tex_decode(SYSCALL_ARGS)
+{
+  size_t sz = args->r1;
+  void *buf = (void *)malloc(sz);
+  if (sz == 0 || buf == NULL)
+    syscall_panic("Cannot allocate buffer");
+
+  uc_expect(uc_mem_read, uc, args->r0, buf, sz);
+
+  int w, h;
+  unsigned char *pix = stbi_load_from_memory(buf, sz, &w, &h, NULL, 4);
+
+  uint32_t id = video_tex_new(w, h);
+  video_tex_image(id, pix);
+
+  free(buf);
+  free(pix);
+
+  args->r0 = id;
+  args->r1 = w;
+  args->r2 = h;
+  clobber(3);
 }
 
 static void sys_tex_release(SYSCALL_ARGS)
