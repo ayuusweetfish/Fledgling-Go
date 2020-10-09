@@ -72,6 +72,8 @@ uint64_t av_rand()
   return ret;
 }
 
+// Video
+
 static GLFWwindow *window;
 
 void video_init()
@@ -248,4 +250,10 @@ void video_draw(uint32_t tex_id, const video_point p[3])
 
   memcpy(&pbuf[pbuf_ptr], p, 3 * sizeof(video_point));
   pbuf_ptr += 3;
+}
+
+// Audio
+
+void audio_init()
+{
 }
