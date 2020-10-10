@@ -324,6 +324,22 @@ static void sys_end_frame(SYSCALL_ARGS)
   clobber(0, 1, 2, 3);
 }
 
+static void sys_snd_alloc(SYSCALL_ARGS)
+{
+}
+
+static void sys_snd_pcm(SYSCALL_ARGS)
+{
+}
+
+static void sys_snd_decode(SYSCALL_ARGS)
+{
+}
+
+static void sys_snd_release(SYSCALL_ARGS)
+{
+}
+
 // End of implementations
 
 typedef void (*syscall_fn_t)(SYSCALL_ARGS);

@@ -34,6 +34,7 @@ void audio_init();
 
 uint32_t audio_snd_new(uint32_t samples);
 void audio_snd_pcm(uint32_t snd_id, const void *pcm_ptr);
+void audio_snd_stream();
 void audio_snd_release(uint32_t snd_id);
 
 void audio_play(uint32_t snd_id, uint32_t ch, uint32_t offs, bool loop);

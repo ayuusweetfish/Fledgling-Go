@@ -15,3 +15,8 @@ _(111, tex_image)
 _(112, tex_decode)
 _(11f, tex_release)
 _(120, draw)
+
+_(200, snd_alloc)
+_(201, snd_pcm)
+_(202, snd_decode)
+_(20f, snd_release)

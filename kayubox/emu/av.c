@@ -200,7 +200,7 @@ uint32_t video_tex_new(uint32_t w, uint32_t h)
 
   video_tex_config(tex_ptr, 0);
 
-  return tex_ptr++;
+  return tex_ptr;
 }
 
 size_t video_tex_size(uint32_t tex_id)
@@ -282,4 +282,36 @@ void audio_init()
     fprintf(stderr, "Cannot initialize audio\n");
     exit(1);
   }
+}
+
+#define MAX_SOUNDS  1024
+static bool snd_used[MAX_SOUNDS] = { false };
+static int snd_ptr = 0;
+
+static void ensure_snd_valid(uint32_t snd_id)
+{
+  if (snd_id >= MAX_SOUNDS || !snd_used[snd_id])
+    syscall_panic("Invalid sound ID " FMT_32u, snd_id);
+}
+
+uint32_t audio_snd_new(uint32_t samples)
+{
+  while (snd_used[snd_ptr])
+    snd_ptr = (snd_ptr + 1) % MAX_SOUNDS;
+
+  snd_used[snd_ptr] = true;
+
+  return snd_ptr;
+}
+
+void audio_snd_pcm(uint32_t snd_id, const void *pcm_ptr)
+{
+}
+
+void audio_snd_stream()
+{
+}
+
+void audio_snd_release(uint32_t snd_id)
+{
 }
