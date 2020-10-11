@@ -257,14 +257,7 @@ void video_draw(uint32_t tex_id, const video_point p[3])
 // Audio
 
 static void audio_data_callback(
-  ma_device *device, int16_t *output, const void *_input, ma_uint32 nframes)
-{
-  ma_mutex_lock(&device->lock);
-
-  ma_zero_pcm_frames(output, nframes, ma_format_s16, 2);
-
-  ma_mutex_unlock(&device->lock);
-}
+  ma_device *device, int16_t *output, const void *_input, ma_uint32 nframes);
 
 static ma_device audio_device;
 
@@ -284,9 +277,25 @@ void audio_init()
   }
 }
 
-#define MAX_SOUNDS  1024
+#define MAX_SOUNDS        1024
+#define MAX_TOTAL_SAMPLES (44100 * 60)
 static bool snd_used[MAX_SOUNDS] = { false };
+static struct snd_record {
+  int32_t samples;  // Number of stereo samples
+  int16_t *pcm;
+} snds[MAX_SOUNDS];
 static int snd_ptr = 0;
+static uint32_t total_samples = 0;
+
+#define NUM_CHANNELS      16
+static struct ch_record {
+  bool running;
+  uint32_t snd_id;
+  int32_t offset;
+  bool loop;
+  uint32_t vol;
+  uint32_t pan;
+} channels[NUM_CHANNELS] = {{ 0 }};
 
 static void ensure_snd_valid(uint32_t snd_id)
 {
@@ -294,18 +303,66 @@ static void ensure_snd_valid(uint32_t snd_id)
     syscall_panic("Invalid sound ID " FMT_32u, snd_id);
 }
 
-uint32_t audio_snd_new(uint32_t samples)
+static void ensure_ch_valid(uint32_t ch)
+{
+  if (ch >= NUM_CHANNELS)
+    syscall_panic("Channel index " FMT_32u " out of range", ch);
+}
+
+static void audio_data_callback(
+  ma_device *device, int16_t *output, const void *_input, ma_uint32 nframes)
+{
+  ma_mutex_lock(&device->lock);
+
+  ma_zero_pcm_frames(output, nframes, ma_format_s16, 2);
+  for (int ch = 0; ch < NUM_CHANNELS; ch++) if (channels[ch].running) {
+    int32_t  snd_samples = snds[channels[ch].snd_id].samples;
+    int16_t     *snd_pcm = snds[channels[ch].snd_id].pcm;
+    int32_t offs = channels[ch].offset;
+    for (int i = 0; i < nframes; i++)
+      if ((offs += 1) >= 0 && offs < snd_samples) {
+        output[i * 2 + 0] += snd_pcm[offs * 2 + 0];
+        output[i * 2 + 1] += snd_pcm[offs * 2 + 1];
+      } else if (offs == snd_samples) {
+        // The end has been reached
+        if (channels[ch].loop) {
+          offs = -1;
+          i--;
+          continue;
+        } else {
+          channels[ch].running = false;
+          break;
+        }
+      }
+    channels[ch].offset = offs;
+  }
+
+  ma_mutex_unlock(&device->lock);
+}
+
+uint32_t audio_snd_new(int32_t samples)
 {
   while (snd_used[snd_ptr])
     snd_ptr = (snd_ptr + 1) % MAX_SOUNDS;
 
   snd_used[snd_ptr] = true;
+  snds[snd_ptr].samples = samples;
+
+  if (samples > MAX_TOTAL_SAMPLES ||
+      (total_samples += samples) > MAX_TOTAL_SAMPLES)
+    syscall_panic("Too many samples in total (%d allowed)", MAX_TOTAL_SAMPLES);
+
+  size_t num_bytes = samples * 4;
+  int16_t *buf = malloc(num_bytes);
+  snds[snd_ptr].pcm = buf;
 
   return snd_ptr;
 }
 
 void audio_snd_pcm(uint32_t snd_id, const void *pcm_ptr)
 {
+  ensure_snd_valid(snd_id);
+  memcpy(snds[snd_id].pcm, pcm_ptr, snds[snd_id].samples * 4);
 }
 
 void audio_snd_stream()
@@ -314,4 +371,25 @@ void audio_snd_stream()
 
 void audio_snd_release(uint32_t snd_id)
 {
+}
+
+void audio_play(uint32_t snd_id, uint32_t ch, int32_t offs, bool loop)
+{
+  ensure_ch_valid(ch);
+  channels[ch].running = true;
+  channels[ch].snd_id = snd_id;
+  channels[ch].offset = offs;
+  channels[ch].loop = loop;
+}
+
+void audio_ch_config(uint32_t ch, uint32_t vol, uint32_t pan)
+{
+  ensure_ch_valid(ch);
+  channels[ch].vol = vol;
+  channels[ch].pan = pan;
+}
+
+uint64_t audio_ch_tell(uint32_t ch)
+{
+  return channels[ch].offset;
 }
