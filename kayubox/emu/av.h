@@ -31,6 +31,7 @@ typedef struct video_point_s {
 void video_draw(uint32_t tex_id, const video_point p[3]);
 
 void audio_init();
+void audio_global_running(bool running);
 
 uint32_t audio_snd_new(int32_t samples);
 void audio_snd_pcm(uint32_t snd_id, const void *pcm_ptr);

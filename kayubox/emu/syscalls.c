@@ -186,8 +186,10 @@ static void sys_log(SYSCALL_ARGS)
 
 static void sys_debug(SYSCALL_ARGS)
 {
+  audio_global_running(false);
   syscall_log("Program paused, press Enter to continue");
   while (fgetc(stdin) != '\n') { }
+  audio_global_running(true);
 }
 
 static void sys_time(SYSCALL_ARGS)

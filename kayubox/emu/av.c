@@ -261,6 +261,8 @@ static void audio_data_callback(
 
 static ma_device audio_device;
 
+static bool snd_running = true;
+
 void audio_init()
 {
   ma_device_config dev_config = ma_device_config_init(ma_device_type_playback);
@@ -275,6 +277,11 @@ void audio_init()
     fprintf(stderr, "Cannot initialize audio\n");
     exit(1);
   }
+}
+
+void audio_global_running(bool running)
+{
+  snd_running = running;
 }
 
 #define MAX_SOUNDS        1024
@@ -321,9 +328,11 @@ static inline int16_t sat_16(float x)
 static void audio_data_callback(
   ma_device *device, int16_t *output, const void *_input, ma_uint32 nframes)
 {
+  ma_zero_pcm_frames(output, nframes, ma_format_s16, 2);
+  if (!snd_running) return;
+
   AUDIO_LOCK();
 
-  ma_zero_pcm_frames(output, nframes, ma_format_s16, 2);
   for (int ch = 0; ch < NUM_CHANNELS; ch++) if (channels[ch].running) {
     int32_t  snd_samples = snds[channels[ch].snd_id].samples;
     int16_t     *snd_pcm = snds[channels[ch].snd_id].pcm;
