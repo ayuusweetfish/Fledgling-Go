@@ -309,20 +309,49 @@ static void ensure_ch_valid(uint32_t ch)
     syscall_panic("Channel index " FMT_32u " out of range", ch);
 }
 
+#define AUDIO_LOCK()    ma_mutex_lock(&audio_device.lock)
+#define AUDIO_UNLOCK()  ma_mutex_unlock(&audio_device.lock)
+
+static inline int16_t sat_16(float x)
+{
+  return x < INT16_MIN ? INT16_MIN :
+    x > INT16_MAX ? INT16_MAX : (int16_t)(x + 0.5f);
+}
+
 static void audio_data_callback(
   ma_device *device, int16_t *output, const void *_input, ma_uint32 nframes)
 {
-  ma_mutex_lock(&device->lock);
+  AUDIO_LOCK();
 
   ma_zero_pcm_frames(output, nframes, ma_format_s16, 2);
   for (int ch = 0; ch < NUM_CHANNELS; ch++) if (channels[ch].running) {
     int32_t  snd_samples = snds[channels[ch].snd_id].samples;
     int16_t     *snd_pcm = snds[channels[ch].snd_id].pcm;
     int32_t offs = channels[ch].offset;
+
+    bool mod = false;
+    float gain_l = 1.0f, gain_r = 1.0f;
+    if (channels[ch].vol != 0) {
+      mod = true;
+      float v = (float)channels[ch].vol / 0x80000000;
+      gain_l = v;
+      gain_r = v;
+    }
+    if (channels[ch].pan != 0) {
+      mod = true;
+      gain_l *= cos(0.5f * M_PI * (channels[ch].pan - 1) / 0xfffffffe) * M_SQRT2;
+      gain_r *= sin(0.5f * M_PI * (channels[ch].pan - 1) / 0xfffffffe) * M_SQRT2;
+    }
+
     for (int i = 0; i < nframes; i++)
       if ((offs += 1) >= 0 && offs < snd_samples) {
-        output[i * 2 + 0] += snd_pcm[offs * 2 + 0];
-        output[i * 2 + 1] += snd_pcm[offs * 2 + 1];
+        if (mod) {
+          output[i * 2 + 0] += sat_16((float)snd_pcm[offs * 2 + 0] * gain_l);
+          output[i * 2 + 1] += sat_16((float)snd_pcm[offs * 2 + 1] * gain_r);
+        } else {
+          output[i * 2 + 0] += snd_pcm[offs * 2 + 0];
+          output[i * 2 + 1] += snd_pcm[offs * 2 + 1];
+        }
       } else if (offs == snd_samples) {
         // The end has been reached
         if (channels[ch].loop) {
@@ -337,7 +366,7 @@ static void audio_data_callback(
     channels[ch].offset = offs;
   }
 
-  ma_mutex_unlock(&device->lock);
+  AUDIO_UNLOCK();
 }
 
 uint32_t audio_snd_new(int32_t samples)
@@ -362,34 +391,67 @@ uint32_t audio_snd_new(int32_t samples)
 void audio_snd_pcm(uint32_t snd_id, const void *pcm_ptr)
 {
   ensure_snd_valid(snd_id);
-  memcpy(snds[snd_id].pcm, pcm_ptr, snds[snd_id].samples * 4);
-}
+  AUDIO_LOCK();
 
-void audio_snd_stream()
-{
+  memcpy(snds[snd_id].pcm, pcm_ptr, snds[snd_id].samples * 4);
+
+  AUDIO_UNLOCK();
 }
 
 void audio_snd_release(uint32_t snd_id)
 {
+  ensure_snd_valid(snd_id);
+  AUDIO_LOCK();
+
+  for (int ch = 0; ch < NUM_CHANNELS; ch++)
+    if (channels[ch].snd_id == snd_id)
+      channels[ch].running = false;
+
+  snd_used[snd_id] = false;
+  free(snds[snd_id].pcm);
+
+  AUDIO_UNLOCK();
 }
 
 void audio_play(uint32_t snd_id, uint32_t ch, int32_t offs, bool loop)
 {
   ensure_ch_valid(ch);
+  ensure_snd_valid(snd_id);
+  AUDIO_LOCK();
+
   channels[ch].running = true;
   channels[ch].snd_id = snd_id;
   channels[ch].offset = offs;
   channels[ch].loop = loop;
+
+  AUDIO_UNLOCK();
 }
 
 void audio_ch_config(uint32_t ch, uint32_t vol, uint32_t pan)
 {
   ensure_ch_valid(ch);
+  AUDIO_LOCK();
+
   channels[ch].vol = vol;
   channels[ch].pan = pan;
+
+  AUDIO_UNLOCK();
 }
 
 uint64_t audio_ch_tell(uint32_t ch)
 {
-  return channels[ch].offset;
+  ensure_ch_valid(ch);
+  AUDIO_LOCK();
+
+  uint64_t ret;
+  if (channels[ch].running) {
+    uint32_t snd_id = channels[ch].snd_id;
+    int32_t offs = channels[ch].offset;
+    ret = ((uint64_t)snd_id << 32) | offs;
+  } else {
+    ret = (uint64_t)-1ll;
+  }
+
+  AUDIO_UNLOCK();
+  return ret;
 }
