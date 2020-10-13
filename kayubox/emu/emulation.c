@@ -106,6 +106,10 @@ void run_emulation(
     uc, PROG_ENTRY, PROG_MEMSIZE,
     UC_PROT_READ | UC_PROT_WRITE | UC_PROT_EXEC, user_mem);
 
+  // Random-fill memory
+  for (size_t p = 0; p < PROG_MEMSIZE; p += 8)
+    *(uint64_t *)(user_mem + p) = av_rand();
+
   // Copy program
   memcpy(user_mem, program, program_size);
 

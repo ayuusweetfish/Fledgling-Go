@@ -27,7 +27,7 @@ BUILD_DIR := build
 ARCHFLAGS := -march=armv6 -mfpu=vfp -mfloat-abi=hard
 ASFLAGS := $(ARCHFLAGS) -g
 CCFLAGS := $(ARCHFLAGS) -mtune=arm1176jzf-s -c -std=c99 -O2 -g
-LDFLAGS := $(ARCHFLAGS) -Wl,-T,link.ld -lm -nostartfiles -specs=nosys.specs
+LDFLAGS := $(ARCHFLAGS) -Wl,-T,link.ld -lm -nostartfiles
 
 SRCS := $(wildcard **.[sc])
 

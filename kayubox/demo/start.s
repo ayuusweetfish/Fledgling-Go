@@ -7,6 +7,8 @@
 .endm
 
 .section .text.startup
+  bl    _crt_init
+
   // Load image
   // See res.s
   ldr   r0, =_32573493_png
@@ -28,6 +30,9 @@
   // Update image
   mov   r1, r4
   svc   #0x111
+
+  mov   r0, r4
+  bl    free
 
   mov   r4, #0
 

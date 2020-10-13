@@ -44,6 +44,14 @@ static void read_regs(uc_engine *uc, void *x, int start, int count)
   uc_expect(uc_reg_read_batch, uc, (int *)regids + start, ptrs, count);
 }
 
+static void *read_mem(uc_engine *uc, uint32_t addr, uint32_t sz)
+{
+  void *buf = malloc(sz == 0 ? 1 : sz);
+  if (buf == NULL) syscall_panic("Cannot allocate buffer");
+  uc_expect(uc_mem_read, uc, addr, buf, sz);
+  return buf;
+}
+
 static void sys_probe_min(SYSCALL_ARGS)
 {
   uint32_t regs[8];
@@ -233,27 +241,21 @@ static void sys_clear_frame(SYSCALL_ARGS)
 
 static void sys_tex_alloc(SYSCALL_ARGS)
 {
-  uint32_t id = video_tex_new(args->r0, args->r1);
-  args->r0 = id;
+  args->r0 = video_tex_new(args->r0, args->r1);
   clobber(1, 2, 3);
 }
 
 static void sys_tex_image(SYSCALL_ARGS)
 {
-  size_t sz = video_tex_size(args->r0);
-  void *buf = (void *)malloc(sz);
-  if (sz == 0 || buf == NULL)
-    syscall_panic("Cannot allocate buffer");
-
-  uc_expect(uc_mem_read, uc, args->r1, buf, sz);
+  void *buf = read_mem(uc, args->r1, video_tex_size(args->r0));
   video_tex_image(args->r0, buf);
-
   free(buf);
   clobber(0, 1, 2, 3);
 }
 
 static void sys_tex_release(SYSCALL_ARGS)
 {
+  video_tex_release(args->r0);
   clobber(0, 1, 2, 3);
 }
 
@@ -302,18 +304,42 @@ static void sys_end_frame(SYSCALL_ARGS)
 
 static void sys_snd_alloc(SYSCALL_ARGS)
 {
+  args->r0 = audio_snd_new(args->r0);
+  clobber(1, 2, 3);
 }
 
 static void sys_snd_pcm(SYSCALL_ARGS)
 {
-}
-
-static void sys_snd_decode(SYSCALL_ARGS)
-{
+  void *buf = read_mem(uc, args->r1, audio_snd_size(args->r0));
+  audio_snd_pcm(args->r0, buf);
+  free(buf);
+  clobber(0, 1, 2, 3);
 }
 
 static void sys_snd_release(SYSCALL_ARGS)
 {
+  audio_snd_release(args->r0);
+  clobber(0, 1, 2, 3);
+}
+
+static void sys_play(SYSCALL_ARGS)
+{
+  audio_play(args->r0, args->r1, (int32_t)args->r2, (bool)args->r3);
+  clobber(0, 1, 2, 3);
+}
+
+static void sys_ch_config(SYSCALL_ARGS)
+{
+  audio_ch_config(args->r0, args->r1, args->r2);
+  clobber(0, 1, 2, 3);
+}
+
+static void sys_ch_tell(SYSCALL_ARGS)
+{
+  uint64_t ret = audio_ch_tell(args->r0);
+  args->r0 = (uint32_t)(ret & 0xffffffff);
+  args->r1 = (uint32_t)(ret >> 32);
+  clobber(2, 3);
 }
 
 // End of implementations

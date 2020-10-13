@@ -17,5 +17,7 @@ _(120, draw)
 
 _(200, snd_alloc)
 _(201, snd_pcm)
-_(202, snd_decode)
 _(20f, snd_release)
+_(210, play)
+_(211, ch_config)
+_(212, ch_tell)

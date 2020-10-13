@@ -397,6 +397,12 @@ uint32_t audio_snd_new(int32_t samples)
   return snd_ptr;
 }
 
+size_t audio_snd_size(uint32_t snd_id)
+{
+  ensure_snd_valid(snd_id);
+  return snds[snd_id].samples * 4;
+}
+
 void audio_snd_pcm(uint32_t snd_id, const void *pcm_ptr)
 {
   ensure_snd_valid(snd_id);
