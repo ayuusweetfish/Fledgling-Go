@@ -120,22 +120,6 @@ void run_emulation(
   video_init();
   audio_init();
 
-  int len = 44100 * 1.5;
-  uint32_t sid = audio_snd_new(len);
-  int16_t *pcm = malloc(len * 4);
-  for (int i = 0; i < len - len % 100; i++) {
-    pcm[i * 2] =
-      abs((i * i / len + 50) % 100 - 50) * 36;
-    pcm[i * 2 + 1] =
-      abs(((len - i) * (len - i) / len + 50) % 100 - 50) * 36;
-  }
-  audio_snd_pcm(sid, pcm);
-  free(pcm);
-  audio_play(sid, 0, 0, 0);
-  audio_play(sid, 1, -22050, 0);
-  audio_play(sid, 2, -44100, 1);
-  audio_trk_config(2, 0x40000000, 0x10000000);
-
   pthread_t emu_thread;
   int err;
 

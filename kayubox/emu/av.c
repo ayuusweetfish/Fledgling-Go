@@ -431,10 +431,10 @@ void audio_snd_release(uint32_t snd_id)
 void audio_play(uint32_t snd_id, uint32_t trk, int32_t offs, bool loop)
 {
   ensure_trk_valid(trk);
-  ensure_snd_valid(snd_id);
+  if (snd_id != (uint32_t)-1) ensure_snd_valid(snd_id);
   AUDIO_LOCK();
 
-  tracks[trk].running = true;
+  tracks[trk].running = (snd_id != (uint32_t)-1);
   tracks[trk].snd_id = snd_id;
   tracks[trk].offset = offs;
   tracks[trk].loop = loop;

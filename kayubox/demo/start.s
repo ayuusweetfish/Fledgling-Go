@@ -34,9 +34,36 @@
   mov   r0, r4
   bl    free
 
+  // Play audio
+  ldr   r0, =copycat_ogg
+  ldr   r1, =copycat_ogg_size
+  mov   r2, #0
+  mov   r3, #1
+  bl    vorbis_stream
+
+  ldr   r1, =stream
+  str   r0, [r1]
+  bl    vorbis_stream_start
+
   mov   r4, #0
 
 main_loop:
+  mov   r3, #46 // Period key
+  svc   #0x11
+  mov   r5, r3
+
+  ldr   r1, =stream
+  ldr   r0, [r1]
+  cmp   r5, #0
+  bleq  vorbis_stream_start
+  cmp   r5, #0
+  blne  vorbis_stream_pause
+
+  // Update audio
+  ldr   r1, =stream
+  ldr   r0, [r1]
+  bl    vorbis_stream_update
+
   ldr   r0, =#0xffffeeff
   svc   #0x100  // Clear frame
 
@@ -115,4 +142,6 @@ main_loop:
 
 .section .data
 tex_first:
+  .int  0
+stream:
   .int  0
