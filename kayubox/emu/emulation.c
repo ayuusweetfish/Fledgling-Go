@@ -134,7 +134,7 @@ void run_emulation(
   audio_play(sid, 0, 0, 0);
   audio_play(sid, 1, -22050, 0);
   audio_play(sid, 2, -44100, 1);
-  audio_ch_config(2, 0x40000000, 0x10000000);
+  audio_trk_config(2, 0x40000000, 0x10000000);
 
   pthread_t emu_thread;
   int err;

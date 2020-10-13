@@ -38,8 +38,8 @@ size_t audio_snd_size(uint32_t snd_id);
 void audio_snd_pcm(uint32_t snd_id, const void *pcm_ptr);
 void audio_snd_release(uint32_t snd_id);
 
-void audio_play(uint32_t snd_id, uint32_t ch, int32_t offs, bool loop);
-void audio_ch_config(uint32_t ch, uint32_t vol, uint32_t pan);
-uint64_t audio_ch_tell(uint32_t ch);
+void audio_play(uint32_t snd_id, uint32_t trk, int32_t offs, bool loop);
+void audio_trk_config(uint32_t trk, uint32_t vol, uint32_t pan);
+uint64_t audio_trk_tell(uint32_t trk);
 
 #endif

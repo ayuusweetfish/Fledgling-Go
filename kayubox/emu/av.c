@@ -294,15 +294,15 @@ static struct snd_record {
 static int snd_ptr = 0;
 static uint32_t total_samples = 0;
 
-#define NUM_CHANNELS      16
-static struct ch_record {
+#define NUM_TRACKS        16
+static struct trk_record {
   bool running;
   uint32_t snd_id;
   int32_t offset;
   bool loop;
   uint32_t vol;
   uint32_t pan;
-} channels[NUM_CHANNELS] = {{ 0 }};
+} tracks[NUM_TRACKS] = {{ 0 }};
 
 static void ensure_snd_valid(uint32_t snd_id)
 {
@@ -310,10 +310,10 @@ static void ensure_snd_valid(uint32_t snd_id)
     syscall_panic("Invalid sound ID " FMT_32u, snd_id);
 }
 
-static void ensure_ch_valid(uint32_t ch)
+static void ensure_trk_valid(uint32_t trk)
 {
-  if (ch >= NUM_CHANNELS)
-    syscall_panic("Channel index " FMT_32u " out of range", ch);
+  if (trk >= NUM_TRACKS)
+    syscall_panic("Channel index " FMT_32u " out of range", trk);
 }
 
 #define AUDIO_LOCK()    ma_mutex_lock(&audio_device.lock)
@@ -333,23 +333,23 @@ static void audio_data_callback(
 
   AUDIO_LOCK();
 
-  for (int ch = 0; ch < NUM_CHANNELS; ch++) if (channels[ch].running) {
-    int32_t  snd_samples = snds[channels[ch].snd_id].samples;
-    int16_t     *snd_pcm = snds[channels[ch].snd_id].pcm;
-    int32_t offs = channels[ch].offset;
+  for (int trk = 0; trk < NUM_TRACKS; trk++) if (tracks[trk].running) {
+    int32_t  snd_samples = snds[tracks[trk].snd_id].samples;
+    int16_t     *snd_pcm = snds[tracks[trk].snd_id].pcm;
+    int32_t offs = tracks[trk].offset;
 
     bool mod = false;
     float gain_l = 1.0f, gain_r = 1.0f;
-    if (channels[ch].vol != 0) {
+    if (tracks[trk].vol != 0) {
       mod = true;
-      float v = (float)channels[ch].vol / 0x80000000;
+      float v = (float)tracks[trk].vol / 0x80000000;
       gain_l = v;
       gain_r = v;
     }
-    if (channels[ch].pan != 0) {
+    if (tracks[trk].pan != 0) {
       mod = true;
-      gain_l *= cos(0.5f * M_PI * (channels[ch].pan - 1) / 0xfffffffe) * M_SQRT2;
-      gain_r *= sin(0.5f * M_PI * (channels[ch].pan - 1) / 0xfffffffe) * M_SQRT2;
+      gain_l *= cos(0.5f * M_PI * (tracks[trk].pan - 1) / 0xfffffffe) * M_SQRT2;
+      gain_r *= sin(0.5f * M_PI * (tracks[trk].pan - 1) / 0xfffffffe) * M_SQRT2;
     }
 
     for (int i = 0; i < nframes; i++)
@@ -363,16 +363,16 @@ static void audio_data_callback(
         }
       } else if (offs == snd_samples) {
         // The end has been reached
-        if (channels[ch].loop) {
+        if (tracks[trk].loop) {
           offs = -1;
           i--;
           continue;
         } else {
-          channels[ch].running = false;
+          tracks[trk].running = false;
           break;
         }
       }
-    channels[ch].offset = offs;
+    tracks[trk].offset = offs;
   }
 
   AUDIO_UNLOCK();
@@ -418,9 +418,9 @@ void audio_snd_release(uint32_t snd_id)
   ensure_snd_valid(snd_id);
   AUDIO_LOCK();
 
-  for (int ch = 0; ch < NUM_CHANNELS; ch++)
-    if (channels[ch].snd_id == snd_id)
-      channels[ch].running = false;
+  for (int trk = 0; trk < NUM_TRACKS; trk++)
+    if (tracks[trk].snd_id == snd_id)
+      tracks[trk].running = false;
 
   snd_used[snd_id] = false;
   free(snds[snd_id].pcm);
@@ -428,40 +428,40 @@ void audio_snd_release(uint32_t snd_id)
   AUDIO_UNLOCK();
 }
 
-void audio_play(uint32_t snd_id, uint32_t ch, int32_t offs, bool loop)
+void audio_play(uint32_t snd_id, uint32_t trk, int32_t offs, bool loop)
 {
-  ensure_ch_valid(ch);
+  ensure_trk_valid(trk);
   ensure_snd_valid(snd_id);
   AUDIO_LOCK();
 
-  channels[ch].running = true;
-  channels[ch].snd_id = snd_id;
-  channels[ch].offset = offs;
-  channels[ch].loop = loop;
+  tracks[trk].running = true;
+  tracks[trk].snd_id = snd_id;
+  tracks[trk].offset = offs;
+  tracks[trk].loop = loop;
 
   AUDIO_UNLOCK();
 }
 
-void audio_ch_config(uint32_t ch, uint32_t vol, uint32_t pan)
+void audio_trk_config(uint32_t trk, uint32_t vol, uint32_t pan)
 {
-  ensure_ch_valid(ch);
+  ensure_trk_valid(trk);
   AUDIO_LOCK();
 
-  channels[ch].vol = vol;
-  channels[ch].pan = pan;
+  tracks[trk].vol = vol;
+  tracks[trk].pan = pan;
 
   AUDIO_UNLOCK();
 }
 
-uint64_t audio_ch_tell(uint32_t ch)
+uint64_t audio_trk_tell(uint32_t trk)
 {
-  ensure_ch_valid(ch);
+  ensure_trk_valid(trk);
   AUDIO_LOCK();
 
   uint64_t ret;
-  if (channels[ch].running) {
-    uint32_t snd_id = channels[ch].snd_id;
-    int32_t offs = channels[ch].offset;
+  if (tracks[trk].running) {
+    uint32_t snd_id = tracks[trk].snd_id;
+    int32_t offs = tracks[trk].offset;
     ret = ((uint64_t)snd_id << 32) | offs;
   } else {
     ret = (uint64_t)-1ll;

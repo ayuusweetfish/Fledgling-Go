@@ -328,15 +328,15 @@ static void sys_play(SYSCALL_ARGS)
   clobber(0, 1, 2, 3);
 }
 
-static void sys_ch_config(SYSCALL_ARGS)
+static void sys_trk_config(SYSCALL_ARGS)
 {
-  audio_ch_config(args->r0, args->r1, args->r2);
+  audio_trk_config(args->r0, args->r1, args->r2);
   clobber(0, 1, 2, 3);
 }
 
-static void sys_ch_tell(SYSCALL_ARGS)
+static void sys_trk_tell(SYSCALL_ARGS)
 {
-  uint64_t ret = audio_ch_tell(args->r0);
+  uint64_t ret = audio_trk_tell(args->r0);
   args->r0 = (uint32_t)(ret & 0xffffffff);
   args->r1 = (uint32_t)(ret >> 32);
   clobber(2, 3);

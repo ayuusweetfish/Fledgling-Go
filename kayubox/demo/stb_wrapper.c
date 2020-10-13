@@ -21,8 +21,3 @@ void decode_image(unsigned char *enc, unsigned int len)
   );
 }
 
-#define STB_VORBIS_NO_STDIO
-
-unsigned char *decode_ogg(unsigned char *enc, unsigned int len)
-{
-}
