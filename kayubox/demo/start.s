@@ -10,13 +10,19 @@
   bl    _crt_init
 
   ldr   r0, =Mali_Regular_ttf
-  ldr   r1, =#480
-  ldr   r2, =#240
+  mov   r1, r1
+  mov   r1, r1
   bl    label_new
   ldr   r1, =label
   str   r0, [r1]
 
-  ldr   r1, =label_text
+  ldr   r1, =label_text_1
+  vldrs s0, 79.5
+  bl    label_print
+
+  ldr   r0, =label
+  ldr   r0, [r0]
+  ldr   r1, =label_text_2
   vldrs s0, 79.5
   bl    label_print
 
@@ -154,8 +160,8 @@ main_loop:
   ldr   r1, =0xffccaaff
   vldrs s0, -0.4
   vldrs s1, 0.9
-  vldrs s2, 0.6
-  vldrs s3, 0.4
+  vldrs s2, 0.00125
+  vldrs s3, 0.0020833333
   bl    label_draw
 
   svc   #0x10f  // End frame
@@ -168,5 +174,7 @@ stream:
   .int  0
 label:
   .int  0
-label_text:
-  .ascii "hjAVA\nLorem ipsum\0"
+label_text_1:
+  .ascii "qwq\nqwq\nqwq\nqwq\nqwq\nqwq\0"
+label_text_2:
+  .ascii "kerning: hjAVA\nLorem ipsum dolor\n(> ~ <)\0"

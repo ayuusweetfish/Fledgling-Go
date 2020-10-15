@@ -1,3 +1,14 @@
+#include <stdio.h>
+static char _log_buf[64];
+#define _log(...)  do { \
+  sprintf(_log_buf, __VA_ARGS__); \
+  __asm__ __volatile__ ( \
+    "mov  r0, %0\n" \
+    "svc  #0x0e\n" \
+    : : "r"(_log_buf) : "r0", "r1", "r2", "r3" \
+  ); \
+} while (0)
+
 // stb_image
 
 #define STBI_NO_STDIO
@@ -161,10 +172,13 @@ typedef struct label_s {
   int tex, w, h;
   unsigned char *pix;
 
+  // Size in pixels of the last printed string
+  float last_w, last_h;
+  // Texture coordinates of the last printed string
   float range_x, range_y;
 } label;
 
-label *label_new(void *ttf, int max_w, int max_h)
+label *label_new(void *ttf)
 {
   stbtt_fontinfo *font = NULL;
 
@@ -186,27 +200,20 @@ label *label_new(void *ttf, int max_w, int max_h)
       }
   }
 
-  int tex = tex_alloc(max_w, max_h);
-  unsigned char *pix = malloc(max_w * max_h * 4);
-
   label *l = malloc(sizeof(label));
 
   l->font = font;
-  l->tex = tex;
-  l->w = max_w;
-  l->h = max_h;
-  l->pix = pix;
-  l->range_x = l->range_y = 0;
+  l->tex = -1;
+  l->w = l->h = 0;
+  l->pix = NULL;
 
   return l;
 }
 
 void label_print(label *l, const char *text, float size)
 {
+  // Assumes left-to-right
   stbtt_fontinfo *font = l->font;
-  int tw = l->w;
-  int th = l->h;
-  unsigned char *pix = l->pix;
 
   float scale = stbtt_ScaleForPixelHeight(font, size);
   int ascent_t, descent_t, linegap_t;
@@ -216,63 +223,99 @@ void label_print(label *l, const char *text, float size)
   float descent = descent_t * scale;
   float linegap = linegap_t * scale;
 
-  for (int i = 0; i < tw * th; i++) {
-    pix[i * 4 + 0] = pix[i * 4 + 1] = pix[i * 4 + 2] = 0xff;
-    pix[i * 4 + 3] = 0;
-  }
+  float ox, oy, ox_max = 0;
 
-  float ox = 0, oy = ascent;
-  float ox_max = 0;
+  int tw, th;
+  unsigned char *pix;
 
-  for (const char *c = text; *c != '\0'; c++) {
-    if (*c == '\n') {
-      if (ox_max < ox) ox_max = ox;
-      ox = 0;
-      oy += (ascent - descent + linegap);
-      continue;
-    }
-
-    int x0, y0, x1, y1;
-    stbtt_GetCodepointBitmapBoxSubpixel(font, *c, scale, scale,
-      ox - (int)ox, oy - (int)oy, &x0, &y0, &x1, &y1);
-
-    int advance_t, lsb_t;
-    stbtt_GetCodepointHMetrics(font, *c, &advance_t, &lsb_t);
-    float advance = advance_t * scale;
-    float lsb = lsb_t * scale;
-
-    int gw, gh, xoff, yoff;
-    unsigned char *glyph = stbtt_GetCodepointBitmapSubpixel(
-      font, scale, scale, ox - (int)ox, oy - (int)oy,
-      *c, &gw, &gh, NULL, NULL);
-
-    for (int y = 0; y < gh; y++)
-      for (int x = 0; x < gw; x++) {
-        int bitmap_x = (int)ox + x + x0;
-        int bitmap_y = (int)oy + y + y0;
-        if (bitmap_x >= 0 && bitmap_x < tw &&
-            bitmap_y >= 0 && bitmap_y < th) {
-          int bitmap_index = bitmap_y * tw + bitmap_x;
-          pix[bitmap_index * 4 + 3] += glyph[y * gw + x];
-        }
+  for (int it = 0; it <= 1; it++) {
+    if (it == 1) {
+      tw = (int)ox_max + 1;
+      th = (int)(oy - descent) + 1;
+      if (l->w < tw || l->h < th) {
+        l->w = tw;
+        l->h = th;
+        l->pix = pix = realloc(l->pix, tw * th * 4);
+        if (l->tex != -1) tex_release(l->tex);
+        l->tex = tex_alloc(tw, th);
+      } else {
+        tw = l->w;
+        th = l->h;
+        pix = l->pix;
       }
 
-    ox += scale * (advance_t +
-      (c[1] == '\0' ? 0 : stbtt_GetCodepointKernAdvance(font, c[0], c[1]))
-    );
+      for (int i = 0; i < tw * th; i++) {
+        pix[i * 4 + 0] = pix[i * 4 + 1] = pix[i * 4 + 2] = 0xff;
+        pix[i * 4 + 3] = 0;
+      }
+    }
 
-    stbtt_FreeBitmap(glyph, NULL);
+    ox = 0;
+    oy = ascent;
+
+    for (const char *c = text; *c != '\0'; c++) {
+      if (*c == '\n') {
+        if (ox_max < ox) ox_max = ox;
+        ox = 0;
+        oy += (ascent - descent + linegap);
+        continue;
+      }
+
+      int x0, y0, x1, y1;
+      if (it == 1)
+        stbtt_GetCodepointBitmapBoxSubpixel(font, *c, scale, scale,
+          ox - (int)ox, oy - (int)oy, &x0, &y0, &x1, &y1);
+
+      int advance_t, lsb_t;
+      stbtt_GetCodepointHMetrics(font, *c, &advance_t, &lsb_t);
+
+      if (it == 1) {
+        int gw, gh;
+        unsigned char *glyph = stbtt_GetCodepointBitmapSubpixel(
+          font, scale, scale, ox - (int)ox, oy - (int)oy,
+          *c, &gw, &gh, NULL, NULL);
+
+        for (int y = 0; y < gh; y++)
+          for (int x = 0; x < gw; x++) {
+            int bitmap_x = (int)ox + x + x0;
+            int bitmap_y = (int)oy + y + y0;
+            if (bitmap_x >= 0 && bitmap_x < tw &&
+                bitmap_y >= 0 && bitmap_y < th) {
+              int bitmap_index = bitmap_y * tw + bitmap_x;
+              pix[bitmap_index * 4 + 3] += glyph[y * gw + x];
+            }
+          }
+
+        stbtt_FreeBitmap(glyph, NULL);
+      }
+
+      ox += scale * (advance_t +
+        (c[1] == '\0' ? 0 : stbtt_GetCodepointKernAdvance(font, c[0], c[1]))
+      );
+    }
+
+    if (ox_max < ox) ox_max = ox;
   }
 
   tex_image(l->tex, pix);
 
-  if (ox_max < ox) ox_max = ox;
-  l->range_x = ox_max / tw;
-  l->range_y = (oy - descent) / th;
+  l->last_w = ox_max;
+  l->last_h = oy - descent;
+  l->range_x = l->last_w / tw;
+  l->range_y = l->last_h / th;
 }
 
-void label_draw(label *l, unsigned colour, float x, float y, float w, float h)
+void label_draw(label *l, unsigned colour, float x, float y, float xs, float ys)
 {
+  // w = last_w * xs
+  // h = last_h * ys
+  __asm__ __volatile__ (
+    "vmul.f32 %0, %2\n"
+    "vmul.f32 %1, %3\n"
+    : "+t"(xs), "+t"(ys)
+    : "t"(l->last_w), "t"(l->last_h)
+  );
+
   // A = (x, y)     (0, 0)
   // B = (x+w, y-h) (rx, ry)
   // C1 = (x+w, y)  (rx, 0)
