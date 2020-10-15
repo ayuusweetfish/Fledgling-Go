@@ -15,6 +15,7 @@
 
 #include "miniaudio.h"
 
+#define _USE_MATH_DEFINES
 #include <errno.h>
 #include <math.h>
 #include <stdbool.h>
