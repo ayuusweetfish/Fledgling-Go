@@ -9,6 +9,17 @@
 .section .text.startup
   bl    _crt_init
 
+  ldr   r0, =Mali_Regular_ttf
+  ldr   r1, =#480
+  ldr   r2, =#240
+  bl    label_new
+  ldr   r1, =label
+  str   r0, [r1]
+
+  ldr   r1, =label_text
+  vldrs s0, 79.5
+  bl    label_print
+
   // Load image
   // See res.s
   ldr   r0, =_32573493_png
@@ -137,6 +148,16 @@ main_loop:
   cmp   r5, #2
   bne   9b
 
+  // Draw the label
+  ldr   r0, =label
+  ldr   r0, [r0]
+  ldr   r1, =0xffccaaff
+  vldrs s0, -0.4
+  vldrs s1, 0.9
+  vldrs s2, 0.6
+  vldrs s3, 0.4
+  bl    label_draw
+
   svc   #0x10f  // End frame
   b     main_loop
 
@@ -145,3 +166,7 @@ tex_first:
   .int  0
 stream:
   .int  0
+label:
+  .int  0
+label_text:
+  .ascii "hjAVA\nLorem ipsum\0"
