@@ -12,41 +12,32 @@
   ldr   r0, =Mali_Regular_ttf
   mov   r1, r1
   mov   r1, r1
-  bl    label_new
+  bl    kx_label
   ldr   r1, =label
   str   r0, [r1]
 
   ldr   r1, =label_text_1
   vldrs s0, 79.5
-  bl    label_print
+  bl    kx_label_print
 
   ldr   r0, =label
   ldr   r0, [r0]
   ldr   r1, =label_text_2
   vldrs s0, 79.5
-  bl    label_print
+  bl    kx_label_print
 
   // Load image
   // See res.s
   ldr   r0, =_32573493_png
   ldr   r1, =_32573493_png_size
-  blx   decode_image
+  blx   kx_image
   svc   #0x01
-  // r0 - pointer to the pixel buffer
+  // r0 - texture ID
   // r1 - width in pixels
   // r2 - height in pixels
-  mov   r4, r0
 
-  // Create texture
-  mov   r0, r1
-  mov   r1, r2
-  svc   #0x110
   ldr   r1, =tex_first
   str   r0, [r1]  // Store texture ID in memory
-
-  // Update image
-  mov   r1, r4
-  svc   #0x111
 
   mov   r0, r4
   bl    free
@@ -56,11 +47,11 @@
   ldr   r1, =copycat_ogg_size
   mov   r2, #0
   mov   r3, #1
-  bl    vorbis_stream
+  bl    kx_music
 
   ldr   r1, =stream
   str   r0, [r1]
-  bl    vorbis_stream_start
+  bl    kx_music_start
 
   mov   r4, #0
 
@@ -72,14 +63,14 @@ main_loop:
   ldr   r1, =stream
   ldr   r0, [r1]
   cmp   r5, #0
-  bleq  vorbis_stream_start
+  bleq  kx_music_start
   cmp   r5, #0
-  blne  vorbis_stream_pause
+  blne  kx_music_pause
 
   // Update audio
   ldr   r1, =stream
   ldr   r0, [r1]
-  bl    vorbis_stream_update
+  bl    kx_music_update
 
   ldr   r0, =#0xffffeeff
   svc   #0x100  // Clear frame
@@ -162,7 +153,7 @@ main_loop:
   vldrs s1, 0.9
   vldrs s2, 0.00125
   vldrs s3, 0.0020833333
-  bl    label_draw
+  bl    kx_label_draw
 
   svc   #0x10f  // End frame
   b     main_loop

@@ -1,59 +1,4 @@
-#include <stdio.h>
-static char _log_buf[64];
-#define _log(...)  do { \
-  sprintf(_log_buf, __VA_ARGS__); \
-  __asm__ __volatile__ ( \
-    "mov  r0, %0\n" \
-    "svc  #0x0e\n" \
-    : : "r"(_log_buf) : "r0", "r1", "r2", "r3" \
-  ); \
-} while (0)
-
-// stb_image
-
-#define STBI_NO_STDIO
-#define STBI_ASSERT(x)
-#define STBI_MAX_DIMENSIONS 2560
-
-#define STBI_ONLY_PNG
-
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../ext/stb/stb_image.h"
-
-void decode_image(unsigned char *enc, unsigned int len)
-{
-  int w, h;
-  unsigned char *pix = stbi_load_from_memory(enc, len, &w, &h, NULL, 4);
-  __asm__ __volatile__ (
-    "mov  r0, %0\n"
-    "mov  r1, %1\n"
-    "mov  r2, %2\n"
-    : : "r"(pix), "r"(w), "r"(h)
-    : "r0", "r1", "r2"
-  );
-}
-
-// stb_vorbis
-
-#define STB_VORBIS_NO_STDIO
-#define STB_VORBIS_NO_PUSHDATA_API
-#define NDEBUG
-
-#include "../../ext/stb/stb_vorbis.c"
-
 #include <stdbool.h>
-
-#define BLOCK_LEN 8192
-static short buf[BLOCK_LEN * 2];
-
-typedef struct stream_s {
-  stb_vorbis *v;
-  int snd1, snd2;
-  int trk1, trk2;
-  bool running;
-  int ptr;
-} stream;
 
 #define def_syscall(_num, _name, ...) \
   __attribute__ ((naked)) \
@@ -76,10 +21,58 @@ def_syscall(0x20f, snd_release, int snd_id)
 def_syscall(0x210, play, int snd_id, int trk, int offs, bool loop)
 def_syscall(0x212, trk_tell, int trk)
 
-stream *vorbis_stream(unsigned char *enc, unsigned int len, int trk1, int trk2)
+// stb_image
+
+#define STBI_NO_STDIO
+#define STBI_ASSERT(x)
+#define STBI_MAX_DIMENSIONS 2560
+
+#define STBI_ONLY_PNG
+
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../ext/stb/stb_image.h"
+
+void kx_image(unsigned char *res, unsigned int len)
+{
+  int w, h;
+  unsigned char *pix = stbi_load_from_memory(res, len, &w, &h, NULL, 4);
+  int tex = tex_alloc(w, h);
+  tex_image(tex, pix);
+  free(pix);
+
+  __asm__ __volatile__ (
+    "mov  r0, %0\n"
+    "mov  r1, %1\n"
+    "mov  r2, %2\n"
+    : : "r"(tex), "r"(w), "r"(h)
+    : "r0", "r1", "r2"
+  );
+}
+
+// stb_vorbis
+
+#define STB_VORBIS_NO_STDIO
+#define STB_VORBIS_NO_PUSHDATA_API
+#define NDEBUG
+
+#include "../../ext/stb/stb_vorbis.c"
+
+#define BLOCK_LEN 8192
+static short buf[BLOCK_LEN * 2];
+
+typedef struct stream_s {
+  stb_vorbis *v;
+  int snd1, snd2;
+  int trk1, trk2;
+  bool running;
+  int ptr;
+} stream;
+
+stream *kx_music(unsigned char *res, unsigned int len, int trk1, int trk2)
 {
   stream *s = malloc(sizeof(stream));
-  s->v = stb_vorbis_open_memory(enc, len, NULL, NULL);
+  s->v = stb_vorbis_open_memory(res, len, NULL, NULL);
   s->snd1 = snd_alloc(BLOCK_LEN);
   s->snd2 = snd_alloc(BLOCK_LEN);
   s->trk1 = trk1;
@@ -99,7 +92,7 @@ static inline void fill_buf(stb_vorbis *f)
     memset(buf + n * 2, 0, sizeof(short) * (BLOCK_LEN - n) * 2);
 }
 
-void vorbis_stream_start(stream *s)
+void kx_music_start(stream *s)
 {
   if (s->running) return;
   s->running = true;
@@ -114,7 +107,7 @@ void vorbis_stream_start(stream *s)
   play(s->snd2, s->trk2, -BLOCK_LEN, false);
 }
 
-void vorbis_stream_pause(stream *s)
+void kx_music_pause(stream *s)
 {
   if (!s->running) return;
   s->running = false;
@@ -128,7 +121,7 @@ void vorbis_stream_pause(stream *s)
   play(-1, s->trk2, 0, 0);
 }
 
-void vorbis_stream_update(stream *s)
+void kx_music_update(stream *s)
 {
   if (!s->running) return;
 
@@ -151,6 +144,13 @@ void vorbis_stream_update(stream *s)
 
     play(s->snd2, s->trk2, -BLOCK_LEN + offs, false);
   }
+}
+
+void kx_music_release(stream *s)
+{
+  snd_release(s->snd1);
+  snd_release(s->snd2);
+  free(s);
 }
 
 // stb_truetype
@@ -178,7 +178,7 @@ typedef struct label_s {
   float range_x, range_y;
 } label;
 
-label *label_new(void *ttf)
+label *kx_label(void *ttf)
 {
   stbtt_fontinfo *font = NULL;
 
@@ -210,7 +210,7 @@ label *label_new(void *ttf)
   return l;
 }
 
-void label_print(label *l, const char *text, float size)
+void kx_label_print(label *l, const char *text, float size)
 {
   // Assumes left-to-right
   stbtt_fontinfo *font = l->font;
@@ -305,7 +305,7 @@ void label_print(label *l, const char *text, float size)
   l->range_y = l->last_h / th;
 }
 
-void label_draw(label *l, unsigned colour, float x, float y, float xs, float ys)
+void kx_label_draw(label *l, unsigned colour, float x, float y, float xs, float ys)
 {
   // w = last_w * xs
   // h = last_h * ys
@@ -366,4 +366,12 @@ void label_draw(label *l, unsigned colour, float x, float y, float xs, float ys)
     : : "r"(colour), "r"(l->tex)
     : "r0", "r1", "r2", "r3"
   );
+}
+
+void kx_label_release(label *l)
+{
+  if (l->tex != -1) {
+    tex_release(l->tex);
+    free(l->pix);
+  }
 }
