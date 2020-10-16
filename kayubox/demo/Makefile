@@ -26,10 +26,10 @@ BUILD_DIR := build
 
 ARCHFLAGS := -march=armv6 -mfpu=vfp -mfloat-abi=hard
 ASFLAGS := $(ARCHFLAGS) -g
-CCFLAGS := $(ARCHFLAGS) -mtune=arm1176jzf-s -c -std=c99 -O2 -g
+CCFLAGS := $(ARCHFLAGS) -mtune=arm1176jzf-s -c -std=c99 -O2 -g -I../..
 LDFLAGS := $(ARCHFLAGS) -Wl,-T,link.ld -lm -nostartfiles
 
-SRCS := $(wildcard **.[sc])
+SRCS := $(wildcard *.s) $(wildcard **/*.s) $(wildcard kx/*.c)
 
 OBJS := $(patsubst %.s, %.o, $(SRCS))
 OBJS := $(patsubst %.c, %.o, $(OBJS))
@@ -43,12 +43,12 @@ APP_MAP := $(APP_BIN).map
 all: $(APP_BIN) $(APP_MAP)
 
 $(BUILD_DIR)/%.o: %.s
-	@ echo "  AS      $(notdir $<)"
+	@ echo "  AS      $<"
 	$(V) $(call mkdir, $(BUILD_DIR)/$(dir $<))
 	$(V) $(AS) $< -o $@ $(ASFLAGS)
 
 $(BUILD_DIR)/%.o: %.c
-	@ echo "  CC      $(notdir $<)"
+	@ echo "  CC      $<"
 	$(V) $(call mkdir, $(BUILD_DIR)/$(dir $<))
 	$(V) $(CC) $< -o $@ $(CCFLAGS)
 

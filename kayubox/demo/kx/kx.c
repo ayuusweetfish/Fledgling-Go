@@ -33,7 +33,7 @@ def_syscall(0x212, trk_tell, int trk)
 
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
-#include "../../ext/stb/stb_image.h"
+#include "ext/stb/stb_image.h"
 
 void kx_image(unsigned char *res, unsigned int len)
 {
@@ -58,7 +58,7 @@ void kx_image(unsigned char *res, unsigned int len)
 #define STB_VORBIS_NO_PUSHDATA_API
 #define NDEBUG
 
-#include "../../ext/stb/stb_vorbis.c"
+#include "ext/stb/stb_vorbis.c"
 
 #define BLOCK_LEN 8192
 static short buf[BLOCK_LEN * 2];
@@ -161,7 +161,7 @@ void kx_music_release(stream *s)
 #define STBTT_assert(x)
 
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "../../ext/stb/stb_truetype.h"
+#include "ext/stb/stb_truetype.h"
 
 #define FONTS_HASH_SIZE 19
 static struct {

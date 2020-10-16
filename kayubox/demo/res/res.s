@@ -2,7 +2,7 @@
 .macro  res name, path
   .global \name
 0:
-  \name: .incbin "\path"
+  \name: .incbin "res/\path"
 1:
   .global \name\()_size
   .set \name\()_size, (1b - 0b)
