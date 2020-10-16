@@ -24,6 +24,8 @@ def_syscall(0x212, trk_tell, int trk)
 // stb_image
 
 #define STBI_NO_STDIO
+#define STBI_NO_THREAD_LOCALS
+#define STBI_NO_FAILURE_STRINGS
 #define STBI_ASSERT(x)
 #define STBI_MAX_DIMENSIONS 2560
 

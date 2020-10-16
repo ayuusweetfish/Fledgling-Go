@@ -23,6 +23,3 @@ void *_sbrk(intptr_t increment)
     : : "r" (s) : "r0");
   return ret;
 }
-void _exit() { }
-void _kill() { }
-void _getpid() { }
