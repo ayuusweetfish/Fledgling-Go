@@ -10,6 +10,9 @@ SECTIONS
 
   . = ALIGN(0x8);
   _bss_begin = .;
-  .bss : { *(.bss) }
+  .bss : { *(.bss .bss.*) }
   _bss_end = .;
+
+  . = ALIGN(4096);
+  _initial_brk = .;
 }

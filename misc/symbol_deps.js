@@ -10,6 +10,7 @@ const deps = [];
 let cur_fn = '';
 
 for (let line of lines(process.argv[2])) {
+  line = line.trim();
   const r1 = re_fn_start.exec(line);
   if (r1 !== null) cur_fn = r1[1];
 

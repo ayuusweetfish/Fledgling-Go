@@ -1,32 +1,77 @@
 # vim: set ft=asm:
-.include "common_macro.s"
+.macro  vldrs reg, imm
+  vldr  \reg, 0f
+  b     1f
+0: .float \imm
+1:
+.endm
 
 .section .text.startup
+  bl    _crt_init
+
+  ldr   r0, =Mali_Regular_ttf
+  mov   r1, r1
+  mov   r1, r1
+  bl    kx_label
+  ldr   r1, =label
+  str   r0, [r1]
+
+  ldr   r1, =label_text_1
+  vldrs s0, 79.5
+  bl    kx_label_print
+
+  ldr   r0, =label
+  ldr   r0, [r0]
+  ldr   r1, =label_text_2
+  vldrs s0, 79.5
+  bl    kx_label_print
+
   // Load image
   // See res.s
-  ldr   r0, =_img_example
-  ldr   r1, =_img_example_size
-  blx   decode_image
+  ldr   r0, =_32573493_png
+  ldr   r1, =_32573493_png_size
+  blx   kx_image
   svc   #0x01
-  // r0 - pointer to the pixel buffer
+  // r0 - texture ID
   // r1 - width in pixels
   // r2 - height in pixels
-  mov   r4, r0
 
-  // Create texture
-  mov   r0, r1
-  mov   r1, r2
-  svc   #0x110
   ldr   r1, =tex_first
   str   r0, [r1]  // Store texture ID in memory
 
-  // Update image
-  mov   r1, r4
-  svc   #0x111
+  mov   r0, r4
+  bl    free
+
+  // Play audio
+  ldr   r0, =copycat_ogg
+  ldr   r1, =copycat_ogg_size
+  mov   r2, #0
+  mov   r3, #1
+  bl    kx_music
+
+  ldr   r1, =stream
+  str   r0, [r1]
+  bl    kx_music_start
 
   mov   r4, #0
 
 main_loop:
+  mov   r3, #46 // Period key
+  svc   #0x11
+  mov   r5, r3
+
+  ldr   r1, =stream
+  ldr   r0, [r1]
+  cmp   r5, #0
+  bleq  kx_music_start
+  cmp   r5, #0
+  blne  kx_music_pause
+
+  // Update audio
+  ldr   r1, =stream
+  ldr   r0, [r1]
+  bl    kx_music_update
+
   ldr   r0, =#0xffffeeff
   svc   #0x100  // Clear frame
 
@@ -61,6 +106,10 @@ main_loop:
   cmp   r4, #300
   svceq #0x0f   // Debug
 
+  // Draw the image
+  mov   r5, #0
+
+9:
   ldr   r0, =0xffffffff
   vldrs s0,  0.3
   vldrs s1,  0.3
@@ -74,14 +123,37 @@ main_loop:
   vldrs s7,  1.05
 
   ldr   r2, =0xffffffff
+  // s8 = -0.9 + 1.2 * i
+  // s9 =  0.3 - 1.2 * i
+  // s10 = s11 = -0.05 + 1.1 * i
   vldrs s8, -0.9
   vldrs s9,  0.3
   vldrs s10, -0.05
-  vldrs  s11, -0.05
+  vldrs s14,  1.2
+  vldrs s15,  1.1
+  cmp   r5, #0
+  vaddne.f32  s8, s14
+  vsubne.f32  s9, s14
+  vaddne.f32  s10, s15
+  vmov  s11, s10
 
   ldr   r3, =tex_first
   ldr   r3, [r3]
-  bl    _draw_square
+  svc   #0x120  // Draw
+
+  add   r5, #1
+  cmp   r5, #2
+  bne   9b
+
+  // Draw the label
+  ldr   r0, =label
+  ldr   r0, [r0]
+  ldr   r1, =0xffccaaff
+  vldrs s0, -0.4
+  vldrs s1, 0.9
+  vldrs s2, 0.00125
+  vldrs s3, 0.0020833333
+  bl    kx_label_draw
 
   svc   #0x10f  // End frame
   b     main_loop
@@ -89,3 +161,11 @@ main_loop:
 .section .data
 tex_first:
   .int  0
+stream:
+  .int  0
+label:
+  .int  0
+label_text_1:
+  .ascii "qwq\nqwq\nqwq\nqwq\nqwq\nqwq\0"
+label_text_2:
+  .ascii "kerning: hjAVA\nLorem ipsum dolor\n(> ~ <)\0"
