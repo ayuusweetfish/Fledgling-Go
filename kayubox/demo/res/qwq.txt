@@ -1,0 +1,14 @@
+(> ~ <)
+The ABI for the ARM Architecture
+specifies a standard format for
+exception unwind information. This
+information is used when an exception is
+thrown to determine where control should
+be transferred. In particular, the
+unwind information is used to determine
+which function called the function that
+threw the exception, and which function
+called that one, and so forth. This
+information is also used to restore the
+values of callee-saved registers in the
+function catching the exception.

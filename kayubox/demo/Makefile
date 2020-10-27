@@ -42,6 +42,11 @@ APP_MAP := $(APP_BIN).map
 
 all: $(APP_BIN) $(APP_MAP)
 
+$(BUILD_DIR)/res/res.o: res/res.s res/*
+	@ echo "  AS      $<"
+	$(V) $(call mkdir, $(BUILD_DIR)/$(dir $<))
+	$(V) $(AS) $< -o $@ $(ASFLAGS)
+
 $(BUILD_DIR)/%.o: %.s
 	@ echo "  AS      $<"
 	$(V) $(call mkdir, $(BUILD_DIR)/$(dir $<))

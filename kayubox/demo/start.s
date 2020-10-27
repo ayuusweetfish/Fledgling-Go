@@ -22,7 +22,7 @@ _vldrs\@_after:
 
   ldr   r0, =label
   ldr   r0, [r0]
-  ldr   r1, =label_text_2
+  ldr   r1, =qwq_txt
   vldrs s0, 79.5
   bl    kx_label_print
 
@@ -166,6 +166,4 @@ stream:
 label:
   .int  0
 label_text_1:
-  .ascii "qwq\nqwq\nqwq\nqwq\nqwq\nqwq\0"
-label_text_2:
-  .ascii "kerning: hjAVA\nLorem ipsum dolor\n(> ~ <)\0"
+  .asciz "qwq\nqwq\nqwq\nqwq\nqwq\nqwq"

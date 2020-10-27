@@ -1,11 +1,11 @@
 # vim: set ft=asm:
-.macro  res name, path
+.macro  res name: req, path: req
+  .align 4
   .global \name
-0:
   \name: .incbin "res/\path"
-1:
   .global \name\()_size
-  .set \name\()_size, (1b - 0b)
+  .equ \name\()_size, (. - \name)
+  .byte 0
 .endm
 
 .section .rodata
@@ -13,3 +13,4 @@
   res _32573493_png, 32573493.png
   res copycat_ogg, copycat.ogg
   res Mali_Regular_ttf, Mali-Regular.ttf
+  res qwq_txt, qwq.txt

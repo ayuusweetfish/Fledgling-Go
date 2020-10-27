@@ -1,13 +1,12 @@
 # vim: set ft=asm:
 
-.macro  res name, path
+.macro  res name: req, path: req
+  .align 4
   .global \name
-0:
   \name: .incbin "res/\path"
-1:
-  .byte 0 // 默认在bin后面加一个字节0吧，以便导入文本的时候方便一些。
   .global \name\()_size
-  .set \name\()_size, (1b - 0b)
+  .equ \name\()_size, (. - \name)
+  .byte 0
 .endm
 
 // 使用res宏指令导入资源，例如：
