@@ -1,10 +1,10 @@
 # vim: set ft=asm:
 
-.macro  vldrs reg, imm
-  vldr  \reg, 0f
-  b     1f
-0: .float \imm
-1:
+.macro  vldrs reg: req, imm: req
+  vldr  \reg, _vldrs\@_imm
+  b     _vldrs\@_after
+_vldrs\@_imm: .float \imm
+_vldrs\@_after:
 .endm
 
 .macro  d // debug断点调用的简化形式
