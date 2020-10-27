@@ -37,7 +37,7 @@
   // r2 - height in pixels
 
   ldr   r1, =tex_first
-  str   r0, [r1]  // Store texture ID in memory
+  str   r0, [r1]  // Store texture ID in memory //mov (r1), r0
 
   mov   r0, r4
   bl    free
@@ -80,7 +80,7 @@ main_loop:
 
   // Draw a triangle
   ldr   r0, =0xffddddff
-  vldrs s0, 0.0
+  vldrs s0, 0.0  //s0 <- 0.0
   vldrs s1, 0.3
 
   ldr   r1, =0xffddddff
@@ -88,14 +88,14 @@ main_loop:
   vldrs s5, 0.7
 
   cmp   r3, #0  // Is space key down?
-  addeq r4, #1
-  subne r4, #1
+  addeq r4, #1  //条件指令  if true
+  subne r4, #1  // if false
   ldreq r2, =0xffddddff
   ldrne r2, =0xffeeccff
-  vmov          s15, r4
-  vcvt.f32.s32  s15, s15
+  vmov          s15, r4  //32位
+  vcvt.f32.s32  s15, s15  //显式类型转换
   vldrs         s14, 0.001
-  vmul.f32      s15, s14
+  vmul.f32      s15, s14   //set the first operator as the destination
   vldrs         s8, 0.6
   vadd.f32      s8, s15
   vldrs         s9, -0.1
