@@ -1,16 +1,19 @@
 title: 'qwqwqwqwq'
-audio: 'xxx.ogg'
+audio: '../kayubox/demo/res/copycat.ogg'
 tempo: 120.1      # BPM
 offset: 0.123     # s
 
-segments:
-  - time: 32      # start of the segment
-    leading: 1
+sequence:
+  - &test_seg
+    time: 32      # start of the segment
+    lead: 1
     notes:
-      - ['u', 0]  # operation, beat, subdivision (defaults to 0)
-      - ['d', 1]
-      - ['u', 1, 1, 2]
-      - ['t', 2]
+      - [u, 0]    # operation, beat, subdivision (defaults to 0)
+      - [d, 1]
+      - [u, 1, 1/2]
+      - [t, 2]
+  - <<: *test_seg
+    time: 64
 
 decorations:
   - type: 1       # 1 - cloud, 2 - xxx
@@ -18,3 +21,5 @@ decorations:
                         # x: 1 = one beat
                         # y: 1 = one vertical movement
     size: [5, 6]  # x size, y size, in grid coordinates; optional, defaults to [1, 1]
+  - type: 2
+    position: [7, 8]
