@@ -2,6 +2,8 @@
 .include "common_macro.s"
 
 .global _draw_square
+
+.section .text
 _draw_square:
   // 画一个方形。参数与Draw系统调用相同，除了只需要传三个角上的点、不需要传第四个点。
   // 第四个点的画图位置和纹理位置自动计算得出，颜色（如有）则是继承第三个点的颜色。
