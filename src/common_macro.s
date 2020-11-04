@@ -15,6 +15,17 @@ _vldrs\@_imm: .float \imm
 _vldrs\@_after:
 .endm
 
+// vcmp指令紧跟着把VPSCR移动到APSR的指令，从而之后可以利用条件码做条件执行。
+.macro  vcmpa.f32 reg: req, oper2: req
+  vcmp.f32  \reg, \oper2
+  vmrs    APSR_nzcv, FPSCR
+.endm
+
+.macro  vcmpa.f64 reg: req, oper2: req
+  vcmp.f64  \reg, \oper2
+  vmrs    APSR_nzcv, FPSCR
+.endm
+
 .macro  d // debug断点调用的简化形式
   svc #0x0f
 .endm

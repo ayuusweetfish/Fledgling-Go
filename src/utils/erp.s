@@ -8,27 +8,27 @@ qerp:
   // s2 插值点（介于0至1之间） 若s2小于0则如同=0返回s0 若s2大于1则如同=1返回s1
   // return s0
   // 改变s3
-  vcmp.f32  s2, #0.0
+  vcmpa.f32  s2, #0.0
   bxle      lr
   vldrs     s3, 1.0
-  vcmp.f32  s2, s3
+  vcmpa.f32  s2, s3
   vmovge    s0, s1
   bxge      lr
   vldrs     s3, 0.5
-  vcmp.f32  s2, s3
-  blgt      gt0p5
+  vcmpa.f32  s2, s3
+  bgt      gt0p5
 lt0p5:
   vmul.f32  s2, s2
   vldrs     s3, 2.0
   vmul.f32  s2, s3
-  bl        qerpfn
+  b        qerpfn
 gt0p5:
   vldrs     s3, 2.0
   vsub.f32  s4, s2, s3
   vmul.f32  s2, s4
   vldrs     s3, -2.0
   vmul.f32  s2, s3
-  vldrs.f32 s3, 1.0
+  vldrs     s3, 1.0
   vsub.f32  s2, s3
 qerpfn:
   // 此时s2是0至1之间的值

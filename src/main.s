@@ -12,6 +12,12 @@
   ps  // 检查 s0-s1
   l   // 输出标题
 
+  push  {r0-r1}
+  mov   r0, r3
+  mov   r1, r4
+  bl    init_yBirdList
+  pop   {r0-r1}
+
   // 播放音乐
   mov   r0, r1
   mov   r1, r2

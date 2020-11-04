@@ -12,19 +12,26 @@
 // 游戏开始时，鸟的纵坐标为0，camera_y为4（对应于鸟正好在屏幕中间）。
 // camera_y是一个浮点数，表示的是游戏开始时
 
+.section .text
 // 有用的常量定义
-.equ  CAM_X_OFF,  2.0
-.equ  CAM_WID,    12.0
-.equ  CAM_HEI,    9.0
+CAM_X_OFF:
+  .float  2.0
+CAM_WID:
+  .float  12.0
+CAM_HEI:
+  .float  9.0
 
 // 衍生的常量定义
 // 这里的值是由上面的有用常量经过简单的计算得出的。如果修改上面的有用常量，应当按照公式对应修改这些内容
-.equ  _CWH,  6.0  // (CAM_WID / 2)
-.equ  _CXA,  -4.0 // (CAM_X_OFF - (CAM_WID / 2))
-.equ  _CHH,  4.5  // (CAM_HEI / 2)
-.equ  _CYA,  4.5 // (CAM_HEI / 2)
+_CWH:
+  .float  6.0  // (CAM_WID / 2)
+_CXA:
+  .float  -4.0 // (CAM_X_OFF - (CAM_WID / 2))
+_CHH:
+  .float  4.5  // (CAM_HEI / 2)
+_CYA:
+  .float  4.5 // (CAM_HEI / 2)
 
-.section .text
 coord_g2s_pt:
   // s0, s1 全局坐标系的x y
   // ret: s0,s1屏幕坐标系的xy
@@ -32,17 +39,17 @@ coord_g2s_pt:
   ldr       r0, =bttime
   vldr      s7, [r0]
   vsub.f32  s0, s7
-  vldrs     s7, _CXA
+  vldr      s7, _CXA
   vadd.f32  s0, s7
-  vldrs     s7, _CWH
-  vdiv.f32  s0, s7 // x算完了
+  vldr      s7, _CWH
+  vdiv.f32  s0, s0, s7 // x算完了
   ldr       r0, =camera_y
   vldr      s7, [r0]
   vsub.f32  s1, s7
-  vldrs     s7, _CYA
+  vldr      s7, _CYA
   vadd.f32  s1, s7
-  vldrs     s7, _CHH
-  vdiv.f32  s1, s7 // x算完了
+  vldr      s7, _CHH
+  vdiv.f32  s1, s1, s7 // x算完了
   bx        lr
 
 coord_g2s_rect:
@@ -51,12 +58,12 @@ coord_g2s_rect:
   // 与输入输出无关的寄存器不会改变
   // TODO 之后如果有需要的话就做近大远小
   bl        coord_g2s_pt
-  vldrs     s5, _CWH
-  vdiv.f32  s3, s5
+  vldr      s5, _CWH
+  vdiv.f32  s3, s3, s5
   vadd.f32  s8, s0, s3
   vmov      s9, s1
-  vldrs     s5, _CHH
-  vdiv.f32  s4, s5
+  vldr      s5, _CHH
+  vdiv.f32  s4, s4, s5
   vadd.f32  s5, s1, s4
   vmov      s4, s0
   bx        lr
@@ -65,3 +72,4 @@ coord_g2s_rect:
 .section .data
 camera_y: // 相机的
   .float  4.0
+
