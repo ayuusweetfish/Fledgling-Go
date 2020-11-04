@@ -4,7 +4,8 @@
   _map_title: .asciz "\what"
 .endm
 .macro  audio, what:req
-  _map_audio: #.incbin "\what"
+  _map_audio: .incbin "\what"
+  _map_audio_len: .int (. - _map_audio)
 .endm
 
 .irp    name, tempo, offset
@@ -58,10 +59,11 @@
 .org    0
 
 .int    _map_title
+.int    _map_audio
+.int    _map_audio_len
 .int    _map_tempo
 .int    _map_offset
-.int    _map_audio
 .int    _map_seq_first
-.int    _map_seq_last
+.int    _map_seq_last - _map_seq_first
 .int    _map_decor_first
-.int    _map_decor_last
+.int    (_map_decor_last - _map_decor_first) / 24

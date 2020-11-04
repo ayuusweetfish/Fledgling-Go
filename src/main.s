@@ -9,6 +9,29 @@
 .section .text.startup
   bl    _crt_init
 
+  ldr   r0, =stray_bin
+  bl    map_meta
+  svc   #0x00
+  svc   #0x02
+  push  {r0-r3}
+  svc   #0x0e
+  pop   {r0-r3}
+
+  // Play audio
+  mov   r0, r1
+  mov   r1, r2
+  mov   r2, #0
+  mov   r3, #1
+  bl    kx_music
+
+  ldr   r1, =stream
+  str   r0, [r1]
+  bl    kx_music_start
+
+  // svc   #0x0f
+  // b     (. - 4)
+  //
+
   ldr   r0, =Mali_Regular_ttf
   mov   r1, r1
   mov   r1, r1
@@ -41,17 +64,6 @@
 
   mov   r0, r4
   bl    free
-
-  // Play audio
-  ldr   r0, =copycat_ogg
-  ldr   r1, =copycat_ogg_size
-  mov   r2, #0
-  mov   r3, #1
-  bl    kx_music
-
-  ldr   r1, =stream
-  str   r0, [r1]
-  bl    kx_music_start
 
   mov   r4, #0
 

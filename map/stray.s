@@ -1,7 +1,7 @@
 .include "map.i"
 
 title   "Stray Toy's Adventure!!"
-audio   "../kayubox/demo/res/copycat.ogg"
+audio   "Stray Toy's Adventure.ogg"
 
 tempo   256.0
 offset  0.123

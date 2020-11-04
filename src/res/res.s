@@ -22,3 +22,5 @@
   res _32573493_png, 32573493.png
   res copycat_ogg, copycat.ogg
   res Mali_Regular_ttf, Mali-Regular.ttf
+
+  res stray_bin, ../../map/stray.bin
