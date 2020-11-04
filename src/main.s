@@ -1,4 +1,5 @@
 .include "common_macro.s"
+include_header "game_state.s"
 
 .section .text.startup
   bl    _crt_init
@@ -12,7 +13,7 @@
   // 播放音乐
   mov   r0, r1
   mov   r1, r2
-  mov   r2, #0
+  mov   r2, #BIRD_NORMAL
   mov   r3, #1
   bl    kx_music
 

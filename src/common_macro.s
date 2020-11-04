@@ -1,5 +1,13 @@
 # vim: set ft=asm:
 
+// 引入一个源文件，在其范围内设置 _INCLUDE_HEADER 为 1
+// 故源文件中可以检查 _INCLUDE_HEADER 的值，在等于 1 时只保留常数和宏定义
+.macro  include_header what: req
+  .set _INCLUDE_HEADER, 1
+  .include "\what"
+  .set _INCLUDE_HEADER, 0
+.endm
+
 .macro  vldrs reg: req, imm: req
   vldr  \reg, _vldrs\@_imm
   b     _vldrs\@_after
