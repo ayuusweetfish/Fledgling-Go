@@ -3,7 +3,7 @@
 title   "Stray Toy's Adventure!!"
 audio   "Stray Toy's Adventure.ogg"
 
-tempo   256.0
+tempo   64.0
 offset  0.123
 
 lead  2
