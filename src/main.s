@@ -75,10 +75,10 @@ main_loop:
   // 如果有上一帧时刻，则计算差值
   subs  r0, r2
   sbc   r1, r3 // r1, r0是delta time
-  cmp   r2, 0
-  cmpe  r3, 0
-  move  r0, 0
-  move  r1, 0 // 如果r2、r3都是0，则说明无上一帧，应当令差值为0
+  cmp   r2, #0
+  cmpeq r3, #0
+  moveq r0, #0
+  moveq r1, #0 // 如果r2、r3都是0，则说明无上一帧，应当令差值为0
   ldr   r4, =game_time
   ldrd  r2, r3, [r4]
   adds  r2, r0
@@ -209,9 +209,9 @@ game_time_to_tempo:
   vcvt.f64.f32  d2, s0 // d2是bpm
   vldrs s3, 60.0
   vcvt.f64.f32  d3, s3
-  vdiv.f64  d0, d1
-  vmul.f64  d0, d2
-  vdiv.f64  d0, d3 // d0此时是us/100000*bpm/60，就是拍数了
+  vdiv.f64  d0, d0, d1
+  vmul.f64  d0, d0, d2
+  vdiv.f64  d0, d0, d3 // d0此时是us/100000*bpm/60，就是拍数了
   vcvt.f32.f64  s0, d0
   bx lr
 
