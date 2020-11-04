@@ -9,6 +9,9 @@ uint64_t av_time();
 uint64_t av_rand();
 bool av_key(uint32_t code);
 
+void av_time_pause();
+void av_time_resume();
+
 void video_init();
 void video_loop();
 

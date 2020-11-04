@@ -28,10 +28,28 @@
 
 // Time
 
+static double time_delta = 0;
+static bool time_paused = false;
+static double time_paused_at = 0;
+
 uint64_t av_time()
 {
-  double t = glfwGetTime();
+  double t = glfwGetTime() + time_delta;
   return (uint64_t)(t * 1000000);
+}
+
+void av_time_pause()
+{
+  if (time_paused) return;
+  time_paused = true;
+  time_paused_at = glfwGetTime();
+}
+
+void av_time_resume()
+{
+  if (!time_paused) return;
+  time_paused = false;
+  time_delta += (time_paused_at - glfwGetTime());
 }
 
 // Random

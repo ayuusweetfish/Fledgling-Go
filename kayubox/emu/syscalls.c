@@ -67,7 +67,7 @@ static void sys_probe_min(SYSCALL_ARGS)
     "r6 = " FMT_32x "  "
     "r7 = " FMT_32x "\n"
     , regs[0], regs[1], regs[2], regs[3]
-    , regs[4], regs[4], regs[6], regs[7]
+    , regs[4], regs[5], regs[6], regs[7]
   );
 }
 
@@ -195,9 +195,11 @@ static void sys_log(SYSCALL_ARGS)
 static void sys_debug(SYSCALL_ARGS)
 {
   audio_global_running(false);
+  av_time_pause();
   syscall_log("Program paused, press Enter to continue");
   while (fgetc(stdin) != '\n') { }
   audio_global_running(true);
+  av_time_resume();
 }
 
 static void sys_time(SYSCALL_ARGS)
