@@ -1,5 +1,5 @@
 .include "common_macro.s"
-include_header "game_state.s"
+.include "constants.s"
 
 .section .text.startup
   bl    _crt_init

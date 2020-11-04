@@ -26,22 +26,16 @@
   - st_pose
     鸟的动作。实际上其他鸟的行为（如斜眼、撞击后的反应）也依赖此项
   - st_ago
-    只针对上/下音符有效，当前音符（或上一个音符）被正确击中以来的时间
+    只针对上/下音符有效，当前音符（或上一个音符）被正确击中以来的时间（拍）
     -1 表示尚未击中
   - st_upset
-    距上次炸毛触发以来的时间（秒）
+    距上次炸毛触发以来的时间（拍）
   - st_s_*
     布尔变量 当前帧是否触发某个音效
 */
 
-.set POSE_NORMAL, 0
-.set POSE_PERFECT, 1
-.set POSE_GREAT, 2
-.set POSE_BUMP, 3
-.set POSE_READY, 4
-.set POSE_FLAP, 5
+.include "constants.s"
 
-.if _INCLUDE_HEADER != 1
 .data
 st_pose:  .int    POSE_NORMAL
 st_ago:   .float  0
@@ -52,7 +46,21 @@ st_s_bump: .byte 0
 st_s_upset: .byte 0
 st_s_flap: .byte 0
 
-.endif
 
+.text
 
+/*
+  out r0 - boolean，玩家 A（上）是否按下按键
+      r1 - boolean，玩家 B（下）是否按下按键
+*/
+get_input:
+  bx    lr
 
+/*
+  out r0 - 当前音符头鸟领先的拍数
+      r1 - 当前音符的方向（0 - 无；1 - 上；2 - 下；3 - 拍翅膀）
+      r2 - 当前时刻与音符时刻之差（拍）
+           以音符的位置为 0，之前为负，之后为正
+*/
+get_note:
+  bx    lr
