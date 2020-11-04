@@ -1,5 +1,6 @@
 .include "common_macro.s"
 
+.global coord_g2s_rect
 // 世界坐标系规定如下：
 // 世界坐标系想象为一个无限大的平面，向右为x轴正方向，向上为y轴正方向，远离屏幕为z轴正方向。
 // 在世界中，相机在x方向上以恒定速率(就是bpm)运动，在y轴上按照一定的运动算法作运动。
@@ -57,6 +58,7 @@ coord_g2s_rect:
   // ret: s0,s1左上角xy， s4,s5左下角xy， s8,s9右上角xy，是对应于svc画图的输入格式的
   // 与输入输出无关的寄存器不会改变
   // TODO 之后如果有需要的话就做近大远小
+  push      {lr}
   bl        coord_g2s_pt
   vldr      s5, _CWH
   vdiv.f32  s3, s3, s5
@@ -64,8 +66,9 @@ coord_g2s_rect:
   vmov      s9, s1
   vldr      s5, _CHH
   vdiv.f32  s4, s4, s5
-  vadd.f32  s5, s1, s4
+  vsub.f32  s5, s1, s4
   vmov      s4, s0
+  pop       {lr}
   bx        lr
 
 

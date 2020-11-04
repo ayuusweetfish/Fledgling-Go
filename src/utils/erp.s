@@ -1,6 +1,8 @@
 # vim: set ft=asm:
 .include "common_macro.s"
 
+.global qerp
+
 .section .data
 qerp:
   // 二次插值：函数y=2x^2(x\in[0,0.5))；y=-2(x-1)^2+1(x\in[0.5,1])

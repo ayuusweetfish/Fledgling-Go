@@ -2,12 +2,13 @@
 
 .global init_yBirdList
 .global yBirdList
+.global calBirdY
 
 .section .text
 init_yBirdList:
   // r0, r1 - 音符序列起始地址/长度
   // 不会修改任何寄存器
-  push          {r2-r7}
+  push          {r1-r7}
   vpush         {s0}
   ldr           r6, =yBirdList // r6是dst的首地址
   mov           r7, #0 // r7是位置的整数
@@ -30,9 +31,69 @@ loop_iyb:
   add           r2, #1
   b             loop_iyb
 end_iyb:
+  // 为防止访问越界，把最后的r7值再在末尾多填充10次，以防lead鸟读取数组时候发生越界。
+  add           r1, #10
+loop2_iyb:
+  cmp           r2, r1
+  bge           end2_iyb
+  lsl           r3, r2, #2
+  add           r4, r6, r3 // 要写入的位置float地址
+  vmov          s0, r7
+  vcvt.f32.s32  s0, s0
+  vstr          s0, [r4]
+  add           r2, #1
+  b             loop2_iyb
+end2_iyb:
   vpop          {s0}
-  pop           {r2-r7}
+  pop           {r1-r7}
   bx            lr
+
+
+calBirdY:
+  // 根据yBirdList算出在给定时刻的鸟应当处于的位置，内含0.5拍完成动作的qerp插值处理。
+  // 计算规则是若在某拍的前0.5s则由上一拍位置过渡中，否则则完整呈现本拍位置
+  // s0: 计算的基准时间点。如果是lead鸟，则应该传入一个比bttime大lead拍数的值；如果是落后鸟，则传入bttime减去相应的值。
+  // return: s0: 当前时刻的带小数的y值， s1: 当前所处拍的整数的y值。
+  // 更改s0-s4、r0-r1
+  push          {lr}
+  vldrs         s1, 0.0
+  vcmpa.f32     s0, #0.0
+  vmovlt        s0, s1
+  bxlt          lr  // 如果时间值小于0，就直接返回0就好，
+
+  vcvt.s32.f32  s3, s0
+  vmov          r0, s3 // r0是当前拍号向下取整
+  vcvt.f32.s32  s3, s3
+  vsub.f32      s3, s0, s3 // s3是当前拍号的小数部分
+  ldr           r2, =yBirdList
+  lsl           r1, r0, #2
+  add           r1, r2
+  vldr          s1, [r1] // s1是当前整数拍号的y坐标
+
+  cmp           r0, #0 // 如果在第0.x拍，则无过渡
+  vmoveq        s2, s1
+  subne         r1, #4 // 否则，取出上一拍坐标存进s2
+  vldrne        s2, [r1]
+  // 有过渡的条件：当前在本拍前0.5拍内，且本拍y值与上一拍不等
+  vcmpa.f32     s2, s1
+  beq           no_gradual
+  vldrs         s4, 0.5
+  vcmpa.f32     s3, s4
+  bge           no_gradual
+  //有过渡
+  vpush         {s1}
+  vmov          s0, s2
+  vldrs         s4, 2.0
+  vmul.f32      s2, s3, s4
+  bl            qerp
+  vpop          {s1}
+  b             ret_cby
+no_gradual: // 无过渡，以整数y值作为最终答案
+  vmov          s0, s1
+ret_cby:
+  pop           {lr}
+  bx            lr
+
 
 
 .section .bss

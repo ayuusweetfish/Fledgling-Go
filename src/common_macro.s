@@ -45,6 +45,11 @@ _vldrs\@_after:
   svc #0x0f
 .endm
 
+.macro  dpmem // 打印内存内容+debug断点调用的简化形式
+  svc #0x03
+  svc #0x0f
+.endm
+
 .macro  pm // 打印简单版寄存器的简化形式
   svc #0x00
 .endm
@@ -55,6 +60,10 @@ _vldrs\@_after:
 
 .macro  ps // 打印浮点寄存器的简化形式
   svc #0x02
+.endm
+
+.macro  pmem // 打印内存内容的简化形式
+  svc #0x03
 .endm
 
 .macro  l // 输出 log 的简化形式
