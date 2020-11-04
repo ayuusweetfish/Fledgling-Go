@@ -37,3 +37,9 @@ _vldrs\@_after:
 .macro  ps // 打印浮点寄存器的简化形式
   svc #0x02
 .endm
+
+.macro  l // 输出 log 的简化形式
+  push {r0-r3}
+  svc  #0x0e
+  pop  {r0-r3}
+.endm
