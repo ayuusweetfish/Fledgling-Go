@@ -15,13 +15,14 @@ qerp:
   vcmpa.f32 s2, #0.0
   bxle      lr
   vldrs     s3, 1.0
-  vcmpa.f32  s2, s3
+  vcmpa.f32 s2, s3
   vmovge    s0, s1
   bxge      lr
   vpush     {s3-s4}
   vldrs     s3, 2.0
   vsub.f32  s4, s2, s3
-  vneg.f32  s2, s2 // 此时s2是0至1之间的值
+  vneg.f32  s2, s2
+  vmul.f32  s2, s4 // 此时s2是0至1之间的值
   vsub.f32  s1, s0
   vmul.f32  s1, s2
   vadd.f32  s0, s1
