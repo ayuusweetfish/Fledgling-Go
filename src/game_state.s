@@ -37,6 +37,9 @@
     当前窗口期情况 与get_note的输出 r1一致
   - st_s_*
     布尔变量 当前帧是否触发某个音效
+  - ready_is_perfect
+    用于辅助拍翅膀perfect判定的临时变量，不计入state结构体，不作为接口使用
+    -1 - 初始状态  0 - great  1 - perfect
 */
 
 .include "constants.s"
@@ -59,9 +62,30 @@ st_s_great:   .byte 0
 st_s_bump:    .byte 0
 st_s_upset:   .byte 100
 st_s_flap:    .byte 0
+ready_is_perfect: .byte -1
 
 .text
 state_update:
+  //TODO: when enter a new window set st_pose as POSE_NORMAL  --Finished
+  //TODO: flap
+  //TODO: flap_ready
+  //TODO: initialize st_s_*
+  ldr r5, =0
+  ldr r6, =st_s_perfect
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_s_great
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_s_bump
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_s_upset
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_s_flap
+  str r5, [r6]        //initialize all the st_s_* as 0
+
   bl get_input
   mov r3, r0    // UP key is down
   mov r4, r1    // DOWN key is down
@@ -85,6 +109,10 @@ already_hit:
   b L1
 
 great_manager:
+  ldr r5, =st_window
+  ldr r5, [r5]
+  cmp r5, #0
+  bleq normal_set             //若上一帧为非窗口期且这一帧为great窗口期，则为进入窗口期，set st_pose as normal
   cmp r3, #1
   beq great_manager_upkey
   cmp r4, #1
@@ -95,23 +123,39 @@ great_manager_upkey:
   cmp r0, #1
   beq great_set
   cmp r0, #3         // in flap window
-  ldreq r5, =st_pose
-  ldreq r5, [r5]
-  cmpeq r5, #POSE_READY_DOWN
-  bleq flap_set
-  beq great_set
+  beq great_manager_upkey_flap
   b L1
+
+great_manager_upkey_flap:
+   ldr r5, =st_pose
+   ldr r5, [r5]
+   cmp r5, #POSE_READY_DOWN
+   ldreq r5, =ready_is_perfect
+   ldreq r5, [r5]
+   cmpeq r5, #0
+   bl flap_great_set
+   cmp r5, #POSE_NORMAL
+   bl ready_up_great_set
+   b L1
 
 great_manager_downkey:
   cmp r0, #2
   beq great_set
   cmp r0, #3
-  ldreq r5, =st_pose
-  ldreq r5, [r5]
-  cmpeq r5, #POSE_READY_UP
-  bleq flap_set
-  beq great_set
+  beq great_manager_downkey_flap   //flap window
   b L1
+
+great_manager_downkey_flap:
+   ldr r5, =st_pose
+   ldr r5, [r5]
+   cmp r5, #POSE_READY_UP
+   ldreq r5, =ready_is_perfect
+   ldreq r5, [r5]
+   cmpeq r5, #0
+   bl flap_great_set
+   cmp r5, #POSE_NORMAL
+   bl ready_down_great_set
+   b L1
 
 great_set:
   ldr r5, =POSE_MOV_GREAT
@@ -138,23 +182,39 @@ perfect_manager_upkey:
   cmp r0, #1
   beq perfect_set
   cmp r0, #3           // in flap window
-  ldreq r5, =st_pose
-  ldreq r5, [r5]
-  cmpeq r5, #POSE_READY_DOWN
-  bleq flap_set
-  beq perfect_set
+  beq perfect_manager_upkey_flap
   b L1
+
+perfect_manager_upkey_flap:
+   ldr r5, =st_pose
+   ldr r5, [r5]
+   cmp r5, #POSE_READY_DOWN
+   ldreq r5, =ready_is_perfect
+   ldreq r5, [r5]
+   cmpeq r5, #1
+   beq flap_perfect_set
+   cmp r5, #POSE_NORMAL
+   beq ready_up_perfect_set
+   b L1
 
 perfect_manager_downkey:
   cmp r0, #2
   beq perfect_set
   cmp r0, #3
-  ldreq r5, =st_pose
-  ldreq r5, [r5]
-  cmpeq r5, #POSE_READY_UP
-  bleq flap_set
-  beq perfect_set
+  beq perfect_manager_downkey_flap
   b L1
+
+perfect_manager_downkey_flap:
+   ldr r5, =st_pose
+   ldr r5, [r5]
+   cmp r5, #POSE_READY_UP
+   ldreq r5, =ready_is_perfect
+   ldreq r5, [r5]
+   cmpeq r5, #1
+   beq flap_perfect_set
+   cmp r5, #POSE_NORMAL
+   beq ready_down_perfect_set
+   b L1
 
 perfect_set:
   ldr r5, =POSE_MOV_PERFECT
@@ -200,8 +260,8 @@ upset_set:
   str r5, [r6]
   b L1
 
-flap_set:
-  ldr r5, =POSE_FLAP_GREAT // TODO 这里你现在只有一个函数、没有POSE_FLAP_PERFECT的设置函数
+flap_perfect_set:
+  ldr r5, =POSE_FLAP_PERFECT
   ldr r6, =st_pose
   str r5, [r6]
   ldr r5, =0
@@ -210,6 +270,77 @@ flap_set:
   ldr r5, =1
   ldr r6, =st_s_flap
   str r5, [r6]          //set sound
+  ldr r6, =st_s_perfect
+  str r5, [r6]          //set sound
+  ldr r5, =-1
+  ldr r6, =flap_is_perfect
+  str r5, [r6]          //initialize flap_is_perfect as -1
+  b L1
+
+flap_great_set:
+  ldr r5, =POSE_FLAP_GREAT
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_flap
+  str r5, [r6]          //set sound
+  ldr r6, =st_s_great
+  str r5, [r6]          //set sound
+  ldr r5, =-1
+  ldr r6, =flap_is_perfect
+  str r5, [r6]          //initialize flap_is_perfect as -1
+  b L1
+
+ready_up_perfect_set:
+  ldr r5, =POSE_READY_UP
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =flap_is_perfect
+  str r5, [r6]
+  b L1
+
+ready_up_great_set:
+  ldr r5, =POSE_READY_UP
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =flap_is_perfect
+  str r5, [r6]
+  b L1
+
+ready_down_perfect_set:
+  ldr r5, =POSE_READY_DOWN
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =flap_is_perfect
+  str r5, [r6]
+  b L1
+
+ready_down_great_set:
+  ldr r5, =POSE_READY_DOWN
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =flap_is_perfect
+  str r5, [r6]
+  b L1
+
+
+normal_set:
+  ldr r5, =POSE_NORMAL
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =-1
+  ldr r6, =flap_is_perfect
+  str r5, [r6]          //initialize flap_is_perfect as -1
   bx lr
 
 L1:
