@@ -101,11 +101,9 @@ drawBirds:
 inib_loop1:
   cmp           r6, r7
   bge           inib_l1_end
-  ldm           r9!, {r0-r3} // r0-r3分别表示类别、x、y、mode
-  vmov          s8, r1
-  vcvt.f32.s32  s8, s8 // s8是x offset
-  vmov          s9, r2
-  vcvt.f32.s32  s9, s9 // s9是y offset
+  ldm           r9!, {r0-r3} // r0-r3分别表示类别、x offset、y offset、mode 其中x y offset已经是浮点数格式了！
+  vmov          s8, r1 // s8是x offset
+  vmov          s9, r2 // s9是y offset
   //默认处理：s8变为绝对的x(st_time+offset)、s9变为绝对的y(绝对x算出绝对y+offset)
   vadd.f32      s8, s31
   vmov          s0, s8
@@ -121,13 +119,16 @@ inib_tp_me: // me：不同的纹理、y由calMeY决定
   vmov          s9, s0
   ldr           r8, =idtx_mebird
   ldr           r8, [r8]
-inib_tp_lead: // lead：调用calHeadBirdXAndUpdateCurLead重算x，并以新的x重算y
+  b             inib_tp_end
+inib_tp_lead: // lead：调用calHeadBirdXAndUpdateCurLead算出领先距离追加到x(s8)上，并以新的x重算y
   cmp           r0, #BIRD_TYPE_LEAD
   bne           inib_tp_end
   bl            calHeadBirdXAndUpdateCurLead
-  vmov          s8, s0
+  vadd.f32      s8, s0
+  vmov          s0, s8
   bl            calBirdY
   vmov          s9, s0
+  b             inib_tp_end
 inib_tp_end:
   // 万事俱备，开始绘制
   vmov          s1, s9
@@ -163,12 +164,11 @@ calBirdY:
   // 计算规则是若在某拍的前0.5s则由上一拍位置过渡中，否则则完整呈现本拍位置
   // s0: 计算的基准时间点（拍）。如果是lead鸟，则应该传入一个比st_time大lead拍数的值；如果是落后鸟，则传入st_time减去相应的值。
   // return: s0: 当前时刻的带小数的y值， s1: 当前所处拍的整数的y值。
-  // 更改s0-s4、r0-r1
-  push          {lr}
+  // 更改s0-s4
+  push          {r0-r1, lr}
   vldrs         s1, 0.0
   vcmpa.f32     s0, #0.0
-  vmovlt        s0, s1
-  bxlt          lr  // 如果时间值小于0，就直接返回0就好，
+  vmovlt        s0, s1 // 如果时间值小于0，视为是0
 
   bl            floor
   vmov          s3, s1 // r0是当前拍号向下取整,s3是当前拍号的小数部分
@@ -176,9 +176,10 @@ calBirdY:
   vmov          s1, s0 // s1是当前整数拍号所对应的的y坐标，一定是个整数
 
   cmp           r0, #0 // 如果在第0.x拍，则不存在合法的上一拍，令上一拍坐标等于本拍坐标
-  vmoveq        s2, s1
-  subne         r1, #4 // 否则，取出上一拍坐标存进s2
-  vldrne        s2, [r1]
+  vmovle        s2, s1
+  subne         r0, #1
+  bl            getBirdYByInt
+  vmov          s2, s0 // 否则，取出上一拍坐标存进s2
   // 有过渡的条件：当前在本拍前0.5拍内，且本拍y值与上一拍不等
   vcmpa.f32     s2, s1
   beq           no_gradual
@@ -196,7 +197,7 @@ calBirdY:
 no_gradual: // 无过渡，以整数y值作为最终答案
   vmov          s0, s1
 ret_cby:
-  pop           {lr}
+  pop           {r0-r1, lr}
   bx            lr
 
 calMeY:
@@ -244,21 +245,23 @@ HEADBIRD_X_DELTAMAX: // 每一拍，头鸟lead允许变化的最大值
   .float  1.0
 
 calHeadBirdXAndUpdateCurLead:
-  // 计算实际绘制的头鸟领先距离，并更新curLead。return s0。
+  // 计算实际绘制时头鸟领先于标准点的距离，并更新curLead。return s0。
   // 修改r0-r1、s0-s3
+  push          {lr}
   ldr           r0, =st_time
   vldr          s0, [r0]
   bl            floor
   ldr           r1, =map_seq
   ldr           r1, [r1]
   add           r1, r0
-  ldr           r1, [r1]
+  ldrb          r1, [r1]
   lsr           r1, #4
   vmov          s0, r1
   vcvt.f32.s32  s0, s0 // 此时s0是当前的lead
   ldr           r0, =curLead
   vldr          s1, [r0] // s1是老的curLead
   vcmpa.f32     s0, s1
+  popeq         {lr}
   bxeq          lr // 相等就直接返回
   // 计算允许的变化量的最大值
   vldrs         s2, 60.0
@@ -275,6 +278,7 @@ calHeadBirdXAndUpdateCurLead:
   vsub.f32      s1, s1, s3
   bl            clamp // 应当让返回的s0，是正常的lead clamp在允许变化区间之内的值。
   vstr          s0, [r0] // 新的值写回curLead
+  pop           {lr}
   bx            lr
 
 
