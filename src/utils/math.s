@@ -56,7 +56,7 @@ cla_exchange12: // 交换s1 s2
 cla_end12:
   vcmpa.f32 s0, s1
   vmovlt    s0, s1
-  bx        lr
+  bxlt      lr
   vcmpa.f32 s0, s2
   vmovgt    s0, s2
   bx        lr
