@@ -3,6 +3,7 @@
 
 .global qerp
 .global floor
+.global clamp
 
 .section .text
 qerp:
@@ -51,3 +52,23 @@ floor:
   vcvt.f32.s32  s0, s0
   vsub.f32      s1, s0
   bx            lr
+
+
+clamp:
+  // s0 数值 s1 下界 s2 上界 （允许s1>s2）
+  // return s0 除了s0外寄存器都不改变
+  vcmpa.f32 s2, s1
+  bge       cla_end12
+cla_exchange12: // 交换s1 s2
+  vpush     {s3}
+  vmov      s3, s1
+  vmov      s1, s2
+  vmov      s2, s3
+  vpop      {s3}
+cla_end12:
+  vcmpa.f32 s0, s1
+  vmovlt    s0, s1
+  bx        lr
+  vcmpa.f32 s0, s2
+  vmovgt    s0, s2
+  bx        lr
