@@ -52,7 +52,7 @@ end2_iyb:
 calBirdY:
   // 根据yBirdList算出在给定时刻的鸟应当处于的位置，内含0.5拍完成动作的qerp插值处理。
   // 计算规则是若在某拍的前0.5s则由上一拍位置过渡中，否则则完整呈现本拍位置
-  // s0: 计算的基准时间点。如果是lead鸟，则应该传入一个比bttime大lead拍数的值；如果是落后鸟，则传入bttime减去相应的值。
+  // s0: 计算的基准时间点（拍）。如果是lead鸟，则应该传入一个比bttime大lead拍数的值；如果是落后鸟，则传入bttime减去相应的值。
   // return: s0: 当前时刻的带小数的y值， s1: 当前所处拍的整数的y值。
   // 更改s0-s4、r0-r1
   push          {lr}
@@ -61,10 +61,10 @@ calBirdY:
   vmovlt        s0, s1
   bxlt          lr  // 如果时间值小于0，就直接返回0就好，
 
-  vcvt.s32.f32  s3, s0
-  vmov          r0, s3 // r0是当前拍号向下取整
-  vcvt.f32.s32  s3, s3
-  vsub.f32      s3, s0, s3 // s3是当前拍号的小数部分
+  vpush         {s0}
+  bl            floor
+  mov           s3, s1
+  vpop          {s0}  //r0是当前拍号向下取整,s3是当前拍号的小数部分,保持s0仍是完整拍号
   ldr           r2, =yBirdList
   lsl           r1, r0, #2
   add           r1, r2

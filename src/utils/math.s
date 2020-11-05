@@ -2,8 +2,9 @@
 .include "common_macro.s"
 
 .global qerp
+.global floor
 
-.section .data
+.section .text
 qerp:
   // 二次插值：函数y=2x^2(x\in[0,0.5))；y=-2(x-1)^2+1(x\in[0.5,1])
   // s0 下界 s1 上界 （允许s0>s1）
@@ -38,3 +39,15 @@ qerpfn:
   vmul.f32  s1, s2
   vadd.f32  s0, s1
   bx        lr
+
+
+
+floor:
+  // 输入 s0
+  // 输出 r0、s0都是输入向下取整  s0：输入值与其向下取整结果的差值
+  vmov          s1, s0
+  vcvt.s32.f32  s0, s0
+  vmov          r0, s0
+  vcvt.f32.s32  s0, s0
+  vsub.f32      s1, s0
+  bx            lr
