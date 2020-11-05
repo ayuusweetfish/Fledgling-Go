@@ -5,7 +5,7 @@
 .endm
 .macro  audio, what:req
   _map_audio: .incbin "\what"
-  _map_audio_len: .int (. - _map_audio)
+  .equ _map_audio_len, (. - _map_audio)
 .endm
 
 .irp    name, tempo, offset

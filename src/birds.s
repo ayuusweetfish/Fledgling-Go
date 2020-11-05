@@ -170,7 +170,7 @@ calBirdY:
   vcmpa.f32     s0, #0.0
   vmovlt        s0, s1 // 如果时间值小于0，视为是0
 
-  bl            floor
+  bl            floor_f32
   vmov          s3, s1 // r0是当前拍号向下取整,s3是当前拍号的小数部分
   bl            getBirdYByInt
   vmov          s1, s0 // s1是当前整数拍号所对应的的y坐标，一定是个整数
@@ -250,7 +250,7 @@ calHeadBirdXAndUpdateCurLead:
   push          {lr}
   ldr           r0, =st_time
   vldr          s0, [r0]
-  bl            floor
+  bl            floor_f32
   ldr           r1, =map_seq
   ldr           r1, [r1]
   add           r1, r0

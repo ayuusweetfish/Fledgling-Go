@@ -2,7 +2,7 @@
 .include "common_macro.s"
 
 .global qerp
-.global floor
+.global floor_f32
 .global clamp
 
 .section .text
@@ -31,7 +31,7 @@ qerp:
 
 
 
-floor:
+floor_f32:
   // 输入 s0
   // 输出 r0、s0都是输入向下取整  s0：输入值与其向下取整结果的差值
   vmov          s1, s0
