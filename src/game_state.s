@@ -23,29 +23,196 @@
     「当前音符对应的移动方向」计算得到
 
   数据
+  - st_time
+    当前处于第几拍
   - st_pose
-    鸟的动作。实际上其他鸟的行为（如斜眼、撞击后的反应）也依赖此项
+    鸟的动作；实际上其他鸟的行为（如斜眼、撞击后的反应）也依赖此项
   - st_ago
     只针对上/下音符有效，当前音符（或上一个音符）被正确击中以来的时间（拍）
     -1 表示尚未击中
   - st_upset
     距上次炸毛触发以来的时间（拍）
+  - st_last_hit
+    上次命中的音符是第几拍
+  - st_window
+    当前窗口期情况 与get_note的输出 r1一致
   - st_s_*
     布尔变量 当前帧是否触发某个音效
 */
 
 .include "constants.s"
 
+
+
 .data
+st_time:  .float
 st_pose:  .int    POSE_NORMAL
 st_ago:   .float  0
 st_upset: .float  0
+st_last_hit:  .int 0
+st_window:    .int 0
 st_s_perfect: .byte 0
-st_s_great: .byte 0
-st_s_bump: .byte 0
-st_s_upset: .byte 0
-st_s_flap: .byte 0
+st_s_great:   .byte 0
+st_s_bump:    .byte 0
+st_s_upset:   .byte 100
+st_s_flap:    .byte 0
 
+.text
+state_update:
+  bl get_input
+  mov r3, r0    // UP key is down
+  mov r4, r1    // DOWN key is down
+  bl get_note   // r0 - the direction of current note；r1 - the window-situation
+  ldr r5, =st_last_hit
+  cmp r5, r2
+  beq already_hit
+  cmp r1, #1
+  beq great_manager     // in great-window; jump to analyse if hit
+  cmp r1, #2
+  beq perfect_manager   // in perfect-window; jump to analyse if hit
+  cmp r1, #0
+  beq out_window_manager      // out of window; jump to analyse if miss or if a error pressing
+  b L1
+
+already_hit:
+  cmp r3, #1
+  beq upset_set
+  cmp r4, #1
+  beq upset_set
+  b L1
+
+great_manager:
+  cmp r3, #1
+  beq great_manager_upkey
+  cmp r4, #1
+  beq great_manager_downkey
+  b L1
+
+great_manager_upkey:
+  cmp r0, #1
+  beq great_set
+  cmp r0, #3         // in flap window
+  ldreq r5, =st_pose
+  ldreq r5, [r5]
+  cmpeq r5, #POSE_READY_DOWN
+  bleq flap_set
+  beq great_set
+  b L1
+
+great_manager_downkey:
+  cmp r0, #2
+  beq great_set
+  cmp r0, #3
+  ldreq r5, =st_pose
+  ldreq r5, [r5]
+  cmpeq r5, #POSE_READY_UP
+  bleq flap_set
+  beq great_set
+  b L1
+
+great_set:
+  ldr r5, =POSE_GREAT
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_great
+  str r5, [r6]
+  ldr r6, =st_last_hit    //st_last_hit++
+  str r2, [r6]
+  b L1
+
+perfect_manager:
+  cmp r3, #1
+  beq perfect_manager_upkey
+  cmp r4, #1
+  beq perfect_manager_downkey
+  b L1
+
+perfect_manager_upkey:
+  cmp r0, #1
+  beq perfect_set
+  cmp r0, #3           // in flap window
+  ldreq r5, =st_pose
+  ldreq r5, [r5]
+  cmpeq r5, #POSE_READY_DOWN
+  bleq flap_set
+  beq perfect_set
+  b L1
+
+perfect_manager_downkey:
+  cmp r0, #2
+  beq perfect_set
+  cmp r0, #3
+  ldreq r5, =st_pose
+  ldreq r5, [r5]
+  cmpeq r5, #POSE_READY_UP
+  bleq flap_set
+  beq perfect_set
+  b L1
+
+perfect_set:
+  ldr r5, =POSE_PERFECT
+  ldr r6, =st_pose
+  str r5, [r6]     // /*note: the destination is the first operand*/
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]            // set st_ago as 0
+  ldr r5, =1
+  ldr r6, =st_s_perfect
+  str r5, [r6]            // set sound
+  ldr r6, =st_last_hit
+  str r2, [r6]            //set st_last_hit as current note's position
+  b L1
+
+out_window_manager:
+  ldr r5, =st_last_hit
+  cmp r2, r5              //上一个音符所在拍与上一个命中所在拍不一致 即 miss了上一个音符
+  ldrne r5, =st_window
+  cmpne r5, #1            //上一帧为great窗口期 即 刚刚出great窗口期
+  beq bump_set
+  cmp r3, #1              // UP key is down
+  beq upset_set
+  cmp r4, #1              // DOWN key is down
+  beq upset_set
+  b L1
+
+bump_set:
+  ldr r5, =POSE_BUMP
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_bump
+  str r5, [r6]            // set sound
+  b L1
+
+upset_set:
+  ldr r5, =0
+  ldr r6, =st_upset
+  str r5, [r6]
+  b L1
+
+flap_set:
+  ldr r5, =POSE_FLAP
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_flap
+  str r5, [r6]          //set sound
+  bx lr
+
+L1:
+
+
+//.endif
 
 .text
 
@@ -57,10 +224,9 @@ get_input:
   bx    lr
 
 /*
-  out r0 - 当前音符头鸟领先的拍数
-      r1 - 当前音符的方向（0 - 无；1 - 上；2 - 下；3 - 拍翅膀）
-      r2 - 当前时刻与音符时刻之差（拍）
-           以音符的位置为 0，之前为负，之后为正
+  out r0 - 当前音符的方向（0 - 无；1 - 上；2 - 下；3 - 拍翅膀）
+      r1 - 当前时刻处于何种窗口期（0 - 窗口期外； 1 - great； 2 - perfect）
+      r2 - int 当前的音符为第几拍
 */
 get_note:
   bx    lr
