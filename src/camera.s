@@ -37,7 +37,7 @@ coord_g2s_pt:
   // s0, s1 全局坐标系的x y
   // ret: s0,s1屏幕坐标系的xy
   // 该函数会修改r0，s0~s1，s7的值
-  ldr       r0, =bttime
+  ldr       r0, =st_time
   vldr      s7, [r0]
   vsub.f32  s0, s7
   vldr      s7, _CXA

@@ -1,8 +1,6 @@
 .include "common_macro.s"
 .include "constants.s"
 
-.global bttime
-
 .section .text.startup
   bl    _crt_init
 
