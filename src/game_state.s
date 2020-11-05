@@ -41,6 +41,10 @@
 
 .include "constants.s"
 
+.global st_time
+.global st_pose
+.global st_ago
+.global get_note
 
 
 .data
@@ -110,7 +114,7 @@ great_manager_downkey:
   b L1
 
 great_set:
-  ldr r5, =POSE_GREAT
+  ldr r5, =POSE_MOV_GREAT
   ldr r6, =st_pose
   str r5, [r6]
   ldr r5, =0
@@ -153,7 +157,7 @@ perfect_manager_downkey:
   b L1
 
 perfect_set:
-  ldr r5, =POSE_PERFECT
+  ldr r5, =POSE_MOV_PERFECT
   ldr r6, =st_pose
   str r5, [r6]     // /*note: the destination is the first operand*/
   ldr r5, =0
@@ -197,7 +201,7 @@ upset_set:
   b L1
 
 flap_set:
-  ldr r5, =POSE_FLAP
+  ldr r5, =POSE_FLAP_GREAT // TODO 这里你现在只有一个函数、没有POSE_FLAP_PERFECT的设置函数
   ldr r6, =st_pose
   str r5, [r6]
   ldr r5, =0
