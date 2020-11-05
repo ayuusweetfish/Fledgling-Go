@@ -65,7 +65,7 @@ main_loop:
   ldr   r5, =map_bpm
   vldr  s0, [r5]
   bl    game_time_to_tempo
-  ldr   r0, =bttime
+  ldr   r0, =st_time
   vstr  s0, [r0] // s24是拍号
   vmov  s24, s0
 
@@ -126,8 +126,6 @@ game_systime: // 游戏进行期间的时间戳。游戏进行期间会每帧增
 last_frame_systime: // 上一帧的时间戳。如果为0表示没有上一帧。
   .int  0 // 低32位
   .int  0 // 高32位
-bttime: // 游戏当前的用拍号表示的时间
-  .float  0
 stream:
   .int  0
 map_bpm:
