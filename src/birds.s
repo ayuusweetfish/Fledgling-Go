@@ -101,7 +101,8 @@ drawBirds:
 inib_loop1:
   cmp           r6, r7
   bge           inib_l1_end
-  ldm           r9!, {r0-r3} // r0-r3分别表示类别、x offset、y offset、mode 其中x y offset已经是浮点数格式了！
+  ldm           r9!, {r0-r3}
+  mov           r5, r0 // r5表示类别；r1-r3分别表示x offset、y offset、mode 其中x y offset已经是浮点数格式了！
   vmov          s8, r1 // s8是x offset
   vmov          s9, r2 // s9是y offset
   //默认处理：s8变为绝对的x(st_time+offset)、s9变为绝对的y(绝对x算出绝对y+offset)
@@ -113,7 +114,7 @@ inib_loop1:
   ldr           r8, [r8]
   // 分类别处理
 inib_tp_me: // me：不同的纹理、y由calMeY决定
-  cmp           r0, #BIRD_TYPE_ME
+  cmp           r5, #BIRD_TYPE_ME
   bne           inib_tp_lead
   bl            calMeY
   vmov          s9, s0
@@ -121,7 +122,7 @@ inib_tp_me: // me：不同的纹理、y由calMeY决定
   ldr           r8, [r8]
   b             inib_tp_end
 inib_tp_lead: // lead：调用calHeadBirdXAndUpdateCurLead算出领先距离追加到x(s8)上，并以新的x重算y
-  cmp           r0, #BIRD_TYPE_LEAD
+  cmp           r5, #BIRD_TYPE_LEAD
   bne           inib_tp_end
   bl            calHeadBirdXAndUpdateCurLead
   vadd.f32      s8, s0
@@ -158,19 +159,22 @@ ANIM_LEN_GREAT:
 ANIM_LEN_BUMP:
   .float  0.5
 
+LEAN_EYE_BEFORE: // 对于向上/向下飞的动作，要在多长时间之前予以斜眼。
+  .float 0.5
 
 calBirdY:
   // 根据yBirdList算出在给定时刻的鸟应当处于的位置，内含0.5拍完成动作的qerp插值处理。
   // 计算规则是若在某拍的前0.5s则由上一拍位置过渡中，否则则完整呈现本拍位置
   // s0: 计算的基准时间点（拍）。如果是lead鸟，则应该传入一个比st_time大lead拍数的值；如果是落后鸟，则传入st_time减去相应的值。
-  // return: s0: 当前时刻的带小数的y值， s1: 当前所处拍的整数的y值。
+  // return: s0: 当前时刻的带小数的y值， s1: 当前所处拍的整数的y值。 r0: 是否斜眼，0不斜眼1向上2向下
   // 更改s0-s4
-  push          {r0-r1, lr}
+  push          {r1, lr}
   vldrs         s1, 0.0
   vcmpa.f32     s0, #0.0
   vmovlt        s0, s1 // 如果时间值小于0，视为是0
 
-  bl            floor_f32
+  vpush         {s0}
+  bl            floor
   vmov          s3, s1 // r0是当前拍号向下取整,s3是当前拍号的小数部分
   bl            getBirdYByInt
   vmov          s1, s0 // s1是当前整数拍号所对应的的y坐标，一定是个整数
@@ -193,11 +197,24 @@ calBirdY:
   vdiv.f32      s2, s3, s4
   bl            qerp
   vpop          {s1}
-  b             ret_cby
+  b             cby_fin
 no_gradual: // 无过渡，以整数y值作为最终答案
   vmov          s0, s1
-ret_cby:
-  pop           {r0-r1, lr}
+cby_fin:
+  vpop          {s2}
+  vpush         {s0-s1}
+  vmov          s0, s2
+  vldr          s2, LEAN_EYE_BEFORE
+  vadd.f32      s0, s2
+  bl            floor
+  bl            getBirdYByInt
+  vmov          s2, s0 // s2是斜眼后推时刻的标准整数位置
+  vpop          {s0-s1}
+  vcmpa.f32     s2, s1
+  moveq         r0, #0
+  movgt         r0, #1
+  movlt         r0, #2
+  pop           {r1, lr}
   bx            lr
 
 calMeY:
