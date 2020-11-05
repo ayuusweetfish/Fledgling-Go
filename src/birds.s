@@ -4,6 +4,8 @@
 .global init_yBirdList
 .global yBirdList
 .global calBirdY
+.global drawBirds
+.global init_birdTexture
 
 .section .text
 init_yBirdList:
@@ -14,6 +16,13 @@ init_yBirdList:
   ldr           r6, =yBirdList // r6是dst的首地址
   mov           r7, #0 // r7是位置的整数
   mov           r2, #0
+  //把初始的lead填入curLead
+  ldrb          r4, [r0]
+  lsr           r4, #4 // 右移4位就是领先数量了
+  vmov          s0, r4
+  vcvt.f32.s32  s0, s0
+  ldr           r4, =curLead
+  vstr          s0, [r4]
 loop_iyb:
   cmp           r2, r1
   bge           end_iyb
@@ -62,6 +71,83 @@ getBirdYByInt:
   pop   {r0-r1}
   bx    lr
 
+
+init_birdTexture:
+  // 创建纹理
+  push  {lr}
+  ldr   r0, =npcbird_png
+  ldr   r1, =npcbird_png_size
+  bl    kx_image
+  ldr   r3, =idtx_npcbird
+  str   r0, [r3]
+  ldr   r0, =mebird_png
+  ldr   r1, =mebird_png_size
+  bl    kx_image
+  ldr   r3, =idtx_mebird
+  str   r0, [r3]
+  pop   {lr}
+  bx    lr
+
+
+drawBirds:
+  push          {r8-r9, lr}
+  vpush         {s31}
+  ldr           r1, =st_time
+  vldr          s31, [r1] // s31是时间
+  ldr           r1, =birdsCount
+  ldr           r7, [r1] // r7是count
+  mov           r6, #0 // r6是循环变量
+  ldr           r9, =birds // r9是birds的指针  // r8是纹理id
+inib_loop1:
+  cmp           r6, r7
+  bge           inib_l1_end
+  ldm           r9!, {r0-r3} // r0-r3分别表示类别、x、y、mode
+  vmov          s8, r1
+  vcvt.f32.s32  s8, s8 // s8是x offset
+  vmov          s9, r2
+  vcvt.f32.s32  s9, s9 // s9是y offset
+  //默认处理：s8变为绝对的x(st_time+offset)、s9变为绝对的y(绝对x算出绝对y+offset)
+  vadd.f32      s8, s31
+  vmov          s0, s8
+  bl            calBirdY
+  vadd.f32      s9, s0
+  ldr           r8, =idtx_npcbird
+  ldr           r8, [r8]
+  // 分类别处理
+inib_tp_me: // me：不同的纹理、y由calMeY决定
+  cmp           r0, #BIRD_TYPE_ME
+  bne           inib_tp_lead
+  bl            calMeY
+  vmov          s9, s0
+  ldr           r8, =idtx_mebird
+  ldr           r8, [r8]
+inib_tp_lead: // lead：调用calHeadBirdXAndUpdateCurLead重算x，并以新的x重算y
+  cmp           r0, #BIRD_TYPE_LEAD
+  bne           inib_tp_end
+  bl            calHeadBirdXAndUpdateCurLead
+  vmov          s8, s0
+  bl            calBirdY
+  vmov          s9, s0
+inib_tp_end:
+  // 万事俱备，开始绘制
+  vmov          s1, s9
+  vmov          s0, s8
+  vldrs         s2, 0.0 // z暂时都是0.0
+  vldrs         s3, 1.0
+  vldrs         s4, 1.0 // 画全图，宽高都是0.0
+  mov           r3, r8 // 指定纹理
+  bl            coord_g2s_rect
+  bl            fillSWhenDrawFullTexture
+  bl            draw_square // 画
+  add           r6, #1
+  b             inib_loop1
+inib_l1_end:
+  vpop          {s31}
+  pop           {r8-r9, lr}
+  bx            lr
+
+
+
 ANIM_LEN_NPC:
   .float  0.5
 ANIM_LEN_PERFECT:
@@ -85,11 +171,11 @@ calBirdY:
   bxlt          lr  // 如果时间值小于0，就直接返回0就好，
 
   bl            floor
-  mov           s3, s1 // r0是当前拍号向下取整,s3是当前拍号的小数部分
+  vmov          s3, s1 // r0是当前拍号向下取整,s3是当前拍号的小数部分
   bl            getBirdYByInt
-  vldr          s1, s0 // s1是当前整数拍号的y坐标
+  vmov          s1, s0 // s1是当前整数拍号所对应的的y坐标，一定是个整数
 
-  cmp           r0, #0 // 如果在第0.x拍，则无过渡
+  cmp           r0, #0 // 如果在第0.x拍，则不存在合法的上一拍，令上一拍坐标等于本拍坐标
   vmoveq        s2, s1
   subne         r1, #4 // 否则，取出上一拍坐标存进s2
   vldrne        s2, [r1]
@@ -114,11 +200,12 @@ ret_cby:
   bx            lr
 
 calMeY:
+  // 修改r0-r4、s0-s3、s12-s15
   push    {lr}
   ldr     r0, =st_pose
-  vldr    s13, [r0] // s13是当前状态
+  ldr     r4, [r0] // r4是当前状态
   ldr     r0, =st_ago
-  vldr    s13, [r0] // s12是st_ago
+  vldr    s12, [r0] // s12是st_ago
   bl      get_note
   mov     r0, r2
   bl      getBirdYByInt
@@ -131,25 +218,109 @@ calMeY:
 cmy_pgb:
   // perfect\great\bump处理，因为目前都是从old插值到new，所以是等同的
   vldr      s3, ANIM_LEN_PERFECT
-  cmp       s13, POSE_PERFECT
+  cmp       r4, #POSE_MOV_PERFECT
   vldrne    s3, ANIM_LEN_GREAT
-  cmpne     s13, POSE_GREAT
+  cmpne     r4, #POSE_MOV_GREAT
   vldrne    s3, ANIM_LEN_BUMP
-  cmpne     s13, POSE_BUMP
+  cmpne     r4, #POSE_BUMP
   bne       cmy_norplus
   vdiv.f32  s2, s12, s3
-  mov       s0, s14
-  mov       s1, s15
+  vmov      s0, s14
+  vmov      s1, s15
   bl        qerp
-  mov       s1, s15
+  vmov      s1, s15
   b         cmy_end
 cmy_norplus:
   // 其余所有状态，输出就是目标的位置即可
-  mov       s0, s15
-  mov       s1, s15
+  vmov      s0, s15
+  vmov      s1, s15
 cmy_end:
   pop     {lr}
   bx      lr
+
+
+
+HEADBIRD_X_DELTAMAX: // 每一拍，头鸟lead允许变化的最大值
+  .float  1.0
+
+calHeadBirdXAndUpdateCurLead:
+  // 计算实际绘制的头鸟领先距离，并更新curLead。return s0。
+  // 修改r0-r1、s0-s3
+  ldr           r0, =st_time
+  vldr          s0, [r0]
+  bl            floor
+  ldr           r1, =map_seq
+  ldr           r1, [r1]
+  add           r1, r0
+  ldr           r1, [r1]
+  lsr           r1, #4
+  vmov          s0, r1
+  vcvt.f32.s32  s0, s0 // 此时s0是当前的lead
+  ldr           r0, =curLead
+  vldr          s1, [r0] // s1是老的curLead
+  vcmpa.f32     s0, s1
+  bxeq          lr // 相等就直接返回
+  // 计算允许的变化量的最大值
+  vldrs         s2, 60.0
+  ldr           r1, =FPS
+  vmov          s3, r1
+  vcvt.f32.s32  s3, s3 // s3是FPS的浮点数形式
+  vmul.f32      s2, s3
+  ldr           r1, =map_bpm
+  vldr          s3, [r1]
+  vdiv.f32      s2, s2, s3
+  vldr          s3, HEADBIRD_X_DELTAMAX
+  vdiv.f32      s3, s3, s2 // s3是允许的变化量的最大值
+  vadd.f32      s2, s1, s3
+  vsub.f32      s1, s1, s3
+  bl            clamp // 应当让返回的s0，是正常的lead clamp在允许变化区间之内的值。
+  vstr          s0, [r0] // 新的值写回curLead
+  bx            lr
+
+
+
+.section .data
+curLead:
+  .float  0.0
+
+
+.equ  BIRD_TYPE_LEAD, 1 //（x offset由curLead决定）
+.equ  BIRD_TYPE_ME, 2 // （y由calMeY决定）
+.equ  BIRD_TYPE_NPC, 0
+birdsCount: //鸟的列表，count是个数。
+  .int    5
+birds:
+bird_me:
+  .int    BIRD_TYPE_ME
+  .float  0.0 // x方向的相对标准位置的偏移
+  .float  0.0 // y方向的相对标准位置的偏移
+  .int    0 // mode
+bird_head:
+  .int    BIRD_TYPE_LEAD
+  .float  0.0 // lead鸟必须写成0
+  .float  0.0 // y方向的相对标准位置的偏移
+  .int    0 // mode
+bird_1:
+  .int    BIRD_TYPE_NPC
+  .float  0.0 // x方向的相对标准位置的偏移
+  .float  1.0 // y方向的相对标准位置的偏移
+  .int    0 // mode
+bird_2:
+  .int    BIRD_TYPE_NPC
+  .float  0.0 // x方向的相对标准位置的偏移
+  .float  -1.0 // y方向的相对标准位置的偏移
+  .int    0 // mode
+bird_3:
+  .int    BIRD_TYPE_NPC
+  .float  -1.0 // x方向的相对标准位置的偏移
+  .float  0.0 // y方向的相对标准位置的偏移
+  .int    0 // mode
+
+idtx_mebird:
+  .int    0
+idtx_npcbird:
+  .int    0
+
 
 .section .bss
 .comm   yBirdList   8000 // 足够放2000个float的空间，第i个位置是表示在第i拍开始的时刻鸟应该在的位置。

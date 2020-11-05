@@ -1,6 +1,9 @@
 .include "common_macro.s"
 .include "constants.s"
 
+.global map_seq
+.global map_bpm
+
 .section .text.startup
   bl    _crt_init
 
@@ -13,6 +16,10 @@
   push  {r0-r1}
   ldr   r0, =map_bpm
   vstr  s0, [r0]
+  ldr   r0, =map_seq
+  str  r3, [r0]
+  ldr   r0, =map_seq_len
+  str  r4, [r0]
 
   mov   r0, r3
   mov   r1, r4
@@ -24,18 +31,17 @@
   mov   r1, r2
   mov   r2, #0
   mov   r3, #1
+  p
   bl    kx_music
+  p
 
   ldr   r1, =stream
   str   r0, [r1]
+  p
   bl    kx_music_start
-
-  // 创建一只鸟，把纹理id保存好
-  ldr   r0, =npcbird_png
-  ldr   r1, =npcbird_png_size
-  bl    kx_image
-  ldr   r3, =idtx_npcbird
-  str   r0, [r3]
+dp
+  // 创建鸟们
+  bl    init_birdTexture
 
 
 main_loop:
@@ -67,22 +73,8 @@ main_loop:
   vstr  s0, [r0] // s24是拍号
   vmov  s24, s0
 
-  // 示例代码：画出上面创建的唯一一支鸟
-  // 计算鸟的y坐标
-  vmov  s0, s24 // 直接拿拍号当作基准时间，玩家鸟
-  bl    calBirdY
-  vmov  s1, s0
-  vmov  s0, s24
-  vldrs s2, 0.0
-  vldrs s3, 1.0
-  vldrs s4, 1.0
-  bl    coord_g2s_rect
-  bl    fillSWhenDrawFullTexture
-  ldr   r3, =idtx_npcbird
-  ldr   r3, [r3]
-  pm
-  ps
-  bl    draw_square
+  // 画鸟们
+  bl    drawBirds
 
   // Update audio
   ldr   r1, =stream
@@ -128,5 +120,8 @@ stream:
   .int  0
 map_bpm:
   .float  0.0
-idtx_npcbird:
-  .int  0
+map_seq: // 音符序列的首地址
+  .int 0
+map_seq_len: // 音符序列的长度，也就对应于全曲拍数。
+  .int 0
+

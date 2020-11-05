@@ -7,3 +7,7 @@
 .set POSE_READY_DOWN, 5
 .set POSE_FLAP_PERFECT, 6
 .set POSE_FLAP_GREAT, 7           //仅用于拍翅膀
+
+
+// 其他用到的常量
+.set FPS, 60 // 帧率
