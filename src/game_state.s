@@ -51,7 +51,7 @@
 
 
 .data
-st_time:  .float
+st_time:  .float  0.0
 st_pose:  .int    POSE_NORMAL
 st_ago:   .float  0
 st_upset: .float  0

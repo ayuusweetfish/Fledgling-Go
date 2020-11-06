@@ -39,7 +39,7 @@
   str   r0, [r1]
   p
   bl    kx_music_start
-dp
+
   // 创建鸟们
   bl    init_birdTexture
 
@@ -70,8 +70,8 @@ main_loop:
   vldr  s0, [r5]
   bl    game_time_to_tempo
   ldr   r0, =st_time
-  vstr  s0, [r0] // s24是拍号
-  vmov  s24, s0
+  vstr  s0, [r0]
+  vmov  s24, s0  // s24是以拍为单位的时间
 
   // 画鸟们
   bl    drawBirds
