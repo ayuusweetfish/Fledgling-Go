@@ -43,10 +43,15 @@
   // 创建鸟们
   bl    init_birdTexture
 
-
 main_loop:
   ldr   r0, =#0xffffeeff
   svc   #0x100
+
+  // NOTE (lsq 11.07): debug use only
+  // bl    get_input
+  // pm
+  // bl    get_note
+  // pm
 
   svc   #0x10
   ldr   r4, =last_frame_systime

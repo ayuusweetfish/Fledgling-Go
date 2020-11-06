@@ -11,3 +11,10 @@
 
 // 其他用到的常量
 .set FPS, 60 // 帧率
+
+// perfect/great 窗口期半边宽度
+// ±0.25 拍判定为 great, ±0.125 拍判定为 perfect
+.weak GREAT_WINDOW
+GREAT_WINDOW: .float 0.25
+.weak PERFECT_WINDOW
+PERFECT_WINDOW: .float 0.125

@@ -33,7 +33,12 @@ qerp:
 
 floor_f32:
   // 输入 s0
-  // 输出 r0、s0都是输入向下取整  s0：输入值与其向下取整结果的差值
+  // 输出 r0、s0都是输入向下取整  s1：输入值与其向下取整结果的差值
+  // FIXME: 更好的方式是修改 FPSCR 的舍入模式，然后用 vcvtr 指令
+  vldrs         s1, 0.99999
+  vcmpa.f32     s0, #0
+  vsublt.f32    s0, s1
+
   vmov          s1, s0
   vcvt.s32.f32  s0, s0
   vmov          r0, s0

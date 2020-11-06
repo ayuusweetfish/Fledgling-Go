@@ -63,6 +63,7 @@ st_s_bump:    .byte 0
 st_s_upset:   .byte 100
 st_s_flap:    .byte 0
 ready_is_perfect: .byte -1
+flap_is_perfect:  .byte -1
 
 .text
 state_update:
@@ -348,19 +349,88 @@ L1:
 
 //.endif
 
-.text
-
 /*
   out r0 - boolean，玩家 A（上）是否按下按键
       r1 - boolean，玩家 B（下）是否按下按键
 */
+.text
+.global get_input
 get_input:
+  push  {r4, r5}
+  ldr   r4, =last_a_pressed
+  ldr   r5, =last_b_pressed
+
+  ldr   r0, =#265
+  ldr   r1, =#264
+  svc   #0x11
+  ldrb  r2, [r4]
+  ldrb  r3, [r5]
+  strb  r0, [r4]
+  strb  r1, [r5]
+  bic   r0, r2  // r0 = r0 and not r2
+  bic   r1, r3  // r1 = r1 and not r3
+
+  pop   {r4, r5}
   bx    lr
+
+.data
+last_a_pressed: .byte 0
+last_b_pressed: .byte 0
 
 /*
   out r0 - 当前音符的方向（0 - 无；1 - 上；2 - 下；3 - 拍翅膀）
       r1 - 当前时刻处于何种窗口期（0 - 窗口期外； 1 - great； 2 - perfect）
       r2 - int 当前的音符为第几拍
 */
+.text
+.global get_note
 get_note:
-  bx    lr
+  push  {lr}
+
+  // s2 = st_time
+  // s3 = GREAT_WINDOW
+  // s4 = PERFECT_WINDOW
+  ldr   r0, =st_time
+  vldr  s2, [r0]
+  ldr   r0, =GREAT_WINDOW
+  vldr  s3, [r0]
+  ldr   r0, =PERFECT_WINDOW
+  vldr  s4, [r0]
+
+  // 当前音符 s0 = r0 = floor(st_time + GREAT_WINDOW)
+  vadd.f32  s0, s2, s3
+  bl        floor_f32
+
+  // 返回值 r2：当前的音符为第几拍
+  mov   r2, r0
+
+  // 边界：音符时刻 < 0
+  cmp   r2, #0
+  blt   9f
+
+  // 返回值 r1：当前时刻处于何种窗口期
+  mov       r1, #0
+  // s1 = 差值（当前时刻提前为负，延后为正）
+  vsub.f32  s1, s3  // 减去之前加上的 GREAT_WINDOW
+  vabs.f32  s1, s1
+  vcmp.f32  s1, s3  // Great?
+  vmrs      APSR_nzcv, FPSCR
+  movle     r1, #1
+  vcmp.f32  s1, s4  // Perfect?
+  vmrs      APSR_nzcv, FPSCR
+  movle     r1, #2
+
+  // 取出当前音符
+  ldr   r0, =map_seq
+  ldr   r0, [r0]
+  ldrb  r0, [r0, r2]
+  // 取低 4 位
+  // 返回值 r0：当前音符的方向
+  and   r0, #0xf
+
+  pop   {pc}
+
+9:
+  mov   r0, #0
+  mov   r1, #0
+  pop   {pc}
