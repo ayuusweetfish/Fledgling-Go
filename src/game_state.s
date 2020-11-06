@@ -501,26 +501,26 @@ normal_set:
   bx lr
 
 L1:
-  ldr r5, =st_time
-  ldr r5, [r5]
-  ldr r6, =frame_time
-  ldr r6, [r6]
-  sub r7, r5, r6        // Δt = st_time - frame_time
-  ldr r5, =st_ago
-  ldr r6, [r5]
-  add r6, r6, r7        // st_ago += Δt
-  str r6, [r5]
+  vldr r5, =st_time
+  vldr r5, [r5]
+  vldr r6, =frame_time
+  vldr r6, [r6]
+  vsub r7, r5, r6        // Δt = st_time - frame_time
+  vldr r5, =st_ago
+  vldr r6, [r5]
+  vadd r6, r6, r7        // st_ago += Δt
+  vstr r6, [r5]
 
 L2:
-  ldr r5, =st_time
-  ldr r5, [r5]
-  ldr r6, =frame_time
-  ldr r6, [r6]
-  sub r7, r5, r6        // Δt = st_time - frame_time
-  ldr r5, =st_upset
-  ldr r6, [r5]
-  add r6, r6, r7        // st_upset += Δt
-  str r6, [r5]
+  vldr r5, =st_time
+  vldr r5, [r5]
+  vldr r6, =frame_time
+  vldr r6, [r6]
+  vsub r7, r5, r6        // Δt = st_time - frame_time
+  vldr r5, =st_upset
+  vldr r6, [r5]
+  vadd r6, r6, r7        // st_upset += Δt
+  vstr r6, [r5]
 
 L3:
 
