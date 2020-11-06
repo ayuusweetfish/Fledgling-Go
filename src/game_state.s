@@ -40,6 +40,7 @@
   - ready_is_perfect
     用于辅助拍翅膀perfect判定的临时变量，不计入state结构体，不作为接口使用
     -1 - 初始状态  0 - great  1 - perfect
+  - frame_time 用于记录（上一帧的）时间的临时变量，辅助计算st_ago，不作为接口使用
 */
 
 .include "constants.s"
@@ -60,17 +61,18 @@ st_window:    .int 0
 st_s_perfect: .byte 0
 st_s_great:   .byte 0
 st_s_bump:    .byte 0
-st_s_upset:   .byte 100
+st_s_upset:   .float 100
 st_s_flap:    .byte 0
 ready_is_perfect: .byte -1
-flap_is_perfect:  .byte -1
+frame_time: .float 0.0
 
 .text
 state_update:
   //TODO: when enter a new window set st_pose as POSE_NORMAL  --Finished
-  //TODO: flap
-  //TODO: flap_ready
-  //TODO: initialize st_s_*
+  //TODO: flap_ready          --Finished
+  //TODO: initialize st_s_*   --Finished
+  //TODO: update st_ago       --Finished
+  //TODO: when press error key set upset    --Finished
   ldr r5, =0
   ldr r6, =st_s_perfect
   str r5, [r6]
@@ -91,9 +93,6 @@ state_update:
   mov r3, r0    // UP key is down
   mov r4, r1    // DOWN key is down
   bl get_note   // r0 - the direction of current note；r1 - the window-situation
-  ldr r5, =st_last_hit
-  cmp r5, r2
-  beq already_hit
   cmp r1, #1
   beq great_manager     // in great-window; jump to analyse if hit
   cmp r1, #2
@@ -110,6 +109,9 @@ already_hit:
   b L1
 
 great_manager:
+  ldr r5, =st_last_hit
+  cmp r5, r2
+  beq already_hit             // check if already hit
   ldr r5, =st_window
   ldr r5, [r5]
   cmp r5, #0
@@ -121,8 +123,12 @@ great_manager:
   b L1
 
 great_manager_upkey:
+  cmp r4, #1
+  beq great_manager_updownkey    //if press up and down key at the same frame
   cmp r0, #1
   beq great_set
+  cmp r0, #2
+  beq upset_set
   cmp r0, #3         // in flap window
   beq great_manager_upkey_flap
   b L1
@@ -131,17 +137,18 @@ great_manager_upkey_flap:
    ldr r5, =st_pose
    ldr r5, [r5]
    cmp r5, #POSE_READY_DOWN
-   ldreq r5, =ready_is_perfect
-   ldreq r5, [r5]
-   cmpeq r5, #0
-   bl flap_great_set
+   beq flap_great_set
    cmp r5, #POSE_NORMAL
-   bl ready_up_great_set
+   b ready_up_great_set
    b L1
 
 great_manager_downkey:
+  cmp r3, #1
+  beq great_manager_updownkey    //if press up and down key at the same frame
   cmp r0, #2
   beq great_set
+  cmp r0, #1
+  beq upset_set
   cmp r0, #3
   beq great_manager_downkey_flap   //flap window
   b L1
@@ -150,13 +157,106 @@ great_manager_downkey_flap:
    ldr r5, =st_pose
    ldr r5, [r5]
    cmp r5, #POSE_READY_UP
+   beq flap_great_set
+   cmp r5, #POSE_NORMAL
+   b ready_down_great_set
+   b L1
+
+great_manager_updownkey:
+  cmp r0, #1
+  beq great_upset_set
+  cmp r0, #2
+  beq great_upset_set
+  cmp r0, #3
+  beq great_manager_updownkey_flap
+
+great_manager_updownkey_flap:
+  ldr r5, =st_pose
+  ldr r5, [r5]
+  cmp r5, #POSE_READY_UP
+  beq flap_great_upset_set
+  cmp r5, #POSE_READY_DOWN
+  beq flap_great_upset_set
+  cmp r5, #POSE_NORMAL
+  beq flap_great_set
+  b L1
+
+perfect_manager:
+  ldr r5, =st_last_hit
+  cmp r5, r2
+  beq already_hit         // check if already hit
+  cmp r3, #1
+  beq perfect_manager_upkey
+  cmp r4, #1
+  beq perfect_manager_downkey
+  b L1
+
+perfect_manager_upkey:
+  cmp r4, #1
+  beq perfect_manager_updownkey    //if press up and down key at the same frame
+  cmp r0, #1
+  beq perfect_set
+  cmp r0, #2
+  beq upset_set         // in down window
+  cmp r0, #3           // in flap window
+  beq perfect_manager_upkey_flap
+  b L1
+
+perfect_manager_upkey_flap:
+   ldr r5, =st_pose
+   ldr r5, [r5]
+   cmp r5, #POSE_READY_DOWN
    ldreq r5, =ready_is_perfect
    ldreq r5, [r5]
-   cmpeq r5, #0
-   bl flap_great_set
+   cmpeq r5, #1
+   beq flap_perfect_set
+   bne flap_great_set
    cmp r5, #POSE_NORMAL
-   bl ready_down_great_set
+   beq ready_up_perfect_set
    b L1
+
+perfect_manager_downkey:
+  cmp r4, #1
+  beq perfect_manager_updownkey    //if press up and down key at the same frame
+  cmp r0, #2
+  beq perfect_set
+  cmp r0, #1
+  beq upset_set
+  cmp r0, #3
+  beq perfect_manager_downkey_flap
+  b L1
+
+perfect_manager_updownkey:
+  cmp r0, #1
+  beq perfect_upset_set
+  cmp r0, #2
+  beq perfect_upset_set
+  cmp r0, #3
+  beq perfect_manager_updownkey_flap
+
+perfect_manager_downkey_flap:
+   ldr r5, =st_pose
+   ldr r5, [r5]
+   cmp r5, #POSE_READY_UP
+   ldreq r5, =ready_is_perfect
+   ldreq r5, [r5]
+   cmpeq r5, #1
+   beq flap_perfect_set
+   bne flap_great_set
+   cmp r5, #POSE_NORMAL
+   beq ready_down_perfect_set
+   b L1
+
+perfect_manager_updownkey_flap:
+  ldr r5, =st_pose
+  ldr r5, [r5]
+  cmp r5, #POSE_READY_UP
+  beq flap_perfect_upset_set
+  cmp r5, #POSE_READY_DOWN
+  beq flap_perfect_upset_set
+  cmp r5, #POSE_NORMAL
+  beq flap_perfect_set
+  b L1
 
 great_set:
   ldr r5, =POSE_MOV_GREAT
@@ -170,52 +270,28 @@ great_set:
   str r5, [r6]
   ldr r6, =st_last_hit    //st_last_hit++
   str r2, [r6]
-  b L1
+  b L2
 
-perfect_manager:
-  cmp r3, #1
-  beq perfect_manager_upkey
-  cmp r4, #1
-  beq perfect_manager_downkey
-  b L1
+great_upset_set:
+  ldr r5, =POSE_MOV_GREAT
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_great
+  str r5, [r6]
+  ldr r6, =st_last_hit    //set st_last_hit
+  str r2, [r6]
 
-perfect_manager_upkey:
-  cmp r0, #1
-  beq perfect_set
-  cmp r0, #3           // in flap window
-  beq perfect_manager_upkey_flap
-  b L1
-
-perfect_manager_upkey_flap:
-   ldr r5, =st_pose
-   ldr r5, [r5]
-   cmp r5, #POSE_READY_DOWN
-   ldreq r5, =ready_is_perfect
-   ldreq r5, [r5]
-   cmpeq r5, #1
-   beq flap_perfect_set
-   cmp r5, #POSE_NORMAL
-   beq ready_up_perfect_set
-   b L1
-
-perfect_manager_downkey:
-  cmp r0, #2
-  beq perfect_set
-  cmp r0, #3
-  beq perfect_manager_downkey_flap
-  b L1
-
-perfect_manager_downkey_flap:
-   ldr r5, =st_pose
-   ldr r5, [r5]
-   cmp r5, #POSE_READY_UP
-   ldreq r5, =ready_is_perfect
-   ldreq r5, [r5]
-   cmpeq r5, #1
-   beq flap_perfect_set
-   cmp r5, #POSE_NORMAL
-   beq ready_down_perfect_set
-   b L1
+  ldr r5, =0
+  ldr r6, =st_upset
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_upset
+  str r5, [r6]            // set sound
+  b L3
 
 perfect_set:
   ldr r5, =POSE_MOV_PERFECT
@@ -229,20 +305,43 @@ perfect_set:
   str r5, [r6]            // set sound
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
-  b L1
+  b L2
+
+perfect_upset_set:
+  ldr r5, =POSE_MOV_PERFECT
+  ldr r6, =st_pose
+  str r5, [r6]     // /*note: the destination is the first operand*/
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]            // set st_ago as 0
+  ldr r5, =1
+  ldr r6, =st_s_perfect
+  str r5, [r6]            // set sound
+  ldr r6, =st_last_hit
+  str r2, [r6]            //set st_last_hit as current note's position
+  ldr r5, =0
+  ldr r6, =st_upset
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_upset
+  str r5, [r6]            // set sound
+  b L3
+
 
 out_window_manager:
-  ldr r5, =st_last_hit
-  cmp r2, r5              //上一个音符所在拍与上一个命中所在拍不一致 即 miss了上一个音符
-  ldrne r5, =st_window
-  cmpne r5, #1            //上一帧为great窗口期 即 刚刚出great窗口期
-  beq bump_set
+  ldr r5, =st_window
+  cmp r5, #1            //上一帧为great窗口期 即 刚刚出great窗口期
+  ldreq r5, =st_last_hit
+  cmpeq r2, r5              //上一个音符所在拍与上一个命中所在拍不一致 即 miss了上一个音符
+  bne bump_set
   cmp r3, #1              // UP key is down
   beq upset_set
   cmp r4, #1              // DOWN key is down
   beq upset_set
   b L1
 
+
+/* st_pose set */
 bump_set:
   ldr r5, =POSE_BUMP
   ldr r6, =st_pose
@@ -253,13 +352,16 @@ bump_set:
   ldr r5, =1
   ldr r6, =st_s_bump
   str r5, [r6]            // set sound
-  b L1
+  b L2
 
 upset_set:
   ldr r5, =0
   ldr r6, =st_upset
   str r5, [r6]
-  b L1
+  ldr r5, =1
+  ldr r6, =st_s_upset
+  str r5, [r6]            // set sound
+  b L3
 
 flap_perfect_set:
   ldr r5, =POSE_FLAP_PERFECT
@@ -274,9 +376,36 @@ flap_perfect_set:
   ldr r6, =st_s_perfect
   str r5, [r6]          //set sound
   ldr r5, =-1
-  ldr r6, =flap_is_perfect
-  str r5, [r6]          //initialize flap_is_perfect as -1
-  b L1
+  ldr r6, =ready_is_perfect
+  str r5, [r6]          //initialize ready_is_perfect as -1
+  ldr r6, =st_last_hit
+  str r2, [r6]            //set st_last_hit as current note's position
+  b L2
+
+flap_perfect_upset_set:
+  ldr r5, =POSE_FLAP_PERFECT
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_flap
+  str r5, [r6]          //set sound
+  ldr r6, =st_s_perfect
+  str r5, [r6]          //set sound
+  ldr r5, =-1
+  ldr r6, =ready_is_perfect
+  str r5, [r6]          //initialize ready_is_perfect as -1
+  ldr r6, =st_last_hit
+  str r2, [r6]            //set st_last_hit as current note's position
+  ldr r5, =0
+  ldr r6, =st_upset
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_upset
+  str r5, [r6]            // set sound
+  b L3
 
 flap_great_set:
   ldr r5, =POSE_FLAP_GREAT
@@ -291,45 +420,72 @@ flap_great_set:
   ldr r6, =st_s_great
   str r5, [r6]          //set sound
   ldr r5, =-1
-  ldr r6, =flap_is_perfect
-  str r5, [r6]          //initialize flap_is_perfect as -1
-  b L1
+  ldr r6, =ready_is_perfect
+  str r5, [r6]          //initialize ready_is_perfect as -1
+  ldr r6, =st_last_hit
+  str r2, [r6]            //set st_last_hit as current note's position
+  b L2
+
+flap_great_upset_set:
+  ldr r5, =POSE_FLAP_GREAT
+  ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_flap
+  str r5, [r6]          //set sound
+  ldr r6, =st_s_great
+  str r5, [r6]          //set sound
+  ldr r5, =-1
+  ldr r6, =ready_is_perfect
+  str r5, [r6]          //initialize ready_is_perfect as -1
+  ldr r6, =st_last_hit
+  str r2, [r6]            //set st_last_hit as current note's position
+  ldr r5, =0
+  ldr r6, =st_upset
+  str r5, [r6]
+  ldr r5, =1
+  ldr r6, =st_s_upset
+  str r5, [r6]            // set sound
+  b L3
 
 ready_up_perfect_set:
   ldr r5, =POSE_READY_UP
   ldr r6, =st_pose
   str r5, [r6]
   ldr r5, =1
-  ldr r6, =flap_is_perfect
+  ldr r6, =ready_is_perfect
   str r5, [r6]
-  b L1
+  b L2
 
 ready_up_great_set:
   ldr r5, =POSE_READY_UP
   ldr r6, =st_pose
   str r5, [r6]
   ldr r5, =0
-  ldr r6, =flap_is_perfect
+  ldr r6, =ready_is_perfect
   str r5, [r6]
-  b L1
+  b L2
 
 ready_down_perfect_set:
   ldr r5, =POSE_READY_DOWN
   ldr r6, =st_pose
   str r5, [r6]
   ldr r5, =1
-  ldr r6, =flap_is_perfect
+  ldr r6, =ready_is_perfect
   str r5, [r6]
-  b L1
+  b L2
 
 ready_down_great_set:
   ldr r5, =POSE_READY_DOWN
   ldr r6, =st_pose
   str r5, [r6]
   ldr r5, =0
-  ldr r6, =flap_is_perfect
+  ldr r6, =ready_is_perfect
   str r5, [r6]
-  b L1
+  b L2
 
 
 normal_set:
@@ -340,11 +496,34 @@ normal_set:
   ldr r6, =st_ago
   str r5, [r6]
   ldr r5, =-1
-  ldr r6, =flap_is_perfect
-  str r5, [r6]          //initialize flap_is_perfect as -1
+  ldr r6, =ready_is_perfect
+  str r5, [r6]          //initialize ready_is_perfect as -1
   bx lr
 
 L1:
+  ldr r5, =st_time
+  ldr r5, [r5]
+  ldr r6, =frame_time
+  ldr r6, [r6]
+  sub r7, r5, r6        // Δt = st_time - frame_time
+  ldr r5, =st_ago
+  ldr r6, [r5]
+  add r6, r6, r7        // st_ago += Δt
+  str r6, [r5]
+
+L2:
+  ldr r5, =st_time
+  ldr r5, [r5]
+  ldr r6, =frame_time
+  ldr r6, [r6]
+  sub r7, r5, r6        // Δt = st_time - frame_time
+  ldr r5, =st_upset
+  ldr r6, [r5]
+  add r6, r6, r7        // st_upset += Δt
+  str r6, [r5]
+
+L3:
+
 
 
 //.endif
