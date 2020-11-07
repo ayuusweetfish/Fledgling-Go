@@ -36,7 +36,7 @@ drdeco_loop:
   cmp   r5, r6
   bge   drdeco_end
   ldr   r0, [r7], #4 // 是类别
-  vldm  r7, {s0-s5}
+  vldm  r7!, {s0-s4}
   mov   r3, #8
   mul   r0, r3
   add   r0, r8
