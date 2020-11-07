@@ -108,9 +108,6 @@ getBirdTexture:
   bl      get_note
   mov     r7, r0 // r7是音符
   mov     r6, #-1 // r6承接最终返回值
-  pmem
-  p
-  ps
 // 自己鸟的部分
 gbdtx_me:
   cmp     r8, #BIRD_TYPE_ME
@@ -119,7 +116,6 @@ gbdtx_me_upset:
   ldr     r0, =animseq_upset // 考虑upset
   vmov    s0, s14
   bl      cal_one_animseq
-  p
   cmp     r1, #-1
   movne   r6, r0
   bne     gbdtx_end

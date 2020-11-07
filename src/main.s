@@ -9,9 +9,6 @@
 
   ldr   r0, =stray_bin
   bl    map_loader
-  p   // 检查 r0-r6
-  ps  // 检查 s0-s1
-  l   // 输出标题
 
   push  {r0-r1}
   ldr   r0, =map_bpm
@@ -33,13 +30,10 @@
   mov   r1, r2
   mov   r2, #0
   mov   r3, #1
-  p
   bl    kx_music
-  p
 
   ldr   r1, =stream
   str   r0, [r1]
-  p
   bl    kx_music_start
 
   // 创建鸟们
@@ -95,7 +89,7 @@ main_loop:
 
   svc   #0x10f  // End frame
 
-vldrs   s23, 16.0
+vldrs   s23, -4.5
 vcmpa.f32 s24, s23
 svcge   #0x0f
 
