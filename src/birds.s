@@ -385,6 +385,9 @@ calHeadBirdXAndUpdateCurLead:
   bl            floor_f32
   ldr           r1, =map_seq
   ldr           r1, [r1]
+  // 如果时间小于0，视为0
+  cmp           r0, #0
+  movlt         r0, #0
   add           r1, r0
   ldrb          r1, [r1]
   lsr           r1, #4
