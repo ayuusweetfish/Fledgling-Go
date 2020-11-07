@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 #define PROG_ENTRY    0x80000000
-#define PROG_MEMSIZE  0x100000 * 16
+#define PROG_MEMSIZE  0x100000 * 64
 
 typedef struct source_map_entry_s {
   uint32_t addr;
