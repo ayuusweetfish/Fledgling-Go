@@ -3,6 +3,8 @@
 
 .global map_seq
 .global map_bpm
+.global map_deco
+.global map_deco_len
 
 .section .text.startup
   bl    _crt_init
@@ -19,6 +21,10 @@
   str  r3, [r0]
   ldr   r0, =map_seq_len
   str  r4, [r0]
+  ldr   r0, =map_deco
+  str  r5, [r0]
+  ldr   r0, =map_deco_len
+  str  r6, [r0]
 
   mov   r0, r3
   mov   r1, r4
@@ -39,6 +45,7 @@
   // 创建鸟们
   bl    init_birdTexture
   bl    init_all_animseqs
+  bl    init_decorations
 
 main_loop:
   ldr   r0, =#0xffffeeff
@@ -77,10 +84,15 @@ main_loop:
   vstr  s0, [r0]
   vmov  s24, s0  // s24是以拍为单位的时间
 
-  bl state_update
+  bl    state_update
+
+  bl    cam_move_update
 
   // 画鸟们
   bl    drawBirds
+
+  // 画装饰物
+  bl    drawDecorations
 
   // Update audio
   ldr   r1, =stream
@@ -89,7 +101,7 @@ main_loop:
 
   svc   #0x10f  // End frame
 
-vldrs   s23, -4.5
+vldrs   s23, 0.3
 vcmpa.f32 s24, s23
 //svcge   #0x0f
 
@@ -138,5 +150,9 @@ map_audio_offset:
 map_seq: // 音符序列的首地址
   .int 0
 map_seq_len: // 音符序列的长度，也就对应于全曲拍数。
+  .int 0
+map_deco:
+  .int 0
+map_deco_len:
   .int 0
 
