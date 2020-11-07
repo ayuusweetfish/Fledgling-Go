@@ -174,7 +174,6 @@ gbdtx_npc_lean:
   vcmpeq.f32  s1, s2
   vmrs    APSR_nzcv, FPSCR
   beq     gbdtx_npc_lean_true
-  bne     gbdtx_npc_default
   // 向下音符，上面鸟做动画
   vldrs   s2, 1.0
   cmp     r7, #2
