@@ -606,6 +606,7 @@ last_b_pressed: .byte 0
 /*
   out r0 - 当前音符的方向（0 - 无；1 - 上；2 - 下；3 - 拍翅膀）
       r1 - 当前时刻处于何种窗口期（0 - 窗口期外； 1 - great； 2 - perfect）
+           如果当前音符是「无」，那么 r1 = 0
       r2 - int 当前的音符为第几拍
 */
 .text
@@ -634,6 +635,17 @@ get_note:
   cmp   r2, #0
   blt   9f
 
+  // 取出当前音符
+  ldr   r0, =map_seq
+  ldr   r0, [r0]
+  ldrb  r0, [r0, r2]
+  // 取低 4 位
+  // 返回值 r0：当前音符的方向
+  and   r0, #0xf
+  // 特殊情况：没有音符
+  cmp   r0, #0
+  beq   9f
+
   // 返回值 r1：当前时刻处于何种窗口期
   mov       r1, #0
   // s1 = 差值（当前时刻提前为负，延后为正）
@@ -645,14 +657,6 @@ get_note:
   vcmp.f32  s1, s4  // Perfect?
   vmrs      APSR_nzcv, FPSCR
   movle     r1, #2
-
-  // 取出当前音符
-  ldr   r0, =map_seq
-  ldr   r0, [r0]
-  ldrb  r0, [r0, r2]
-  // 取低 4 位
-  // 返回值 r0：当前音符的方向
-  and   r0, #0xf
 
   pop   {pc}
 
