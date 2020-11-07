@@ -16,6 +16,8 @@
   push  {r0-r1}
   ldr   r0, =map_bpm
   vstr  s0, [r0]
+  ldr   r0, =map_audio_offset
+  vstr  s1, [r0]
   ldr   r0, =map_seq
   str  r3, [r0]
   ldr   r0, =map_seq_len
@@ -73,6 +75,8 @@ main_loop:
   mov   r1, r3
   ldr   r5, =map_bpm
   vldr  s0, [r5]
+  ldr   r5, =map_audio_offset
+  vldr  s1, [r5]
   bl    game_time_to_tempo
   ldr   r0, =st_time
   vstr  s0, [r0]
@@ -93,7 +97,7 @@ main_loop:
 
 
 game_time_to_tempo:
-  // r0, r1 game time, s0 地图的tempo（浮点）
+  // r0, r1 game time, s0 地图的tempo（浮点）, s1 音频偏移
   // return s0 当前的拍号（tempo）
   vldrs         s2, 65536.0
   vcvt.f64.f32  d2, s2
@@ -104,10 +108,12 @@ game_time_to_tempo:
   vcvt.f64.u32  d3, s2
   vadd.f64      d2, d3 // d2=r1*2^32+r0
 
-  vldrs         s1, 1000000.0
-  vcvt.f64.f32  d3, s1
+  vldrs         s2, 1000000.0
+  vcvt.f64.f32  d3, s2
   vdiv.f64      d2, d2, d3 // 除以一百万，化为s
   vcvt.f64.f32  d3, s0
+  vcvt.f64.f32  d4, s1
+  vsub.f64      d2, d4     // 减去偏移
   vmul.f64      d2, d2, d3 // 乘以bpm
   vldrs         s1, 60.0
   vcvt.f64.f32  d3, s1
@@ -126,6 +132,8 @@ last_frame_systime: // 上一帧的时间戳。如果为0表示没有上一帧�
 stream:
   .int  0
 map_bpm:
+  .float  0.0
+map_audio_offset:
   .float  0.0
 map_seq: // 音符序列的首地址
   .int 0
