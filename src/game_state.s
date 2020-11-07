@@ -90,19 +90,19 @@ state_update:
 
   ldr r5, =0
   ldr r6, =st_s_perfect
-  str r5, [r6]
+  strb r5, [r6]
   ldr r5, =0
   ldr r6, =st_s_great
-  str r5, [r6]
+  strb r5, [r6]
   ldr r5, =0
   ldr r6, =st_s_bump
-  str r5, [r6]
+  strb r5, [r6]
   ldr r5, =0
   ldr r6, =st_s_upset
-  str r5, [r6]
+  strb r5, [r6]
   ldr r5, =0
   ldr r6, =st_s_flap
-  str r5, [r6]        //initialize all the st_s_* as 0
+  strb r5, [r6]        //initialize all the st_s_* as 0
 
   bl get_input
   mov r3, r0    // UP key is down
@@ -297,7 +297,7 @@ great_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =st_s_great
-  str r5, [r6]
+  strb r5, [r6]
   ldr r6, =st_last_hit    //st_last_hit++
   str r2, [r6]
   b L2
@@ -311,7 +311,7 @@ great_upset_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =st_s_great
-  str r5, [r6]
+  strb r5, [r6]
   ldr r6, =st_last_hit    //set st_last_hit
   str r2, [r6]
 
@@ -320,7 +320,7 @@ great_upset_set:
   vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   b L3
 
 perfect_set:
@@ -332,7 +332,7 @@ perfect_set:
   str r5, [r6]            // set st_ago as 0
   ldr r5, =1
   ldr r6, =st_s_perfect
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
   b L2
@@ -346,7 +346,7 @@ perfect_upset_set:
   str r5, [r6]            // set st_ago as 0
   ldr r5, =1
   ldr r6, =st_s_perfect
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
   vldrs s5, 0.0
@@ -354,7 +354,7 @@ perfect_upset_set:
   vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   b L3
 
 
@@ -391,7 +391,7 @@ bump_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =st_s_bump
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   b L2
 
 upset_set:
@@ -400,7 +400,7 @@ upset_set:
   vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   b L3
 
 flap_perfect_set:
@@ -412,9 +412,9 @@ flap_perfect_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =st_s_flap
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r6, =st_s_perfect
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
   str r5, [r6]          //initialize ready_is_perfect as -1
@@ -431,9 +431,9 @@ flap_perfect_upset_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =st_s_flap
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r6, =st_s_perfect
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
   str r5, [r6]          //initialize ready_is_perfect as -1
@@ -444,7 +444,7 @@ flap_perfect_upset_set:
   vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   b L3
 
 flap_great_set:
@@ -456,9 +456,9 @@ flap_great_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =st_s_flap
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r6, =st_s_great
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
   str r5, [r6]          //initialize ready_is_perfect as -1
@@ -475,9 +475,9 @@ flap_great_upset_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =st_s_flap
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r6, =st_s_great
-  str r5, [r6]          //set sound
+  strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
   str r5, [r6]          //initialize ready_is_perfect as -1
@@ -488,7 +488,7 @@ flap_great_upset_set:
   vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
-  str r5, [r6]            // set sound
+  strb r5, [r6]            // set sound
   b L3
 
 ready_up_perfect_set:
