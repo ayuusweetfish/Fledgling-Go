@@ -78,6 +78,13 @@ state_update:
   //TODO: when press error key set upset    --Finished
   push {r4-r11, lr}
   vpush {s5-s7}
+
+  ldr r5, =st_time
+  ldr r5, [r5]
+  cmp r5, #0
+  blt normal_set          // if st_time < 0 set st_pose as normal
+  b L5
+
   ldr r5, =0
   ldr r6, =st_s_perfect
   str r5, [r6]
@@ -98,12 +105,6 @@ state_update:
   mov r3, r0    // UP key is down
   mov r4, r1    // DOWN key is down
 
- /* cmp r3, #1
-  beq D
-  b L4
-D:
-  dp*/
-L4:
   bl get_note   // r0 - the direction of current note；r1 - the window-situation
   cmp r1, #1
   beq great_manager     // in great-window; jump to analyse if hit
@@ -543,15 +544,9 @@ L3:
   ldr r5, =st_time
   ldr r5, [r5]
   ldr r6, =frame_time
-  str r5, [r6]         // save frame_window
+  str r5, [r6]         // save frame_time
 
-  ldr r6, =st_pose
-  ldr r6, [r6]
-  ldr r5, =st_ago
-  vldr s5, [r5]
-  cmp r6, #POSE_BUMP
-  bne L5
-  vcmpa.F32 s5, #0.0
+L5:
   vpop {s5-s7}
   pop {r4-r11, pc}
 
