@@ -369,10 +369,10 @@ out_window_manager:
 L7:
   cmp r3, #1              // UP key is down
   beq upset_set
-  d
+  //d
   cmp r4, #1              // DOWN key is down
   beq upset_set
-  d
+  //d
   b L1
 
 
@@ -534,8 +534,9 @@ normal_set:
   ldr r5, =-1
   ldr r6, =ready_is_perfect
   str r5, [r6]          //initialize ready_is_perfect as -1
-  d
-  pop {r5-r6, pc}
+  //d
+  pop {r5-r6}
+  bx  lr
 
 L1:
   ldr r5, =st_time
@@ -574,7 +575,7 @@ L5:
   bne L01
   dps
 L01:*/
-  d
+  //d
   vpop {s5-s7}
   pop {r4-r11, pc}
 

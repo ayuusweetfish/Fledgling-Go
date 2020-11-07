@@ -6,7 +6,7 @@ audio   "Stray Toy's Adventure_0.875.ogg"
 
 #tempo   256.0
 #offset  1.169
-tempo   224.0
+tempo   112.0
 offset  1.336
 
 # Theme A

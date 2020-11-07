@@ -102,9 +102,11 @@ main_loop:
 */
 
   // NOTE (lsq 11.07): 无视炸毛状态
+/*
   ldr   r0, =st_upset
   vldrs s0, 100.0
   vstr  s0, [r0]
+*/
 
   bl    cam_move_update
 
