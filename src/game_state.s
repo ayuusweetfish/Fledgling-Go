@@ -59,7 +59,7 @@ st_time:  .float  0.0
 st_pose:  .int    POSE_NORMAL
 st_ago:   .float  0
 st_upset: .float  100.0
-st_last_hit:  .int 0
+st_last_hit:  .int -99999
 st_window:    .int 0
 st_score: .int 0
 st_combo: .int 0
@@ -241,7 +241,7 @@ perfect_manager_upkey_flap:
    b L1
 
 perfect_manager_downkey:
-  cmp r4, #1
+  cmp r3, #1
   beq perfect_manager_updownkey    //if press up and down key at the same frame
   cmp r0, #2
   beq perfect_set
@@ -255,10 +255,10 @@ perfect_manager_downkey:
 perfect_manager_updownkey:
   cmp r0, #1
   beq perfect_upset_set
-  d
+  //d
   cmp r0, #2
   beq perfect_upset_set
-  d
+  //d
   cmp r0, #3
   beq perfect_manager_updownkey_flap
 
@@ -363,9 +363,10 @@ out_window_manager:
   ldr r5, [r5]
   cmp r5, #1            //上一帧为great窗口期 即 刚刚出great窗口期
   bne L7
-  ldreq r5, =st_last_hit
-  cmpeq r2, r5              //上一个音符所在拍与上一个命中所在拍不一致 即 miss了上一个音符
-  bne bump_set
+  ldr r5, =st_last_hit
+  ldr r5, [r5]
+  cmp r2, r5              //上一个音符所在拍与上一个命中所在拍不一致 即 miss了上一个音符
+  bne miss_note
 L7:
   cmp r3, #1              // UP key is down
   beq upset_set
@@ -375,6 +376,10 @@ L7:
   //d
   b L1
 
+miss_note:
+  cmp r0, #3
+  beq upset_set
+  // Fallthrough to bump_set
 
 /* st_pose set */
 bump_set:
