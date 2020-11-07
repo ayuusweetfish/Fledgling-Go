@@ -97,11 +97,11 @@ state_update:
   mov r3, r0    // UP key is down
   mov r4, r1    // DOWN key is down
 
-  cmp r3, #1
+ /* cmp r3, #1
   beq D
   b L4
 D:
-  dp
+  dp*/
 L4:
   bl get_note   // r0 - the direction of current note；r1 - the window-situation
   cmp r1, #1
@@ -534,6 +534,13 @@ L2:
   vstr s6, [r5]
 
 L3:
+  ldr r5, =st_window
+  str r1, [r5]          // save st_window
+  ldr r5, =st_time
+  ldr r5, [r5]
+  ldr r6, =frame_time
+  str r5, [r6]         // save frame_window
+
   vpop {s5-s7}
   pop {r4-r11, pc}
 
