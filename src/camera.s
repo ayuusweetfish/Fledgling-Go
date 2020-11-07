@@ -76,9 +76,9 @@ coord_g2s_rect:
 
 
 SAFE_PADDING:
-  .float    2.0
-CAMERA_DELTAMAX:
-  .float    2.0
+  .float    3.0
+CAMERA_DELTAMAX: // 每一拍，相机位置允许变化的最大值
+  .float    1.0
 cam_move_update:
   push          {lr}
   // 计算允许的变化量的最大值
