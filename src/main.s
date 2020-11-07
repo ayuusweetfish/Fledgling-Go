@@ -44,6 +44,7 @@
 
   // 创建鸟们
   bl    init_birdTexture
+  bl    init_all_animseqs
 
 main_loop:
   ldr   r0, =#0xffffeeff
@@ -93,6 +94,11 @@ main_loop:
   bl    kx_music_update
 
   svc   #0x10f  // End frame
+
+vldrs   s23, 16.0
+vcmpa.f32 s24, s23
+svcge   #0x0f
+
   b     main_loop
 
 

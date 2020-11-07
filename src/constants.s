@@ -18,3 +18,8 @@
 GREAT_WINDOW: .float 0.25
 .weak PERFECT_WINDOW
 PERFECT_WINDOW: .float 0.125
+
+// 鸟的类型
+.equ  BIRD_TYPE_LEAD, 1 //（x offset由curLead决定）
+.equ  BIRD_TYPE_ME, 2 // （y由calMeY决定）
+.equ  BIRD_TYPE_NPC, 0

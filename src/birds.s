@@ -91,6 +91,119 @@ init_birdTexture:
   bx    lr
 
 
+getBirdTexture:
+  // 对于一只给定的鸟，根据当前的状态计算其的纹理。
+  // r0-r3分别表示类别 x offset、y offset、mode
+  // 返回r0:纹理id。保证不改变除了r0的任何寄存器，包括r1-r3也维持其输入值。
+  vpush   {s0-s3}
+  vpush   {s14-s15}
+  push    {r1-r9, lr} //sp是x，sp+4是y，sp+8是mode， 即分别是r1-r3
+  ldr     r9, =st_ago
+  vldr    s15, [r9] // s15是st_ago
+  ldr     r9, =st_upset
+  vldr    s14, [r9] // s14是st_upset
+  ldr     r9, =st_pose
+  ldr     r9, [r9] // r9是st_pose
+  mov     r8, r0 // r8是种类
+  bl      get_note
+  mov     r7, r0 // r7是音符
+  mov     r6, #-1 // r6承接最终返回值
+  pmem
+  p
+  ps
+// 自己鸟的部分
+gbdtx_me:
+  cmp     r8, #BIRD_TYPE_ME
+  bne     gbdtx_npc
+gbdtx_me_upset:
+  ldr     r0, =animseq_upset // 考虑upset
+  vmov    s0, s14
+  bl      cal_one_animseq
+  p
+  cmp     r1, #-1
+  movne   r6, r0
+  bne     gbdtx_end
+gbdtx_me_bump:
+  cmp     r9, #POSE_BUMP // 考虑bump
+  bne     gbdtx_me_ready
+  ldr     r0, =animseq_bump
+  vmov    s0, s15
+  bl      cal_one_animseq
+  cmp     r1, #-1
+  movne   r6, r0
+  bne     gbdtx_end
+  b       gbdtx_me_default
+gbdtx_me_ready:
+  cmp     r9, #POSE_READY_UP // 考虑READY
+  cmpne   r9, #POSE_READY_DOWN
+  bne     gbdtx_me_flap
+  ldr     r0, =animseq_flap_ready
+  vmov    s0, s15
+  bl      cal_one_animseq
+  cmp     r1, #-1
+  movne   r6, r0
+  bne     gbdtx_end
+  b       gbdtx_me_default
+gbdtx_me_flap:
+  cmp     r9, #POSE_FLAP_PERFECT // 考虑READY
+  cmpne   r9, #POSE_FLAP_GREAT
+  bne     gbdtx_me_default
+  ldr     r0, =animseq_flap
+  vmov    s0, s15
+  bl      cal_one_animseq
+  cmp     r1, #-1
+  movne   r6, r0
+  bne     gbdtx_end
+  b       gbdtx_me_default
+gbdtx_me_default:
+  ldr     r6, =idtx_mebird
+  ldr     r6, [r6]
+  b       gbdtx_end
+
+// npc鸟的部分（也就是其余鸟的部分）
+gbdtx_npc:
+gbdtx_npc_lean:
+  cmp     r9, #POSE_BUMP // 考虑bump
+  bne     gbdtx_npc_default
+  vldm    sp, {s0-s1} // s0是x、s1是y
+  // 向上音符，下面鸟做动画
+  vldrs   s2, -1.0
+  cmp     r7, #1
+  vcmpeq.f32  s0, #0.0
+  vmrs    APSR_nzcv, FPSCR
+  vcmpeq.f32  s1, s2
+  vmrs    APSR_nzcv, FPSCR
+  beq     gbdtx_npc_lean_true
+  bne     gbdtx_npc_default
+  // 向下音符，上面鸟做动画
+  vldrs   s2, 1.0
+  cmp     r7, #2
+  vcmpeq.f32  s0, #0.0
+  vmrs    APSR_nzcv, FPSCR
+  vcmpeq.f32  s1, s2
+  vmrs    APSR_nzcv, FPSCR
+  beq     gbdtx_npc_lean_true
+  bne     gbdtx_npc_default
+gbdtx_npc_lean_true: // 真的是要斜眼的鸟
+  ldr     r0, =animseq_bump
+  vmov    s0, s15
+  bl      cal_one_animseq
+  cmp     r1, #-1
+  movne   r6, r0
+  bne     gbdtx_end
+  b       gbdtx_npc_default
+gbdtx_npc_default:
+  ldr     r6, =idtx_npcbird
+  ldr     r6, [r6]
+  b       gbdtx_end
+gbdtx_end:
+  mov     r0, r6
+  pop     {r1-r9, lr}
+  vpop    {s14-s15}
+  vpop    {s0-s3}
+  bx      lr
+
+
 drawBirds:
   push          {r8-r9, lr}
   vpush         {s31}
@@ -107,21 +220,20 @@ inib_loop1:
   mov           r5, r0 // r5表示类别；r1-r3分别表示x offset、y offset、mode 其中x y offset已经是浮点数格式了！
   vmov          s8, r1 // s8是x offset
   vmov          s9, r2 // s9是y offset
+  // 计算纹理贴图
+  bl            getBirdTexture
+  mov           r8, r0
   //默认处理：s8变为绝对的x(st_time+offset)、s9变为绝对的y(绝对x算出绝对y+offset)
   vadd.f32      s8, s31
   vmov          s0, s8
   bl            calBirdY
   vadd.f32      s9, s0
-  ldr           r8, =idtx_npcbird
-  ldr           r8, [r8]
   // 分类别处理
-inib_tp_me: // me：不同的纹理、y由calMeY决定
+inib_tp_me: // me：y由calMeY决定
   cmp           r5, #BIRD_TYPE_ME
   bne           inib_tp_lead
   bl            calMeY
   vmov          s9, s0
-  ldr           r8, =idtx_mebird
-  ldr           r8, [r8]
   b             inib_tp_end
 inib_tp_lead: // lead：调用calHeadBirdXAndUpdateCurLead算出领先距离追加到x(s8)上，并以新的x重算y
   cmp           r5, #BIRD_TYPE_LEAD
@@ -307,10 +419,6 @@ calHeadBirdXAndUpdateCurLead:
 curLead:
   .float  0.0
 
-
-.equ  BIRD_TYPE_LEAD, 1 //（x offset由curLead决定）
-.equ  BIRD_TYPE_ME, 2 // （y由calMeY决定）
-.equ  BIRD_TYPE_NPC, 0
 birdsCount: //鸟的列表，count是个数。
   .int    5
 birds:

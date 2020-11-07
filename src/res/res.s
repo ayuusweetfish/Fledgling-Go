@@ -34,3 +34,31 @@
   res Mali_Regular_ttf, Mali-Regular.ttf
 
   res stray_bin, ../../map/stray.bin
+
+  res upset_0_png, anim_test.jpg
+  res upset_1_png, anim_test.jpg
+  res upset_2_png, anim_test.jpg
+  res upset_3_png, anim_test.jpg
+  res upset_4_png, anim_test.jpg
+  res bump_0_png, anim_test.jpg
+  res bump_1_png, anim_test.jpg
+  res bump_2_png, anim_test.jpg
+  res bump_3_png, anim_test.jpg
+  res bump_4_png, anim_test.jpg
+  res flap_0_png, anim_test.jpg
+  res flap_1_png, anim_test.jpg
+  res flap_2_png, anim_test.jpg
+  res flap_3_png, anim_test.jpg
+  res flap_4_png, anim_test.jpg
+  res flap_ready_0_png, anim_test.jpg
+  res flap_ready_1_png, anim_test.jpg
+  res flap_ready_2_png, anim_test.jpg
+  res flap_ready_3_png, anim_test.jpg
+  res flap_ready_4_png, anim_test.jpg
+  res lean_0_png, anim_test.jpg
+  res lean_1_png, anim_test.jpg
+  res lean_2_png, anim_test.jpg
+  res lean_3_png, anim_test.jpg
+  res lean_4_png, anim_test.jpg
+
+

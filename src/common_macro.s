@@ -71,3 +71,9 @@ _vldrs\@_after:
   svc  #0x0e
   pop  {r0-r3}
 .endm
+
+// 在此处插入两个int，分别是指定名字资源及其size
+.macro  importres name: req
+  .int  \name
+  .int  \name\()_size
+.endm
