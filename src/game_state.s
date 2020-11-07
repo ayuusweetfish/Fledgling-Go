@@ -51,6 +51,7 @@
 .global st_ago
 .global get_note
 .global state_update
+.global st_upset
 
 
 .data
