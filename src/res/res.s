@@ -35,30 +35,30 @@
 
   res stray_bin, ../../map/stray.bin
 
-  res upset_0_png, anim_test.jpg
-  res upset_1_png, anim_test.jpg
-  res upset_2_png, anim_test.jpg
-  res upset_3_png, anim_test.jpg
-  res upset_4_png, anim_test.jpg
-  res bump_0_png, anim_test.jpg
-  res bump_1_png, anim_test.jpg
-  res bump_2_png, anim_test.jpg
-  res bump_3_png, anim_test.jpg
-  res bump_4_png, anim_test.jpg
-  res flap_0_png, anim_test.jpg
-  res flap_1_png, anim_test.jpg
-  res flap_2_png, anim_test.jpg
-  res flap_3_png, anim_test.jpg
-  res flap_4_png, anim_test.jpg
-  res flap_ready_0_png, anim_test.jpg
-  res flap_ready_1_png, anim_test.jpg
-  res flap_ready_2_png, anim_test.jpg
-  res flap_ready_3_png, anim_test.jpg
-  res flap_ready_4_png, anim_test.jpg
-  res lean_0_png, anim_test.jpg
-  res lean_1_png, anim_test.jpg
-  res lean_2_png, anim_test.jpg
-  res lean_3_png, anim_test.jpg
-  res lean_4_png, anim_test.jpg
+  res upset_0_png, test_upset.png
+  res upset_1_png, test_upset.png
+  res upset_2_png, test_upset.png
+  res upset_3_png, test_upset.png
+  res upset_4_png, test_upset.png
+  res bump_0_png, test_bump.png
+  res bump_1_png, test_bump.png
+  res bump_2_png, test_bump.png
+  res bump_3_png, test_bump.png
+  res bump_4_png, test_bump.png
+  res flap_0_png, test_flap.png
+  res flap_1_png, test_flap.png
+  res flap_2_png, test_flap.png
+  res flap_3_png, test_flap.png
+  res flap_4_png, test_flap.png
+  res flap_ready_0_png, test_ready.png
+  res flap_ready_1_png, test_ready.png
+  res flap_ready_2_png, test_ready.png
+  res flap_ready_3_png, test_ready.png
+  res flap_ready_4_png, test_ready.png
+  res lean_0_png, test_lean.png
+  res lean_1_png, test_lean.png
+  res lean_2_png, test_lean.png
+  res lean_3_png, test_lean.png
+  res lean_4_png, test_lean.png
 
 
