@@ -370,9 +370,6 @@ cmy_end:
   bx      lr
 
 
-// TODO 鸟的BUMP/FLAP/UPSET的切换贴图，和嘲讽斜眼
-
-
 HEADBIRD_X_DELTAMAX: // 每一拍，头鸟lead允许变化的最大值
   .float  1.0
 

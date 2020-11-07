@@ -1,6 +1,8 @@
 .include "common_macro.s"
+.include "constants.s"
 
 .global coord_g2s_rect
+.global cam_move_update
 // 世界坐标系规定如下：
 // 世界坐标系想象为一个无限大的平面，向右为x轴正方向，向上为y轴正方向，远离屏幕为z轴正方向。
 // 在世界中，相机在x方向上以恒定速率(就是bpm)运动，在y轴上按照一定的运动算法作运动。
@@ -71,7 +73,53 @@ coord_g2s_rect:
   pop       {lr}
   bx        lr
 
-// TODO 相机移动
+
+
+SAFE_PADDING:
+  .float    2.0
+CAMERA_DELTAMAX:
+  .float    2.0
+cam_move_update:
+  push          {lr}
+  // 计算允许的变化量的最大值
+  vldrs         s2, 60.0
+  ldr           r1, =FPS
+  vmov          s3, r1
+  vcvt.f32.s32  s3, s3
+  vmul.f32      s2, s3
+  ldr           r1, =map_bpm
+  vldr          s3, [r1]
+  vdiv.f32      s2, s2, s3
+  vldr          s3, CAMERA_DELTAMAX
+  vdiv.f32      s5, s3, s2 // s5是允许的变化量的最大值
+  // 算新的目标相机值
+  ldr           r0, =st_time
+  vldr          s0, [r0]
+  bl            calBirdY // s0当前y
+  ldr           r0, =camera_y
+  vldr          s1, [r0] // s1当前相机值
+  vsub.f32      s2, s1, s0 // s2当前相机与当前y的差
+  vmov          s6, s1 // s6 是最终的目标相机值 默认为不变（s1）
+  //检测是否出上边界
+  vldr          s3, SAFE_PADDING
+  vcmpa.f32     s2, s3
+  vaddlt.f32    s6, s0, s3
+  blt           camv_end
+  //检测是否出下边界
+  vldr          s4, CAM_HEI
+  vsub.f32      s3, s4, s3
+  vcmpa.f32     s2, s3
+  vaddgt.f32    s6, s0, s3
+camv_end:
+  vadd.f32      s2, s1, s5
+  vsub.f32      s1, s1, s5
+  vmov          s0, s6
+  bl            clamp // 应当让返回的s0，是正常的lead clamp在允许变化区间之内的值。
+  vstr          s0, [r0] // 新的值写回camera_y
+  pop           {lr}
+  bx            lr
+
+
 
 .section .data
 camera_y: // 相机的
