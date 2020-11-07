@@ -31,6 +31,10 @@
     st_pose改变以来的时间（拍）
   - st_upset
     距上次炸毛触发以来的时间（拍）
+  - st_score
+    得分
+  - st_combo
+    连击
   - st_last_hit
     上次命中的音符是第几拍
   - st_window
@@ -52,6 +56,8 @@
 .global get_note
 .global state_update
 .global st_upset
+.global st_score
+.global st_combo
 
 
 .data
