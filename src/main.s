@@ -86,6 +86,26 @@ main_loop:
 
   bl    state_update
 
+  // NOTE (zyn 11.07): debug查看输出状态
+/*
+  ldr r4, =st_pose
+  ldr r4, [r4]
+  ldr r1, =st_ago
+  vldr s0, [r1]
+  ldr r1, =st_upset
+  vldr s1, [r1]
+  bl get_note
+  ps  // s0 = ago, s1 = upset
+  pm  // r4 = pose
+  vcmpa.f32 s24, #0.0
+  svcge #0xf
+*/
+
+  // NOTE (lsq 11.07): 无视炸毛状态
+  ldr   r0, =st_upset
+  vldrs s0, 100.0
+  vstr  s0, [r0]
+
   bl    cam_move_update
 
   // 画鸟们

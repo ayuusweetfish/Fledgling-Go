@@ -1,10 +1,13 @@
 .include "map.i"
 
 title   "Stray Toy's Adventure!!"
-audio   "Stray Toy's Adventure.ogg"
+#audio   "Stray Toy's Adventure.ogg"
+audio   "Stray Toy's Adventure_0.875.ogg"
 
-tempo   256.0
-offset  1.169
+#tempo   256.0
+#offset  1.169
+tempo   224.0
+offset  1.336
 
 # Theme A
 lead  2
@@ -77,5 +80,9 @@ seq   .d.u.d.uf...f...f.f..f..
 seq_end
 
 decor 1, 2, 3, 4, 5, 6
+decor 1, 12, 3, 4, 5, 6
+decor 1, 22, 5, 4, 5, 6
+decor 1, 32, 5, 4, 5, 6
+decor 1, 42, 3, 4, 5, 6
 decor 2, x=7, y=8, w=4
 decor_end
