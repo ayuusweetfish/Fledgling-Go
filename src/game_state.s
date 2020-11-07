@@ -58,13 +58,13 @@
 st_time:  .float  0.0
 st_pose:  .int    POSE_NORMAL
 st_ago:   .float  0
-st_upset: .float  0
+st_upset: .float  100.0
 st_last_hit:  .int 0
 st_window:    .int 0
 st_s_perfect: .byte 0
 st_s_great:   .byte 0
 st_s_bump:    .byte 0
-st_s_upset:   .float 100
+st_s_upset:   .byte 0
 st_s_flap:    .byte 0
 ready_is_perfect: .byte -1
 frame_time: .float 0.0
@@ -117,8 +117,10 @@ state_update:
 already_hit:
   cmp r3, #1
   beq upset_set
+  d
   cmp r4, #1
   beq upset_set
+  d
   b L1
 
 great_manager:
@@ -142,6 +144,7 @@ great_manager_upkey:
   beq great_set
   cmp r0, #2
   beq upset_set
+  d
   cmp r0, #3         // in flap window
   beq great_manager_upkey_flap
   b L1
@@ -162,6 +165,7 @@ great_manager_downkey:
   beq great_set
   cmp r0, #1
   beq upset_set
+  d
   cmp r0, #3
   beq great_manager_downkey_flap   //flap window
   b L1
@@ -178,8 +182,10 @@ great_manager_downkey_flap:
 great_manager_updownkey:
   cmp r0, #1
   beq great_upset_set
+  d
   cmp r0, #2
   beq great_upset_set
+  d
   cmp r0, #3
   beq great_manager_updownkey_flap
 
@@ -188,8 +194,10 @@ great_manager_updownkey_flap:
   ldr r5, [r5]
   cmp r5, #POSE_READY_UP
   beq flap_great_upset_set
+  d
   cmp r5, #POSE_READY_DOWN
   beq flap_great_upset_set
+  d
   cmp r5, #POSE_NORMAL
   beq flap_great_set
   b L1
@@ -211,6 +219,7 @@ perfect_manager_upkey:
   beq perfect_set
   cmp r0, #2
   beq upset_set         // in down window
+  d
   cmp r0, #3           // in flap window
   beq perfect_manager_upkey_flap
   b L1
@@ -235,6 +244,7 @@ perfect_manager_downkey:
   beq perfect_set
   cmp r0, #1
   beq upset_set
+  d
   cmp r0, #3
   beq perfect_manager_downkey_flap
   b L1
@@ -242,8 +252,10 @@ perfect_manager_downkey:
 perfect_manager_updownkey:
   cmp r0, #1
   beq perfect_upset_set
+  d
   cmp r0, #2
   beq perfect_upset_set
+  d
   cmp r0, #3
   beq perfect_manager_updownkey_flap
 
@@ -265,8 +277,10 @@ perfect_manager_updownkey_flap:
   ldr r5, [r5]
   cmp r5, #POSE_READY_UP
   beq flap_perfect_upset_set
+  d
   cmp r5, #POSE_READY_DOWN
   beq flap_perfect_upset_set
+  d
   cmp r5, #POSE_NORMAL
   beq flap_perfect_set
   b L1
@@ -298,9 +312,9 @@ great_upset_set:
   ldr r6, =st_last_hit    //set st_last_hit
   str r2, [r6]
 
-  ldr r5, =0
+  vldrs s5, 0.0
   ldr r6, =st_upset
-  str r5, [r6]
+  vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
   str r5, [r6]            // set sound
@@ -332,9 +346,9 @@ perfect_upset_set:
   str r5, [r6]            // set sound
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
-  ldr r5, =0
+  vldrs s5, 0.0
   ldr r6, =st_upset
-  str r5, [r6]
+  vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
   str r5, [r6]            // set sound
@@ -352,8 +366,10 @@ out_window_manager:
 L7:
   cmp r3, #1              // UP key is down
   beq upset_set
+  d
   cmp r4, #1              // DOWN key is down
   beq upset_set
+  d
   b L1
 
 
@@ -371,9 +387,9 @@ bump_set:
   b L2
 
 upset_set:
-  ldr r5, =0
+  vldrs s5, 0.0
   ldr r6, =st_upset
-  str r5, [r6]
+  vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
   str r5, [r6]            // set sound
@@ -415,9 +431,9 @@ flap_perfect_upset_set:
   str r5, [r6]          //initialize ready_is_perfect as -1
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
-  ldr r5, =0
+  vldrs s5, 0.0
   ldr r6, =st_upset
-  str r5, [r6]
+  vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
   str r5, [r6]            // set sound
@@ -459,9 +475,9 @@ flap_great_upset_set:
   str r5, [r6]          //initialize ready_is_perfect as -1
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
-  ldr r5, =0
+  vldrs s5, 0.0
   ldr r6, =st_upset
-  str r5, [r6]
+  vstr s5, [r6]
   ldr r5, =1
   ldr r6, =st_s_upset
   str r5, [r6]            // set sound
@@ -547,6 +563,12 @@ L3:
   str r5, [r6]         // save frame_time
 
 L5:
+  ldr r5, =st_upset
+  vldr s5, [r5]
+  vcmpa.F32 s5, #0.0
+  bne L01
+  dps
+L01:
   vpop {s5-s7}
   pop {r4-r11, pc}
 
