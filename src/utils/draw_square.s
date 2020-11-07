@@ -3,6 +3,7 @@
 
 .global draw_square
 .global fillSWhenDrawFullTexture
+.global init_imported_res
 
 .section .text
 draw_square:
@@ -47,3 +48,16 @@ fillSWhenDrawFullTexture:
   vldrs s10, 1.0
   vldrs s11, 0.0
   bx    lr
+
+
+init_imported_res:
+  // 把importres引入的资源进行构建纹理操作。
+  // r0 地址 不改变任何寄存器
+  push  {r0-r4, lr}
+  mov   r4, r0
+  ldm   r0, {r0-r1}
+  bl    kx_image
+  str   r0, [r4]
+  pop   {r0-r4, lr}
+  bx    lr
+

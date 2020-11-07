@@ -46,6 +46,7 @@
   bl    init_birdTexture
   bl    init_all_animseqs
   bl    init_decorations
+  bl    init_birdPlus
 
 main_loop:
   ldr   r0, =#0xffffeeff
@@ -108,13 +109,17 @@ main_loop:
   vstr  s0, [r0]
 */
 
+  // 画装饰物
+  bl    drawDecorations
+
   bl    cam_move_update
+
+  bl    drawReminder
 
   // 画鸟们
   bl    drawBirds
 
-  // 画装饰物
-  bl    drawDecorations
+  bl    drawSign
 
   // Update audio
   ldr   r1, =stream

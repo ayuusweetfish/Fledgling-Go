@@ -4,6 +4,10 @@
 .global cal_one_animseq
 .global init_all_animseqs
 
+.global animseq_perfect_sign
+.global animseq_great_sign
+.global animseq_bad_sign
+
 .section .text
 init_one_animseq:
   // 初始化一个动画序列。r0：animseq的地址。
@@ -93,6 +97,12 @@ init_all_animseqs:
   bl      init_one_animseq
   ldr     r0, =animseq_lean
   bl      init_one_animseq
+  ldr     r0, =animseq_perfect_sign
+  bl      init_one_animseq
+  ldr     r0, =animseq_great_sign
+  bl      init_one_animseq
+  ldr     r0, =animseq_bad_sign
+  bl      init_one_animseq
   pop     {lr}
   bx      lr
 
@@ -178,4 +188,27 @@ animseq_lean:
   importres lean_4_png
   .int    0  // 表示结束
 
+animseq_perfect_sign:
+  .float  0.0 // 时间点
+  .int    0   // 帧id
+  .float  0.5
+  .int    -1  // 表示结束
+  importres _32573480_png
+  .int    0  // 表示结束
+
+animseq_great_sign:
+  .float  0.0 // 时间点
+  .int    0   // 帧id
+  .float  0.5
+  .int    -1  // 表示结束
+  importres _32573481_png
+  .int    0  // 表示结束
+
+animseq_bad_sign:
+  .float  0.0 // 时间点
+  .int    0   // 帧id
+  .float  0.5
+  .int    -1  // 表示结束
+  importres _32573487_png
+  .int    0  // 表示结束
 

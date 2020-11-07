@@ -6,6 +6,11 @@
 .global calBirdY
 .global drawBirds
 .global init_birdTexture
+.global getBirdYByInt
+.global curLead
+.global curSeqY
+.global curNpcY
+.global curMeY
 
 .section .text
 init_yBirdList:
@@ -212,6 +217,13 @@ drawBirds:
   ldr           r7, [r1] // r7是count
   mov           r6, #0 // r6是循环变量
   ldr           r9, =birds // r9是birds的指针  // r8是纹理id
+  // 算一次birdY数值，存起来
+  vmov          s0, s31
+  bl            calBirdY
+  ldr           r1, =curNpcY
+  vstr          s0, [r1]
+  ldr           r1, =curSeqY
+  vstr          s1, [r1]
 inib_loop1:
   cmp           r6, r7
   bge           inib_l1_end
@@ -365,8 +377,10 @@ cmy_norplus: // 其余所有状态：
   vmovne    s0, s14 // 如果在窗口期内，输出前一窗口期的位置
   vmoveq    s0, s15 // 否则，输出当前窗口期的位置
 cmy_end:
-  pop     {lr}
-  bx      lr
+  ldr       r1, =curMeY
+  vstr      s0, [r1]
+  pop       {lr}
+  bx        lr
 
 
 HEADBIRD_X_DELTAMAX: // 每一拍，头鸟lead允许变化的最大值
@@ -417,6 +431,12 @@ calHeadBirdXAndUpdateCurLead:
 .section .data
 curLead:
   .float  0.0
+curSeqY:
+  .float  0.0
+curNpcY:
+  .float  0.0
+curMeY:
+  .float  0.0
 
 birdsCount: //鸟的列表，count是个数。
   .int    5
@@ -451,6 +471,7 @@ idtx_mebird:
   .int    0
 idtx_npcbird:
   .int    0
+
 
 
 .section .bss

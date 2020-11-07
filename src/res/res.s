@@ -61,4 +61,8 @@
   res lean_3_png, test_lean.png
   res lean_4_png, test_lean.png
 
+  res upreminder_png, 32573491.png
+  res downreminder_png, 32573496.png
+  res flapreminder_png, 32573498.png
+
 
