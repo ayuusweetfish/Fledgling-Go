@@ -61,6 +61,8 @@ st_ago:   .float  0
 st_upset: .float  100.0
 st_last_hit:  .int 0
 st_window:    .int 0
+st_score: .int 0
+st_combo: .int 0
 st_s_perfect: .byte 0
 st_s_great:   .byte 0
 st_s_bump:    .byte 0
@@ -82,8 +84,9 @@ state_update:
   ldr r5, =st_time
   ldr r5, [r5]
   cmp r5, #0
-  blt normal_set          // if st_time < 0 set st_pose as normal
-  b L5
+  bllt normal_set          // if st_time < 0 set st_pose as normal
+  cmp r5, #0
+  blt L5
 
   ldr r5, =0
   ldr r6, =st_s_perfect
@@ -521,6 +524,7 @@ ready_down_great_set:
 
 
 normal_set:
+  push {r5-r6}
   ldr r5, =POSE_NORMAL
   ldr r6, =st_pose
   str r5, [r6]
@@ -530,7 +534,8 @@ normal_set:
   ldr r5, =-1
   ldr r6, =ready_is_perfect
   str r5, [r6]          //initialize ready_is_perfect as -1
-  bx lr
+  d
+  pop {r5-r6, pc}
 
 L1:
   ldr r5, =st_time
@@ -563,12 +568,13 @@ L3:
   str r5, [r6]         // save frame_time
 
 L5:
-  ldr r5, =st_upset
+  /*ldr r5, =st_upset
   vldr s5, [r5]
   vcmpa.F32 s5, #0.0
   bne L01
   dps
-L01:
+L01:*/
+  d
   vpop {s5-s7}
   pop {r4-r11, pc}
 
