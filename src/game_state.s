@@ -342,10 +342,13 @@ perfect_upset_set:
 
 out_window_manager:
   ldr r5, =st_window
+  ldr r5, [r5]
   cmp r5, #1            //上一帧为great窗口期 即 刚刚出great窗口期
+  bne L7
   ldreq r5, =st_last_hit
   cmpeq r2, r5              //上一个音符所在拍与上一个命中所在拍不一致 即 miss了上一个音符
   bne bump_set
+L7:
   cmp r3, #1              // UP key is down
   beq upset_set
   cmp r4, #1              // DOWN key is down
@@ -542,6 +545,13 @@ L3:
   ldr r6, =frame_time
   str r5, [r6]         // save frame_window
 
+  ldr r6, =st_pose
+  ldr r6, [r6]
+  ldr r5, =st_ago
+  vldr s5, [r5]
+  cmp r6, #POSE_BUMP
+  bne L5
+  vcmpa.F32 s5, #0.0
   vpop {s5-s7}
   pop {r4-r11, pc}
 

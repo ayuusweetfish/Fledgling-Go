@@ -91,7 +91,7 @@ main_loop:
 
 vldrs   s23, -4.5
 vcmpa.f32 s24, s23
-svcge   #0x0f
+//svcge   #0x0f
 
   b     main_loop
 
