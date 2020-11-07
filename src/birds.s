@@ -61,8 +61,12 @@ end2_iyb:
 
 getBirdYByInt:
   // 根据整数拍号获取其在birdYList中指定的数值。
+  // 规定负数区间坐标为0
   // 输入 r0 整数
   // 输出 s0 不改变其他寄存器，r0也不变
+  cmp   r0, #0
+  vldrs s0, 0.0
+  bxlt  lr // 如果是负数，返回坐标0.0
   push  {r0-r1}
   cmp   r0, #0
   movlt r0, #0
@@ -181,7 +185,7 @@ gbdtx_npc_lean:
   beq     gbdtx_npc_lean_true
   bne     gbdtx_npc_default
 gbdtx_npc_lean_true: // 真的是要斜眼的鸟
-  ldr     r0, =animseq_bump
+  ldr     r0, =animseq_lean
   vmov    s0, s15
   bl      cal_one_animseq
   cmp     r1, #-1
@@ -280,19 +284,20 @@ calBirdY:
   // 更改s0-s4
   push          {r1, lr}
   vldrs         s1, 0.0
-  vcmpa.f32     s0, #0.0
-  vmovlt        s0, s1 // 如果时间值小于0，视为是0
-
   vpush         {s0}
-  bl            floor
+
+  vcmpa.f32     s0, #0.0
+  vmovlt        s0, s1
+  blt           cby_fin // 如果时间值小于0，则固定的返回y值为0
+
+  bl            floor_f32
   vmov          s3, s1 // r0是当前拍号向下取整,s3是当前拍号的小数部分
   bl            getBirdYByInt
   vmov          s1, s0 // s1是当前整数拍号所对应的的y坐标，一定是个整数
 
-  cmp           r0, #0 // 如果在第0.x拍，则不存在合法的上一拍，令上一拍坐标等于本拍坐标
-  subgt         r0, #1
+  sub           r0, #1
   bl            getBirdYByInt
-  vmov          s2, s0 // 否则，取出上一拍坐标存进s2
+  vmov          s2, s0 // 取出上一拍坐标存进s2
   // 有过渡的条件：当前在本拍前0.5拍内，且本拍y值与上一拍不等
   vcmpa.f32     s2, s1
   beq           no_gradual
@@ -337,8 +342,7 @@ calMeY:
   mov     r0, r2
   bl      getBirdYByInt
   vmov    s15, s0 // s15是当前窗口期的y
-  cmp     r0, #0
-  subgt   r0, #1
+  sub     r0, #1
   bl      getBirdYByInt
   vmov    s14, s0  // s14是上一窗口期的y
 cmy_pgb:
