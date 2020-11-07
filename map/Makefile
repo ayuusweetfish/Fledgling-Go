@@ -20,7 +20,7 @@ V := @
 all: $(patsubst %.s, %.bin, $(wildcard *.s))
 
 %.bin: %.s
-	@ echo "  AS      $<"
+	@ echo "    AS    $<"
 	$(V) $(AS) $< -o $(<:%.s=%.o)
 	$(V) $(OBJCOPY) -O binary $(<:%.s=%.o) $@
 	$(V) $(call rm_rf, $(<:%.s=%.o))
