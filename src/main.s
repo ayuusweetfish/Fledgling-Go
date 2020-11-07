@@ -47,6 +47,7 @@
   bl    init_all_animseqs
   bl    init_decorations
   bl    init_birdPlus
+  bl    init_label
 
 main_loop:
   ldr   r0, =#0xffffeeff
@@ -120,6 +121,8 @@ main_loop:
   bl    drawBirds
 
   bl    drawSign
+
+  bl    drawLabel
 
   // Update audio
   ldr   r1, =stream
