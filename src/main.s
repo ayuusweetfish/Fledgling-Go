@@ -78,6 +78,8 @@ main_loop:
   vstr  s0, [r0]
   vmov  s24, s0  // s24是以拍为单位的时间
 
+  bl state_update
+
   // 画鸟们
   bl    drawBirds
 

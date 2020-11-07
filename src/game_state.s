@@ -43,12 +43,14 @@
   - frame_time 用于记录（上一帧的）时间的临时变量，辅助计算st_ago，不作为接口使用
 */
 
+.include "common_macro.s"
 .include "constants.s"
 
 .global st_time
 .global st_pose
 .global st_ago
 .global get_note
+.global state_update
 
 
 .data
@@ -92,6 +94,13 @@ state_update:
   bl get_input
   mov r3, r0    // UP key is down
   mov r4, r1    // DOWN key is down
+
+/*  cmp r3, #1
+  beq D
+  b L4
+D:
+  dp
+L4:*/
   bl get_note   // r0 - the direction of current note；r1 - the window-situation
   cmp r1, #1
   beq great_manager     // in great-window; jump to analyse if hit
@@ -523,7 +532,7 @@ L2:
   vstr s6, [r5]
 
 L3:
-
+  bx lr
 
 
 //.endif
@@ -539,8 +548,8 @@ get_input:
   ldr   r4, =last_a_pressed
   ldr   r5, =last_b_pressed
 
-  ldr   r0, =#265
-  ldr   r1, =#264
+  ldr   r0, =#74
+  ldr   r1, =#76
   svc   #0x11
   ldrb  r2, [r4]
   ldrb  r3, [r5]
