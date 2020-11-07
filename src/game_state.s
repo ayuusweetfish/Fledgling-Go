@@ -505,10 +505,10 @@ L1:
   vldr s5, [r5]
   ldr r6, =frame_time
   vldr s6, [r6]
-  vsub s7, s5, s6        // Δt = st_time - frame_time
+  vsub.F32 s7, s5, s6        // Δt = st_time - frame_time
   ldr r5, =st_ago
   vldr s6, [r5]
-  vadd s6, s6, s7        // st_ago += Δt
+  vadd.F32 s6, s6, s7        // st_ago += Δt
   vstr s6, [r5]
 
 L2:
@@ -516,10 +516,10 @@ L2:
   vldr s5, [r5]
   ldr r6, =frame_time
   vldr s6, [r6]
-  vsub s7, s5, s6        // Δt = st_time - frame_time
+  vsub.F32 s7, s5, s6        // Δt = st_time - frame_time
   ldr r5, =st_upset
   vldr s6, [r5]
-  vadd s6, s6, s7        // st_upset += Δt
+  vadd.F32 s6, s6, s7        // st_upset += Δt
   vstr s6, [r5]
 
 L3:
