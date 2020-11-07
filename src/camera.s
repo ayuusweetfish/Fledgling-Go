@@ -71,6 +71,7 @@ coord_g2s_rect:
   pop       {lr}
   bx        lr
 
+// TODO 相机移动
 
 .section .data
 camera_y: // 相机的

@@ -64,6 +64,8 @@ getBirdYByInt:
   // 输入 r0 整数
   // 输出 s0 不改变其他寄存器，r0也不变
   push  {r0-r1}
+  cmp   r0, #0
+  movlt r0, #0
   ldr   r1, =yBirdList
   lsl   r0, #2
   add   r0, r1
@@ -180,8 +182,7 @@ calBirdY:
   vmov          s1, s0 // s1是当前整数拍号所对应的的y坐标，一定是个整数
 
   cmp           r0, #0 // 如果在第0.x拍，则不存在合法的上一拍，令上一拍坐标等于本拍坐标
-  vmovle        s2, s1
-  subne         r0, #1
+  subgt         r0, #1
   bl            getBirdYByInt
   vmov          s2, s0 // 否则，取出上一拍坐标存进s2
   // 有过渡的条件：当前在本拍前0.5拍内，且本拍y值与上一拍不等
@@ -228,11 +229,10 @@ calMeY:
   mov     r0, r2
   bl      getBirdYByInt
   vmov    s15, s0 // s15是当前窗口期的y
-  vldrs   s14, 0.0
   cmp     r0, #0
   subgt   r0, #1
-  blgt    getBirdYByInt
-  vmovgt  s14, s0  // s14是上一窗口期的y
+  bl      getBirdYByInt
+  vmov    s14, s0  // s14是上一窗口期的y
 cmy_pgb:
   // perfect\great\bump处理，因为目前都是从old插值到new，所以是等同的
   vldr      s3, ANIM_LEN_PERFECT
@@ -248,14 +248,17 @@ cmy_pgb:
   bl        qerp
   vmov      s1, s15
   b         cmy_end
-cmy_norplus:
-  // 其余所有状态，输出就是目标的位置即可
-  vmov      s0, s15
+cmy_norplus: // 其余所有状态：
   vmov      s1, s15
+  cmp       r1, #0
+  vmovne    s0, s14 // 如果在窗口期内，输出前一窗口期的位置
+  vmoveq    s0, s15 // 否则，输出当前窗口期的位置
 cmy_end:
   pop     {lr}
   bx      lr
 
+
+// TODO 鸟的BUMP/FLAP/UPSET的切换贴图，和嘲讽斜眼
 
 
 HEADBIRD_X_DELTAMAX: // 每一拍，头鸟lead允许变化的最大值
