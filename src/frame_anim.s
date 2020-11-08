@@ -122,28 +122,16 @@ animseq_upset:
   .float  0.0 // 时间点
   .int    0   // 帧id
   .float  0.5
-  .int    5
-  .float  0.5
   .int    -1  // 表示结束
   importres upset_0_png
-  importres upset_1_png
-  importres upset_2_png
-  importres upset_3_png
-  importres upset_4_png
   .int    0  // 表示结束
 
 animseq_bump:
   .float  0.0 // 时间点
   .int    0   // 帧id
   .float  0.5
-  .int    5
-  .float  0.5
   .int    -1  // 表示结束
   importres bump_0_png
-  importres bump_1_png
-  importres bump_2_png
-  importres bump_3_png
-  importres bump_4_png
   .int    0  // 表示结束
 
 animseq_flap:
@@ -164,28 +152,16 @@ animseq_flap_ready:
   .float  0.0 // 时间点
   .int    0   // 帧id
   .float  0.5
-  .int    5
-  .float  0.5
   .int    -1  // 表示结束
   importres flap_ready_0_png
-  importres flap_ready_1_png
-  importres flap_ready_2_png
-  importres flap_ready_3_png
-  importres flap_ready_4_png
   .int    0  // 表示结束
 
 animseq_lean:
   .float  0.0 // 时间点
   .int    0   // 帧id
   .float  0.5
-  .int    5
-  .float  0.5
   .int    -1  // 表示结束
   importres lean_0_png
-  importres lean_1_png
-  importres lean_2_png
-  importres lean_3_png
-  importres lean_4_png
   .int    0  // 表示结束
 
 animseq_perfect_sign:

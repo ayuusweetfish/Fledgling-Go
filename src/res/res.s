@@ -29,37 +29,21 @@
   res _32573499_png, 32573499.png
   res _32573502_png, 32573502.png
   res _32573503_png, 32573503.png
-  res npcbird_png, npcbird.png
-  res mebird_png, mebird.png
+  res npcbird_png, Otherbirds.png
+  res mebird_png, Normal.png
   res Mali_Regular_ttf, Mali-Regular.ttf
 
   res stray_bin, ../../map/stray.bin
 
-  res upset_0_png, test_upset.png
-  res upset_1_png, test_upset.png
-  res upset_2_png, test_upset.png
-  res upset_3_png, test_upset.png
-  res upset_4_png, test_upset.png
-  res bump_0_png, test_bump.png
-  res bump_1_png, test_bump.png
-  res bump_2_png, test_bump.png
-  res bump_3_png, test_bump.png
-  res bump_4_png, test_bump.png
+  res upset_0_png, Upset.png
+  res bump_0_png, Bump.png
   res flap_0_png, test_flap.png
   res flap_1_png, test_flap.png
   res flap_2_png, test_flap.png
   res flap_3_png, test_flap.png
   res flap_4_png, test_flap.png
-  res flap_ready_0_png, test_ready.png
-  res flap_ready_1_png, test_ready.png
-  res flap_ready_2_png, test_ready.png
-  res flap_ready_3_png, test_ready.png
-  res flap_ready_4_png, test_ready.png
-  res lean_0_png, test_lean.png
-  res lean_1_png, test_lean.png
-  res lean_2_png, test_lean.png
-  res lean_3_png, test_lean.png
-  res lean_4_png, test_lean.png
+  res flap_ready_0_png, Normal.png
+  res lean_0_png, Look.png
 
   res upreminder_png, 32573491.png
   res downreminder_png, 32573496.png
