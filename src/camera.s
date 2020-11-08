@@ -22,7 +22,7 @@
 .section .text
 // 有用的常量定义
 CAM_X_OFF:
-  .float  1.75
+  .float  1.0
 CAM_WID:
   .float  5.0
 CAM_HEI:
@@ -33,7 +33,7 @@ CAM_HEI:
 _CWH:
   .float  2.5  // (CAM_WID / 2)
 _CXA:
-  .float  -0.75 // (CAM_X_OFF - (CAM_WID / 2))
+  .float  -1.50 // (CAM_X_OFF - (CAM_WID / 2))
 _CHH:
   .float  2.5  // (CAM_HEI / 2)
 _CYA:
