@@ -175,7 +175,7 @@ animseq_flap_ready:
 animseq_lean:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
+  .float  5.0
   .int    -1  // 表示结束
   importres lean_0_png
   .int    0  // 表示结束

@@ -237,10 +237,13 @@ gbdtx_npc:
 gbdtx_npc_lean:
   cmp     r9, #POSE_BUMP // 考虑bump
   bne     gbdtx_npc_default
+  ps
   vldm    sp, {s0-s1} // s0是x、s1是y
   // 向上音符，下面鸟做动画
   vldrs   s2, -1.0
-  cmp     r7, #1
+  ldr     r0, =last_valid_note
+  ldr     r0, [r0]
+  cmp     r0, #1
   vcmpeq.f32  s0, #0.0
   vmrs    APSR_nzcv, FPSCR
   vcmpeq.f32  s1, s2
@@ -248,7 +251,9 @@ gbdtx_npc_lean:
   beq     gbdtx_npc_lean_true
   // 向下音符，上面鸟做动画
   vldrs   s2, 1.0
-  cmp     r7, #2
+  ldr     r0, =last_valid_note
+  ldr     r0, [r0]
+  cmp     r0, #2
   vcmpeq.f32  s0, #0.0
   vmrs    APSR_nzcv, FPSCR
   vcmpeq.f32  s1, s2
@@ -431,6 +436,9 @@ calMeY:
   ldr     r0, =st_ago
   vldr    s12, [r0] // s12是st_ago
   bl      get_note
+  cmp     r0, #0
+  ldr     r1, =last_valid_note
+  strne   r0, [r1]
   mov     r0, r2
   bl      getBirdYByInt
   vmov    s15, s0 // s15是当前窗口期的y
@@ -564,6 +572,9 @@ idtx_mebird0:
 idtx_mebird1:
   .int    0
 
+.section .data
+last_valid_note:
+  .int    0
 
 .section .bss
 .comm   yBirdList   8000 // 足够放2000个float的空间，第i个位置是表示在第i拍开始的时刻鸟应该在的位置。
