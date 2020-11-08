@@ -95,9 +95,9 @@ drrmd_end:
 
 
 SIGN_OFFSET_X:
-  .float    1.0
+  .float    0.0
 SIGN_OFFSET_Y:
-  .float    1.0
+  .float    0.0
 SIGN_WIDTH:
   .float    1.0
 SIGN_HEIGHT:
@@ -114,25 +114,6 @@ drawSign:
   vldr      s7, [r0] // s7 time
   ldr       r0, =curMeY
   vldr      s6, [r0] // s6自己的y
-drsn_upset:
-  ldr       r0, =st_upset
-  vldr      s0, [r0]
-  ldr       r0, =animseq_bad_sign
-  bl        cal_one_animseq
-  cmp       r1, #-1
-  beq       drsn_perfect
-  mov       r3, r0 // 指定纹理
-  vldr      s1, SIGN_OFFSET_X // s1 相对于自己鸟的偏移x
-  vldr      s2, SIGN_OFFSET_Y // s2 相对于自己鸟的偏移y
-  vadd.f32  s0, s1, s7
-  vadd.f32  s1, s2, s6
-  vldrs     s2, 0.0
-  vldr      s3, SIGN_WIDTH
-  vldr      s4, SIGN_HEIGHT// 画的宽和高！
-  bl        coord_g2s_rect
-  bl        fillSWhenDrawFullTexture
-  bl        draw_square // 画
-  b         drsn_ret
 drsn_perfect:
   cmp       r6, #POSE_MOV_PERFECT
   cmpne     r6, #POSE_FLAP_PERFECT

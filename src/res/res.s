@@ -55,4 +55,9 @@
   res sfx_upset_ogg, sfx_upset.ogg
   res sfx_flap_ogg, sfx_flap.ogg
 
+  res perfectanim_0_png, Perfect1.png
+  res perfectanim_1_png, Perfect2.png
+  res greatanim_0_png, great1.png
+  res greatanim_1_png, great2.png
+
 

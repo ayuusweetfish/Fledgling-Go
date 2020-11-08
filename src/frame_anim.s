@@ -167,17 +167,31 @@ animseq_lean:
 animseq_perfect_sign:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
+  .float  0.6
+  .int    6
+  .float  0.6
   .int    -1  // 表示结束
-  importres _32573480_png
+  importres perfectanim_0_png
+  importres perfectanim_1_png
+  importres perfectanim_0_png
+  importres perfectanim_1_png
+  importres perfectanim_0_png
+  importres perfectanim_1_png
   .int    0  // 表示结束
 
 animseq_great_sign:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
+  .float  0.6
+  .int    6
+  .float  0.6
   .int    -1  // 表示结束
-  importres _32573481_png
+  importres greatanim_0_png
+  importres greatanim_1_png
+  importres greatanim_0_png
+  importres greatanim_1_png
+  importres greatanim_0_png
+  importres greatanim_1_png
   .int    0  // 表示结束
 
 animseq_bad_sign:

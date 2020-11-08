@@ -146,7 +146,7 @@ main_loop:
   // 画鸟们
   bl    drawBirds
 
-  bl    drawStar
+  //bl    drawStar
 
   bl    drawSign
 
