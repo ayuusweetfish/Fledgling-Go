@@ -8,11 +8,11 @@
 TEXT_SCORE_X:
   .float  -0.9
 TEXT_SCORE_Y:
-  .float  0.9
+  .float  0.95
 TEXT_COMBO_X:
-  .float  0.9
+  .float  0.55
 TEXT_COMBO_Y:
-  .float  0.9
+  .float  0.95
 
 init_label:
   push  {lr}
@@ -38,7 +38,7 @@ drawLabel:
   bl    itoa
   ldr   r4, =idlbl_score
   ldr   r0, [r4]
-  ldr   r1, =charbuf
+  ldr   r1, =charbuf2
 pmem
   vldrs s0, 80.0
   bl    kx_label_print
@@ -52,7 +52,7 @@ pmem
   // 画combo
   ldr   r0, =st_combo
   ldr   r0, [r0]
-  ldr   r1, =charbuf
+  ldr   r1, =charbuf2
   mov   r2, #10
   bl    itoa
   ldr   r4, =idlbl_score
@@ -78,6 +78,6 @@ idlbl_score:
 idlbl_combo:
   .int  0
 charbuf:
-  .ascii "Combo"
+  .ascii "Combo "
 charbuf2:
   .space  100, 0
