@@ -290,7 +290,7 @@ idtx_upReminder:
 idtx_downReminder:
   importres   downreminder_png
 idtx_flapReminder:
-  importres   downreminder_png
+  importres   flapreminder_png
 
 idtx_star_perfect:
   .int  0
