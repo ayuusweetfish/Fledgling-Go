@@ -35,7 +35,7 @@
   res cloud_3_png, cloud10-01.png
   res npcbird_png, Otherbirds.png
   res mebird_png, Normal.png
-  res Mali_Regular_ttf, Mali-Regular.ttf
+  #res Mali_Regular_ttf, Mali-Regular.ttf
 
   res stray_bin, ../../map/stray.bin
 
@@ -70,5 +70,8 @@
   res normal_1_png, NormalA01.png
 
   res bg_png, background.png
+
+  res score_combo_png, score_combo.png
+  res digits_png, digits.png
 
 
