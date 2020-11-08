@@ -4,6 +4,9 @@
 .global coord_g2s_rect
 .global cam_move_update
 .global coord_g2s_rect_screenXYWorldHW
+.global keepImgSquare
+.global rect_zoom_anchor_center
+.global _CKSR
 // 世界坐标系规定如下：
 // 世界坐标系想象为一个无限大的平面，向右为x轴正方向，向上为y轴正方向，远离屏幕为z轴正方向。
 // 在世界中，相机在x方向上以恒定速率(就是bpm)运动，在y轴上按照一定的运动算法作运动。
@@ -19,22 +22,41 @@
 .section .text
 // 有用的常量定义
 CAM_X_OFF:
-  .float  2.0
+  .float  1.75
 CAM_WID:
-  .float  12.0
+  .float  5.0
 CAM_HEI:
-  .float  9.0
+  .float  5.0
 
 // 衍生的常量定义
 // 这里的值是由上面的有用常量经过简单的计算得出的。如果修改上面的有用常量，应当按照公式对应修改这些内容
 _CWH:
-  .float  6.0  // (CAM_WID / 2)
+  .float  2.5  // (CAM_WID / 2)
 _CXA:
-  .float  -4.0 // (CAM_X_OFF - (CAM_WID / 2))
+  .float  -0.75 // (CAM_X_OFF - (CAM_WID / 2))
 _CHH:
-  .float  4.5  // (CAM_HEI / 2)
+  .float  2.5  // (CAM_HEI / 2)
 _CYA:
-  .float  4.5 // (CAM_HEI / 2)
+  .float  2.5 // (CAM_HEI / 2)
+_CKSR: // 由于相机对世界坐标系存在缩放，如果一个物体想维持正方形的形状，就在调用coord_g2s_rect之前调用下keepImgSquare
+  .float  0.6 // ((3 / 5) * (CAM_WID / CAM_HEI)
+
+.section .data
+camera_y: // 相机的y 初始化为(CAM_HEI - 1) / 2
+  .float  2.0
+
+.section .text
+keepImgSquare:
+  // 只是会把横轴再s3乘以一个_CKSR倍而已。中心点为锚点。
+  // 修改：s0-s1（坐标变了）、s3
+  push      {lr}
+  vpush     {s5-s6}
+  vldr      s5, _CKSR
+  vldrs     s6, 1.0
+  bl        rect_zoom_anchor_center
+  vpop      {s5-s6}
+  pop       {lr}
+  bx        lr
 
 coord_g2s_pt:
   // s0, s1 全局坐标系的x y
@@ -91,10 +113,27 @@ coord_g2s_rect_screenXYWorldHW:
   pop       {lr}
   bx        lr
 
-
+rect_zoom_anchor_center:
+  // 对于一个要绘制的矩形，对其进行以中心点为锚点的缩放操作。
+  // 输入：s0-s2左上角点的xyz s3-s4宽或高 s5 x方向缩放倍率 s6 y方向缩放倍率
+  // 输出：重新计算过后的 s0-s4。其中s2必定保持不变。除此以外所有寄存器，包括s5 s6均不变。
+  vpush     {s2}
+  vldrs     s2, 2.0
+  vdiv.f32  s3, s3, s2
+  vdiv.f32  s4, s4, s2
+  vadd.f32  s0, s3
+  vsub.f32  s1, s4 // 此时变为了中心点坐标
+  vmul.f32  s3, s5
+  vmul.f32  s4, s6
+  vsub.f32  s0, s3
+  vadd.f32  s1, s4 // 缩放后的左上角点
+  vmul.f32  s3, s2
+  vmul.f32  s4, s2
+  vpop      {s2}
+  bx        lr
 
 SAFE_PADDING:
-  .float    2.0
+  .float    1.5
 CAMERA_DELTAMAX: // 每一拍，相机位置允许变化的最大值
   .float    1.0
 cam_move_update:
@@ -138,8 +177,4 @@ camv_end:
   bx            lr
 
 
-
-.section .data
-camera_y: // 相机的
-  .float  4.0
 

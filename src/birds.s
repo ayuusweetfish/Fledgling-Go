@@ -103,8 +103,8 @@ init_birdTexture:
 getBirdTexture:
   // 对于一只给定的鸟，根据当前的状态计算其的纹理。
   // r0-r3分别表示类别 x offset、y offset、mode
-  // 返回r0:纹理id。保证不改变除了r0的任何寄存器，包括r1-r3也维持其输入值。
-  vpush   {s0-s3}
+  // 返回r0:纹理id。s0 s1 图片偏移 s2 s3 图片缩放。保证不改变除了r0和s0-s3的任何寄存器，包括r1-r3也维持其输入值。
+  vpush   {s4-s7}
   vpush   {s14-s15}
   push    {r1-r9, lr} //sp是x，sp+4是y，sp+8是mode， 即分别是r1-r3
   ldr     r9, =st_ago
@@ -117,6 +117,7 @@ getBirdTexture:
   bl      get_note
   mov     r7, r0 // r7是音符
   mov     r6, #-1 // r6承接最终返回值
+  // s4-s7对应于最终返回值的s0-s3
 // 自己鸟的部分
 gbdtx_me:
   cmp     r8, #BIRD_TYPE_ME
@@ -204,9 +205,15 @@ gbdtx_end:
   mov     r0, r6
   pop     {r1-r9, lr}
   vpop    {s14-s15}
-  vpop    {s0-s3}
+  vmov    s0, s4
+  vmov    s1, s5
+  vmov    s2, s6
+  vmov    s3, s7
+  vpop    {s4-s7}
   bx      lr
 
+BIRD_TEX_ZOOM_RATE:
+  .float  0.7 // 在其bounding box内实际绘制图片的占比
 
 drawBirds:
   push          {r8-r9, lr}
@@ -263,6 +270,10 @@ inib_tp_end:
   vldrs         s3, 1.0
   vldrs         s4, 1.0 // 画全图，宽高都是0.0
   mov           r3, r8 // 指定纹理
+  vldr          s5, BIRD_TEX_ZOOM_RATE
+  vldr          s6, BIRD_TEX_ZOOM_RATE
+  bl            keepImgSquare
+  bl            rect_zoom_anchor_center
   bl            coord_g2s_rect
   bl            fillSWhenDrawFullTexture
   bl            draw_square // 画
