@@ -64,6 +64,93 @@ drawLabel:
   // Score: (-0.61, 0.97)
   // Combo: (-0.61, 0.82)
   // 0.15 * 0.25
+// 画分
+  ldr   r0, =st_score
+  ldr   r0, [r0]
+  mov   r0, #100
+  ldr   r1, =charbuf
+  mov   r2, #10
+  bl    itoa
+  ldr   r7, =charbuf
+  vldrs   s0, -0.81
+  vldrs   s1, 0.97
+  vldrs   s4, -0.81
+  vldrs   s5, 0.72
+  vldrs   s8, -0.66
+  vldrs   s9, 0.97
+  vldrs   s2, 0.0
+  vldrs   s6, 0.0
+  vldrs   s10, 1.0
+ll1:
+  ldrb  r0, [r7]
+  cmp   r0, #0
+  beq   ll2
+  sub   r0, #0x30
+  vmov  s13, r0
+  vcvt.f32.s32  s13,s13
+  vldrs s3, 0.1
+  vldrs s14, 0.1
+  vmul.f32 s3, s13
+  vadd.f32  s7, s3, s14
+  vmov s11, s3
+  ldr   r0, =0xffffffff
+  ldr   r1, =0xffffffff
+  ldr   r2, =0xffffffff
+  ldr   r3, =tex_id_digits
+  ldr   r3, [r3]
+  vldrs s15, 0.15
+  vadd.f32 s0, s15
+  vadd.f32 s4, s15
+  vadd.f32 s8, s15
+  bl  draw_square
+  add r7, #1
+  b ll1
+  //
+ll2:
+
+// 画combo
+  ldr   r0, =st_combo
+  ldr   r0, [r0]
+  mov   r0, #100
+  ldr   r1, =charbuf
+  mov   r2, #10
+  bl    itoa
+  ldr   r7, =charbuf
+  vldrs   s0, -0.81
+  vldrs   s1, 0.82
+  vldrs   s4, -0.81
+  vldrs   s5, 0.57
+  vldrs   s8, -0.66
+  vldrs   s9, 0.82
+  vldrs   s2, 0.0
+  vldrs   s6, 0.0
+  vldrs   s10, 1.0
+ll3:
+  ldrb  r0, [r7]
+  cmp   r0, #0
+  beq   ll4
+  sub   r0, #0x30
+  vmov  s13, r0
+  vcvt.f32.s32  s13,s13
+  vldrs s3, 0.1
+  vldrs s14, 0.1
+  vmul.f32 s3, s13
+  vadd.f32  s7, s3, s14
+  vmov s11, s3
+  ldr   r0, =0xffffffff
+  ldr   r1, =0xffffffff
+  ldr   r2, =0xffffffff
+  ldr   r3, =tex_id_digits
+  ldr   r3, [r3]
+  vldrs s15, 0.15
+  vadd.f32 s0, s15
+  vadd.f32 s4, s15
+  vadd.f32 s8, s15
+  bl  draw_square
+  add r7, #1
+  b ll3
+  //
+ll4:
 
   pop   {pc}
 
@@ -124,3 +211,5 @@ charbuf:
 charbuf2:
   .space  100, 0
 */
+charbuf:
+  .space 100,0
