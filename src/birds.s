@@ -96,6 +96,11 @@ init_birdTexture:
   bl    kx_image
   ldr   r3, =idtx_otherbird1
   str   r0, [r3]
+  ldr   r0, =otherbirds_2_png
+  ldr   r1, =otherbirds_2_png_size
+  bl    kx_image
+  ldr   r3, =idtx_otherbird2
+  str   r0, [r3]
   ldr   r0, =normal_0_png
   ldr   r1, =normal_0_png_size
   bl    kx_image
@@ -109,7 +114,7 @@ init_birdTexture:
   pop   {lr}
   bx    lr
 
-hereBirdIdx:
+hereBirdIdxMe:
   push  {lr}
   vpush {s0-s1}
   ldr   r0, =st_time
@@ -121,6 +126,27 @@ hereBirdIdx:
   vcmpa.f32 s1, s0
   movle r0, #0
   movgt r0, #1
+  vpop  {s0-s1}
+  pop   {lr}
+  bx    lr
+
+hereBirdIdxOther:
+  push  {lr}
+  vpush {s0-s1}
+  ldr   r0, =st_time
+  vldr  s0, [r0]
+  vldrs s1, 4.0
+  vdiv.f32  s0, s0, s1
+  bl    floor_f32
+  vldrs s0, 0.3333
+  vcmpa.f32 s1, s0
+  movle r0, #0
+  ble   hbio_ret
+  vldrs s0, 0.6667
+  vcmpa.f32 s1, s0
+  movle r0, #1
+  movgt r0, #2
+hbio_ret:
   vpop  {s0-s1}
   pop   {lr}
   bx    lr
@@ -199,7 +225,7 @@ gbdtx_me_flap_great:
   b       gbdtx_me_default
 gbdtx_me_default:
   ldr     r6, =idtx_mebird0
-  bl      hereBirdIdx
+  bl      hereBirdIdxMe
   mov     r1, #4
   mul     r0, r1
   add     r6, r0
@@ -239,7 +265,7 @@ gbdtx_npc_lean_true: // 真的是要斜眼的鸟
   b       gbdtx_npc_default
 gbdtx_npc_default:
   ldr     r6, =idtx_otherbird0
-  bl      hereBirdIdx
+  bl      hereBirdIdxOther
   mov     r1, #4
   mul     r0, r1
   add     r6, r0
@@ -530,6 +556,8 @@ idtx_npcbird:
 idtx_otherbird0:
   .int    0
 idtx_otherbird1:
+  .int    0
+idtx_otherbird2:
   .int    0
 idtx_mebird0:
   .int    0

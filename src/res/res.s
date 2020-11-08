@@ -44,9 +44,9 @@
   res flap_ready_0_png, Normal.png
   res lean_0_png, Look.png
 
-  res upreminder_png, 32573491.png
-  res downreminder_png, 32573496.png
-  res flapreminder_png, 32573498.png
+  res upreminder_png, feather01.png
+  res downreminder_png, feather10.png
+  res flapreminder_png, feather00.png
 
   res sfx_perfect_ogg, sfx_perfect.ogg
   res sfx_great_ogg, sfx_great.ogg
@@ -59,8 +59,9 @@
   res greatanim_0_png, great1.png
   res greatanim_1_png, great2.png
 
-  res otherbirds_0_png, otherbirdA01.png
-  res otherbirds_1_png, otherbirdA10.png
+  res otherbirds_0_png, Otherbirds.png
+  res otherbirds_1_png, otherbirdA01.png
+  res otherbirds_2_png, otherbirdA10.png
   res normal_0_png, Normal.png
   res normal_1_png, NormalA01.png
 

@@ -82,6 +82,10 @@ drrmd_draw:
   vldrs         s2, 0.0 // z暂时都是0.0
   vldrs         s3, 1.0
   vldrs         s4, 1.0 // 画的宽和高！
+  vldrs         s5, 0.3792
+  vldrs         s6, 0.6
+  bl            keepImgSquare
+  bl            rect_zoom_anchor_center
   bl            coord_g2s_rect
   bl            fillSWhenDrawFullTexture
   bl            draw_square // 画
