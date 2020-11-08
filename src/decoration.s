@@ -40,7 +40,7 @@ drdeco_loop:
   mov   r3, #8
   mul   r0, r3
   add   r0, r8
-  ldr   r3, [r8] // 根据类别找到纹理id
+  ldr   r3, [r0] // 根据类别找到纹理id
   bl    coord_g2s_rect
   bl    fillSWhenDrawFullTexture
   bl    draw_square // 画

@@ -237,7 +237,6 @@ gbdtx_npc:
 gbdtx_npc_lean:
   cmp     r9, #POSE_BUMP // 考虑bump
   bne     gbdtx_npc_default
-  ps
   vldm    sp, {s0-s1} // s0是x、s1是y
   // 向上音符，下面鸟做动画
   vldrs   s2, -1.0

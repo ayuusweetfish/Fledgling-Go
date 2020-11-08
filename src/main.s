@@ -138,7 +138,6 @@ main_loop:
   orr r6, r3
   orr r6, r4
   cmp r6, #0
-  svcne #0x0
 
   bl    sfx_update
 
