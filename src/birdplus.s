@@ -90,10 +90,10 @@ SIGN_HEIGHT:
   .float    1.0
 
 drawSign:
-// 画sign。修改r0-r4、s0-s7。
+// 画sign。修改r0-r4、s0-s8。
   push      {r5-r6, lr}
   ldr       r0, =st_ago
-  vldr      s0, [r0] // s0ago
+  vldr      s8, [r0] // s0ago
   ldr       r0, =st_pose
   ldr       r6, [r0] // r6 pose
   ldr       r0, =st_time
@@ -123,6 +123,7 @@ drsn_perfect:
   cmp       r6, #POSE_MOV_PERFECT
   cmpne     r6, #POSE_FLAP_PERFECT
   bne       drsn_great
+  vmov      s0, s8
   ldr       r0, =animseq_perfect_sign
   bl        cal_one_animseq
   cmp       r1, #-1
@@ -143,6 +144,7 @@ drsn_great:
   cmp       r6, #POSE_MOV_GREAT
   cmpne     r6, #POSE_FLAP_GREAT
   bne       drsn_ret
+  vmov      s0, s8
   ldr       r0, =animseq_great_sign
   bl        cal_one_animseq
   cmp       r1, #-1

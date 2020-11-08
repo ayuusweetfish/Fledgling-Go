@@ -58,7 +58,11 @@
 .global st_upset
 .global st_score
 .global st_combo
-
+.global st_s_perfect
+.global st_s_great
+.global st_s_bump
+.global st_s_upset
+.global st_s_flap
 
 .data
 st_time:  .float  0.0

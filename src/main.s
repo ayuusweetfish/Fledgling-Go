@@ -110,6 +110,8 @@ main_loop:
   vstr  s0, [r0]
 */
 
+  bl    tryPlayStarAccordingToStSound
+
   // 画装饰物
   bl    drawDecorations
 
@@ -119,6 +121,8 @@ main_loop:
 
   // 画鸟们
   bl    drawBirds
+
+  bl    drawStar
 
   bl    drawSign
 
