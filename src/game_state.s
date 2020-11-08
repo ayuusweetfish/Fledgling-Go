@@ -607,6 +607,37 @@ L5:
   dps
 L01:*/
   //d
+
+  // 更新分数和 combo
+  // r0 = 分数
+  // r1 = combo
+  ldr r2, =st_score
+  ldr r0, [r2]
+  ldr r3, =st_combo
+  ldr r1, [r3]
+
+  ldr r5, =st_s_perfect
+  ldrb r5, [r5]
+  cmp r5, #1
+  addeq r0, #2
+  addeq r1, #1
+
+  ldr r5, =st_s_great
+  ldrb r5, [r5]
+  cmp r5, #1
+  addeq r0, #1
+  addeq r1, #1
+
+  ldr r5, =st_s_bump
+  ldrb r4, [r5]
+  ldr r5, =st_s_upset
+  ldrb r5, [r5]
+  orrs r4, r5
+  movne r1, #0
+
+  str r0, [r2]
+  str r1, [r3]
+
   vpop {s5-s7}
   pop {r4-r11, pc}
 
