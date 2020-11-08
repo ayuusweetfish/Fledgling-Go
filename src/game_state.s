@@ -72,6 +72,7 @@ st_combo: .int 0
 st_s_perfect: .byte 0
 st_s_great:   .byte 0
 st_s_bump:    .byte 0
+
 st_s_upset:   .byte 0
 st_s_flap:    .byte 0
 ready_is_perfect: .byte -1
@@ -158,7 +159,7 @@ great_manager_upkey_flap:
    cmp r5, #POSE_READY_DOWN
    beq flap_great_set
    cmp r5, #POSE_NORMAL
-   b ready_up_great_set
+   beq ready_up_great_set
    b L1
 
 great_manager_downkey:
@@ -179,7 +180,7 @@ great_manager_downkey_flap:
    cmp r5, #POSE_READY_UP
    beq flap_great_set
    cmp r5, #POSE_NORMAL
-   b ready_down_great_set
+   beq ready_down_great_set
    b L1
 
 great_manager_updownkey:
@@ -232,11 +233,13 @@ perfect_manager_upkey_flap:
    ldr r5, =st_pose
    ldr r5, [r5]
    cmp r5, #POSE_READY_DOWN
+   bne L9
    ldreq r5, =ready_is_perfect
    ldreq r5, [r5]
    cmpeq r5, #1
    beq flap_perfect_set
    bne flap_great_set
+L9:
    cmp r5, #POSE_NORMAL
    beq ready_up_perfect_set
    b L1
@@ -267,11 +270,13 @@ perfect_manager_downkey_flap:
    ldr r5, =st_pose
    ldr r5, [r5]
    cmp r5, #POSE_READY_UP
+   bne L11
    ldreq r5, =ready_is_perfect
    ldreq r5, [r5]
    cmpeq r5, #1
    beq flap_perfect_set
    bne flap_great_set
+L11:
    cmp r5, #POSE_NORMAL
    beq ready_down_perfect_set
    b L1
@@ -493,8 +498,12 @@ flap_great_upset_set:
   b L3
 
 ready_up_perfect_set:
+
   ldr r5, =POSE_READY_UP
   ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
   str r5, [r6]
   ldr r5, =1
   ldr r6, =ready_is_perfect
@@ -502,8 +511,12 @@ ready_up_perfect_set:
   b L2
 
 ready_up_great_set:
+
   ldr r5, =POSE_READY_UP
   ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
   str r5, [r6]
   ldr r5, =0
   ldr r6, =ready_is_perfect
@@ -511,8 +524,12 @@ ready_up_great_set:
   b L2
 
 ready_down_perfect_set:
+
   ldr r5, =POSE_READY_DOWN
   ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
   str r5, [r6]
   ldr r5, =1
   ldr r6, =ready_is_perfect
@@ -520,8 +537,12 @@ ready_down_perfect_set:
   b L2
 
 ready_down_great_set:
+
   ldr r5, =POSE_READY_DOWN
   ldr r6, =st_pose
+  str r5, [r6]
+  ldr r5, =0
+  ldr r6, =st_ago
   str r5, [r6]
   ldr r5, =0
   ldr r6, =ready_is_perfect
