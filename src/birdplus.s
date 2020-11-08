@@ -195,6 +195,7 @@ STAR_TOTAL_LEN:
   .float  3.0
 
 playStar:
+  // FIXME 插值逻辑是不对的！
   // 发起一个星星的动画过程。r0是纹理id.修改s0-s3。
   push    {r4-r7, lr}
   vpush   {s0-s7}
@@ -213,19 +214,20 @@ playStar:
   stm     r7!, {r0}
   ldr     r1, =st_time
   vldr    s0, [r1]
+  ldr     r1, =curMeY
+  vldr    s1, [r1]
+  vldrs   s2, 0.0
+  vldrs   s3, 1.0
+  vldrs   s4, 1.0
+  bl      coord_g2s_rect
+  vmov     s3, s0
+  vmov     s4, s1
+  ldr     r1, =st_time
+  vldr    s0, [r1]
   vldr    s1, STAR_ERP_LEN
   vldr    s2, STAR_TOTAL_LEN
   vldr    s5, STAR_DEST_SCRX
   vldr    s6, STAR_DEST_SCRY
-  vmov    s3, s0
-  vldr    s7, STAR_SRC_X_OFFSET
-  vadd.f32  s3, s7
-  ldr     r1, =curMeY
-  vldr    s4, [r1]
-  vldr    s7, STAR_SRC_Y_OFFSET
-  vadd.f32  s4, s7
-    p
-    dps
   vstm    r7!, {s0-s6}
   vpop    {s0-s7}
   pop     {r4-r7, lr}
