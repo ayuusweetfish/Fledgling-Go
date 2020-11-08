@@ -39,7 +39,7 @@ drawLabel:
   ldr   r4, =idlbl_score
   ldr   r0, [r4]
   ldr   r1, =charbuf
-  vldrs s0, 10.0
+  vldrs s0, 80.0
   bl    kx_label_print
   ldr   r0, [r4]
   ldr   r1, =#0x222222ff
@@ -57,7 +57,7 @@ drawLabel:
   ldr   r4, =idlbl_score
   ldr   r0, [r4]
   ldr   r1, =charbuf
-  vldrs s0, 10.0
+  vldrs s0, 80.0
   bl    kx_label_print
   ldr   r0, [r4]
   ldr   r1, =#0x222222ff
