@@ -239,7 +239,7 @@ perfect_manager_upkey_flap:
    cmp r5, #POSE_READY_DOWN
    bne L9
    ldreq r5, =ready_is_perfect
-   ldreq r5, [r5]
+   ldreqb r5, [r5]
    cmpeq r5, #1
    beq flap_perfect_set
    bne flap_great_set
@@ -276,7 +276,7 @@ perfect_manager_downkey_flap:
    cmp r5, #POSE_READY_UP
    bne L11
    ldreq r5, =ready_is_perfect
-   ldreq r5, [r5]
+   ldreqb r5, [r5]
    cmpeq r5, #1
    beq flap_perfect_set
    bne flap_great_set
@@ -427,7 +427,7 @@ flap_perfect_set:
   strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
-  str r5, [r6]          //initialize ready_is_perfect as -1
+  strb r5, [r6]          //initialize ready_is_perfect as -1
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
   b L2
@@ -446,7 +446,7 @@ flap_perfect_upset_set:
   strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
-  str r5, [r6]          //initialize ready_is_perfect as -1
+  strb r5, [r6]          //initialize ready_is_perfect as -1
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
   vldrs s5, 0.0
@@ -471,7 +471,7 @@ flap_great_set:
   strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
-  str r5, [r6]          //initialize ready_is_perfect as -1
+  strb r5, [r6]          //initialize ready_is_perfect as -1
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
   b L2
@@ -490,7 +490,7 @@ flap_great_upset_set:
   strb r5, [r6]          //set sound
   ldr r5, =-1
   ldr r6, =ready_is_perfect
-  str r5, [r6]          //initialize ready_is_perfect as -1
+  strb r5, [r6]          //initialize ready_is_perfect as -1
   ldr r6, =st_last_hit
   str r2, [r6]            //set st_last_hit as current note's position
   vldrs s5, 0.0
@@ -511,7 +511,7 @@ ready_up_perfect_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =ready_is_perfect
-  str r5, [r6]
+  strb r5, [r6]
   b L2
 
 ready_up_great_set:
@@ -524,7 +524,7 @@ ready_up_great_set:
   str r5, [r6]
   ldr r5, =0
   ldr r6, =ready_is_perfect
-  str r5, [r6]
+  strb r5, [r6]
   b L2
 
 ready_down_perfect_set:
@@ -537,7 +537,7 @@ ready_down_perfect_set:
   str r5, [r6]
   ldr r5, =1
   ldr r6, =ready_is_perfect
-  str r5, [r6]
+  strb r5, [r6]
   b L2
 
 ready_down_great_set:
@@ -550,7 +550,7 @@ ready_down_great_set:
   str r5, [r6]
   ldr r5, =0
   ldr r6, =ready_is_perfect
-  str r5, [r6]
+  strb r5, [r6]
   b L2
 
 
@@ -564,7 +564,7 @@ normal_set:
   str r5, [r6]
   ldr r5, =-1
   ldr r6, =ready_is_perfect
-  str r5, [r6]          //initialize ready_is_perfect as -1
+  strb r5, [r6]          //initialize ready_is_perfect as -1
   //d
   pop {r5-r6}
   bx  lr

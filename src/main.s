@@ -96,19 +96,29 @@ main_loop:
   vldr s0, [r1]
   ldr r1, =st_upset
   vldr s1, [r1]
-  bl get_note
   ps  // s0 = ago, s1 = upset
-  pm  // r4 = pose
-  vcmpa.f32 s24, #0.0
-  svcge #0xf
+  vcmpa.f32 s1, #0
+  svclt #0xf
+  bl get_note
 */
-
-  // NOTE (lsq 11.07): 无视炸毛状态
-/*
-  ldr   r0, =st_upset
-  vldrs s0, 100.0
-  vstr  s0, [r0]
-*/
+  // NOTE: 有声音时输出寄存器，r0-r4 表示声音
+  ldr r0, =st_s_perfect
+  ldrb r0, [r0]
+  ldr r1, =st_s_great
+  ldrb r1, [r1]
+  ldr r2, =st_s_bump
+  ldrb r2, [r2]
+  ldr r3, =st_s_upset
+  ldrb r3, [r3]
+  ldr r4, =st_s_flap
+  ldrb r4, [r4]
+  mov r6, r0
+  orr r6, r1
+  orr r6, r2
+  orr r6, r3
+  orr r6, r4
+  cmp r6, #0
+  svcne #0x0
 
   bl    tryPlayStarAccordingToStSound
 
