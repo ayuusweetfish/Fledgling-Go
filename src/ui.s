@@ -33,12 +33,13 @@ drawLabel:
   // 画分
   ldr   r0, =st_score
   ldr   r0, [r0]
-  ldr   r1, =charbuf
+  ldr   r1, =charbuf2
   mov   r2, #10
   bl    itoa
   ldr   r4, =idlbl_score
   ldr   r0, [r4]
   ldr   r1, =charbuf
+pmem
   vldrs s0, 80.0
   bl    kx_label_print
   ldr   r0, [r4]
@@ -76,4 +77,7 @@ idlbl_score:
   .int  0
 idlbl_combo:
   .int  0
-.comm   charbuf   100
+charbuf:
+  .ascii "Combo"
+charbuf2:
+  .space  100, 0

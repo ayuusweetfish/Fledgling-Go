@@ -224,6 +224,8 @@ playStar:
   vldr    s4, [r1]
   vldr    s7, STAR_SRC_Y_OFFSET
   vadd.f32  s4, s7
+    p
+    dps
   vstm    r7!, {s0-s6}
   vpop    {s0-s7}
   pop     {r4-r7, lr}
@@ -278,15 +280,17 @@ drst_end:
 tryPlayStarAccordingToStSound:
   push  {lr}
   ldr   r1, =st_s_perfect
+  ldr   r1, [r1]
   cmp   r1, #0
-  ldrge r0, =idtx_star_perfect
-  ldrge r0, [r0]
-  blge  playStar
+  ldrgt r0, =idtx_star_perfect
+  ldrgt r0, [r0]
+  blgt  playStar
   ldr   r1, =st_s_great
+  ldr   r1, [r1]
   cmp   r1, #0
-  ldrge r0, =idtx_star_great
-  ldrge r0, [r0]
-  blge  playStar
+  ldrgt r0, =idtx_star_great
+  ldrgt r0, [r0]
+  blgt  playStar
   pop     {lr}
   bx      lr
 
