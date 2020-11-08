@@ -42,6 +42,18 @@
   str   r0, [r1]
   bl    kx_music_start
 
+  // 设置音量
+  ldr   r0, =0
+  ldr   r1, =0x40000000
+  ldr   r2, =0
+  svc   #0x211  // trk_config
+  ldr   r0, =1
+  ldr   r1, =0x40000000
+  ldr   r2, =0
+  svc   #0x211  // trk_config
+
+  bl    sfx_init
+
   // 创建鸟们
   bl    init_birdTexture
   bl    init_all_animseqs
@@ -119,6 +131,8 @@ main_loop:
   orr r6, r4
   cmp r6, #0
   svcne #0x0
+
+  bl    sfx_update
 
   bl    tryPlayStarAccordingToStSound
 

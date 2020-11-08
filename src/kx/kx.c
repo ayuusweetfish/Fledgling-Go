@@ -123,6 +123,14 @@ void kx_music_pause(stream *s)
   play(-1, s->trk2, 0, 0);
 }
 
+void kx_music_seek(stream *s, int ptr)
+{
+  bool original_running = s->running;
+  if (original_running) kx_music_pause(s);
+  s->ptr = ptr;
+  if (original_running) kx_music_start(s);
+}
+
 void kx_music_update(stream *s)
 {
   if (!s->running) return;
@@ -153,6 +161,18 @@ void kx_music_release(stream *s)
   snd_release(s->snd1);
   snd_release(s->snd2);
   free(s);
+}
+
+int kx_sound(unsigned char *res, unsigned int len)
+{
+  int n_channels, sample_rate;
+  short *data;
+  int n_samples =
+    stb_vorbis_decode_memory(res, len, &n_channels, &sample_rate, &data);
+  int snd_id = snd_alloc(n_samples);
+  snd_pcm(snd_id, data);
+  free(data);
+  return snd_id;
 }
 
 // stb_truetype

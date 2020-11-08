@@ -27,12 +27,21 @@ kx_music_start    开始/继续播放音频流
 kx_music_pause    暂停音频流
   in  r0          音频流 ID
 
+kx_music_seek     设置音频流播放位置 (untested)
+  in  r0          音频流 ID
+  in  r1          播放位置，以采样为单位
+
 kx_music_update   更新音频流
   in  r0          音频流 ID
     需要每帧调用一次此函数，它会在恰当的时机解码新的音频小段。
 
 kx_music_release  释放音频流
   in  r0          音频流 ID
+
+kx_sound          从音频文件解码并创建普通声音
+  in  r0          文件数据起始地址
+  in  r1          文件数据长度
+  out r0          声音 ID
 
 # 文字（标签）
     一个「标签」包含一个 TrueType 字体和一段文本，可以用此字体显示之。文本可以随

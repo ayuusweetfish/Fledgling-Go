@@ -49,4 +49,10 @@
   res downreminder_png, 32573496.png
   res flapreminder_png, 32573498.png
 
+  res sfx_perfect_ogg, sfx_perfect.ogg
+  res sfx_great_ogg, sfx_great.ogg
+  res sfx_bump_ogg, sfx_bump.ogg
+  res sfx_upset_ogg, sfx_upset.ogg
+  res sfx_flap_ogg, sfx_flap.ogg
+
 
