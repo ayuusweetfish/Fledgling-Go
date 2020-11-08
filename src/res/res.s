@@ -29,6 +29,10 @@
   res _32573499_png, 32573499.png
   res _32573502_png, 32573502.png
   res _32573503_png, 32573503.png
+  res cloud_0_png, cloud00-00.png
+  res cloud_1_png, cloud00-01.png
+  res cloud_2_png, cloud01-00.png
+  res cloud_3_png, cloud10-01.png
   res npcbird_png, Otherbirds.png
   res mebird_png, Normal.png
   res Mali_Regular_ttf, Mali-Regular.ttf

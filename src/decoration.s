@@ -52,8 +52,9 @@ drdeco_end:
 
 .section .data
 decoration_count:
-  .int 3
+  .int 4
 decoration_list:
-  importres _32573502_png
-  importres _32573502_png
-  importres _32573503_png
+  importres cloud_0_png
+  importres cloud_1_png
+  importres cloud_2_png
+  importres cloud_3_png
