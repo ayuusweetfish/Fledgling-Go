@@ -8,7 +8,6 @@
 
 .section .text.startup
   bl    _crt_init
-
   ldr   r0, =stray_bin
   bl    map_loader
 
@@ -53,6 +52,13 @@
   svc   #0x211  // trk_config
 
   bl    sfx_init
+
+  ldr   r0, =bg_png
+  ldr   r1, =bg_png_size
+  bl    kx_image
+  ldr   r1, =idtx_bg
+  str   r0, [r1]
+
 
   // 创建鸟们
   bl    init_birdTexture
@@ -134,7 +140,18 @@ main_loop:
 
   bl    sfx_update
 
-  bl    tryPlayStarAccordingToStSound
+  vldrs s0, -1.0
+  vldrs s1, 1.0
+  vldrs s4, -1.0
+  vldrs s5, -1.0
+  vldrs s8, 1.0
+  vldrs s9, 1.0
+  ldr r3, =idtx_bg
+  ldr r3, [r3]
+  bl            fillSWhenDrawFullTexture
+  bl            draw_square // 画
+
+  //bl    tryPlayStarAccordingToStSound
 
   // 画装饰物
   bl    drawDecorations
@@ -212,5 +229,7 @@ map_seq_len: // 音符序列的长度，也就对应于全曲拍数。
 map_deco:
   .int 0
 map_deco_len:
+  .int 0
+idtx_bg:
   .int 0
 

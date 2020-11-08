@@ -64,4 +64,6 @@
   res normal_0_png, Normal.png
   res normal_1_png, NormalA01.png
 
+  res bg_png, background.png
+
 
