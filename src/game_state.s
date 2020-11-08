@@ -87,13 +87,6 @@ state_update:
   push {r4-r11, lr}
   vpush {s5-s7}
 
-  ldr r5, =st_time
-  ldr r5, [r5]
-  cmp r5, #0
-  bllt normal_set          // if st_time < 0 set st_pose as normal
-  cmp r5, #0
-  blt L5
-
   ldr r5, =0
   ldr r6, =st_s_perfect
   strb r5, [r6]
@@ -126,14 +119,15 @@ state_update:
 already_hit:
   cmp r3, #1
   beq upset_set
-  d
+  //d
   cmp r4, #1
   beq upset_set
-  d
+  //d
   b L1
 
 great_manager:
   ldr r5, =st_last_hit
+  ldr r5, [r5]
   cmp r5, r2
   beq already_hit             // check if already hit
   ldr r5, =st_window
@@ -153,7 +147,7 @@ great_manager_upkey:
   beq great_set
   cmp r0, #2
   beq upset_set
-  d
+  //d
   cmp r0, #3         // in flap window
   beq great_manager_upkey_flap
   b L1
@@ -174,7 +168,7 @@ great_manager_downkey:
   beq great_set
   cmp r0, #1
   beq upset_set
-  d
+  //d
   cmp r0, #3
   beq great_manager_downkey_flap   //flap window
   b L1
@@ -191,10 +185,10 @@ great_manager_downkey_flap:
 great_manager_updownkey:
   cmp r0, #1
   beq great_upset_set
-  d
+  //d
   cmp r0, #2
   beq great_upset_set
-  d
+  //d
   cmp r0, #3
   beq great_manager_updownkey_flap
 
@@ -203,16 +197,17 @@ great_manager_updownkey_flap:
   ldr r5, [r5]
   cmp r5, #POSE_READY_UP
   beq flap_great_upset_set
-  d
+  //d
   cmp r5, #POSE_READY_DOWN
   beq flap_great_upset_set
-  d
+  //d
   cmp r5, #POSE_NORMAL
   beq flap_great_set
   b L1
 
 perfect_manager:
   ldr r5, =st_last_hit
+  ldr r5, [r5]
   cmp r5, r2
   beq already_hit         // check if already hit
   cmp r3, #1
@@ -228,7 +223,7 @@ perfect_manager_upkey:
   beq perfect_set
   cmp r0, #2
   beq upset_set         // in down window
-  d
+  //d
   cmp r0, #3           // in flap window
   beq perfect_manager_upkey_flap
   b L1
@@ -253,7 +248,7 @@ perfect_manager_downkey:
   beq perfect_set
   cmp r0, #1
   beq upset_set
-  d
+  //d
   cmp r0, #3
   beq perfect_manager_downkey_flap
   b L1
@@ -286,10 +281,10 @@ perfect_manager_updownkey_flap:
   ldr r5, [r5]
   cmp r5, #POSE_READY_UP
   beq flap_perfect_upset_set
-  d
+  //d
   cmp r5, #POSE_READY_DOWN
   beq flap_perfect_upset_set
-  d
+  //d
   cmp r5, #POSE_NORMAL
   beq flap_perfect_set
   b L1
