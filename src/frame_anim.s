@@ -7,6 +7,8 @@
 .global animseq_perfect_sign
 .global animseq_great_sign
 .global animseq_bad_sign
+.global animseq_flap_perfect
+.global animseq_flap_great
 
 .section .text
 init_one_animseq:
@@ -89,7 +91,9 @@ init_all_animseqs:
   // 在这里依次把每个animseq的地址放进r0里后调用init_one_animseq
   ldr     r0, =animseq_upset
   bl      init_one_animseq
-  ldr     r0, =animseq_flap
+  ldr     r0, =animseq_flap_perfect
+  bl      init_one_animseq
+  ldr     r0, =animseq_flap_great
   bl      init_one_animseq
   ldr     r0, =animseq_flap_ready
   bl      init_one_animseq
@@ -134,18 +138,30 @@ animseq_bump:
   importres bump_0_png
   .int    0  // 表示结束
 
-animseq_flap:
+animseq_flap_great:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
-  .int    5
-  .float  0.5
+  .float  0.7
+  .int    4
+  .float  0.7
   .int    -1  // 表示结束
-  importres flap_0_png
-  importres flap_1_png
-  importres flap_2_png
-  importres flap_3_png
-  importres flap_4_png
+  importres great_flap_0_png
+  importres great_flap_1_png
+  importres great_flap_0_png
+  importres great_flap_1_png
+  .int    0  // 表示结束
+
+animseq_flap_perfect:
+  .float  0.0 // 时间点
+  .int    0   // 帧id
+  .float  0.7
+  .int    4
+  .float  0.7
+  .int    -1  // 表示结束
+  importres perfect_flap_0_png
+  importres perfect_flap_1_png
+  importres perfect_flap_0_png
+  importres perfect_flap_1_png
   .int    0  // 表示结束
 
 animseq_flap_ready:

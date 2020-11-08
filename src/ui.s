@@ -39,7 +39,6 @@ drawLabel:
   ldr   r4, =idlbl_score
   ldr   r0, [r4]
   ldr   r1, =charbuf2
-pmem
   vldrs s0, 80.0
   bl    kx_label_print
   ldr   r0, [r4]

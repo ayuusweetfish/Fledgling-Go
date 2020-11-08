@@ -86,19 +86,44 @@ getBirdYByInt:
 init_birdTexture:
   // 创建纹理
   push  {lr}
-  ldr   r0, =npcbird_png
-  ldr   r1, =npcbird_png_size
+  ldr   r0, =otherbirds_0_png
+  ldr   r1, =otherbirds_0_png_size
   bl    kx_image
-  ldr   r3, =idtx_npcbird
+  ldr   r3, =idtx_otherbird0
   str   r0, [r3]
-  ldr   r0, =mebird_png
-  ldr   r1, =mebird_png_size
+  ldr   r0, =otherbirds_1_png
+  ldr   r1, =otherbirds_1_png_size
   bl    kx_image
-  ldr   r3, =idtx_mebird
+  ldr   r3, =idtx_otherbird1
+  str   r0, [r3]
+  ldr   r0, =normal_0_png
+  ldr   r1, =normal_0_png_size
+  bl    kx_image
+  ldr   r3, =idtx_mebird0
+  str   r0, [r3]
+  ldr   r0, =normal_1_png
+  ldr   r1, =normal_1_png_size
+  bl    kx_image
+  ldr   r3, =idtx_mebird1
   str   r0, [r3]
   pop   {lr}
   bx    lr
 
+hereBirdIdx:
+  push  {lr}
+  vpush {s0-s1}
+  ldr   r0, =st_time
+  vldr  s0, [r0]
+  vldrs s1, 4.0
+  vdiv.f32  s0, s0, s1
+  bl    floor_f32
+  vldrs s0, 0.5
+  vcmpa.f32 s1, s0
+  movle r0, #0
+  movgt r0, #1
+  vpop  {s0-s1}
+  pop   {lr}
+  bx    lr
 
 getBirdTexture:
   // 对于一只给定的鸟，根据当前的状态计算其的纹理。
@@ -142,7 +167,7 @@ gbdtx_me_bump:
 gbdtx_me_ready:
   cmp     r9, #POSE_READY_UP // 考虑READY
   cmpne   r9, #POSE_READY_DOWN
-  bne     gbdtx_me_flap
+  bne     gbdtx_me_flap_perfect
   ldr     r0, =animseq_flap_ready
   vmov    s0, s15
   bl      cal_one_animseq
@@ -150,11 +175,22 @@ gbdtx_me_ready:
   movne   r6, r0
   bne     gbdtx_end
   b       gbdtx_me_default
-gbdtx_me_flap:
+gbdtx_me_flap_perfect:
+  cmp     r9, #POSE_FLAP_PERFECT // 考虑READY
+  cmpne   r9, #POSE_FLAP_GREAT
+  bne     gbdtx_me_flap_great
+  ldr     r0, =animseq_flap_perfect
+  vmov    s0, s15
+  bl      cal_one_animseq
+  cmp     r1, #-1
+  movne   r6, r0
+  bne     gbdtx_end
+  b       gbdtx_me_default
+gbdtx_me_flap_great:
   cmp     r9, #POSE_FLAP_PERFECT // 考虑READY
   cmpne   r9, #POSE_FLAP_GREAT
   bne     gbdtx_me_default
-  ldr     r0, =animseq_flap
+  ldr     r0, =animseq_flap_great
   vmov    s0, s15
   bl      cal_one_animseq
   cmp     r1, #-1
@@ -162,7 +198,11 @@ gbdtx_me_flap:
   bne     gbdtx_end
   b       gbdtx_me_default
 gbdtx_me_default:
-  ldr     r6, =idtx_mebird
+  ldr     r6, =idtx_mebird0
+  bl      hereBirdIdx
+  mov     r1, #4
+  mul     r0, r1
+  add     r6, r0
   ldr     r6, [r6]
   b       gbdtx_end
 
@@ -198,7 +238,11 @@ gbdtx_npc_lean_true: // 真的是要斜眼的鸟
   bne     gbdtx_end
   b       gbdtx_npc_default
 gbdtx_npc_default:
-  ldr     r6, =idtx_npcbird
+  ldr     r6, =idtx_otherbird0
+  bl      hereBirdIdx
+  mov     r1, #4
+  mul     r0, r1
+  add     r6, r0
   ldr     r6, [r6]
   b       gbdtx_end
 gbdtx_end:
@@ -483,6 +527,14 @@ idtx_mebird:
 idtx_npcbird:
   .int    0
 
+idtx_otherbird0:
+  .int    0
+idtx_otherbird1:
+  .int    0
+idtx_mebird0:
+  .int    0
+idtx_mebird1:
+  .int    0
 
 
 .section .bss

@@ -37,11 +37,10 @@
 
   res upset_0_png, Upset.png
   res bump_0_png, Bump.png
-  res flap_0_png, test_flap.png
-  res flap_1_png, test_flap.png
-  res flap_2_png, test_flap.png
-  res flap_3_png, test_flap.png
-  res flap_4_png, test_flap.png
+  res great_flap_0_png, great_flap00.png
+  res great_flap_1_png, great_flap01.png
+  res perfect_flap_0_png, perfect_flap00.png
+  res perfect_flap_1_png, perfect_flap01.png
   res flap_ready_0_png, Normal.png
   res lean_0_png, Look.png
 
@@ -59,5 +58,10 @@
   res perfectanim_1_png, Perfect2.png
   res greatanim_0_png, great1.png
   res greatanim_1_png, great2.png
+
+  res otherbirds_0_png, otherbirdA01.png
+  res otherbirds_1_png, otherbirdA10.png
+  res normal_0_png, Normal.png
+  res normal_1_png, NormalA01.png
 
 
