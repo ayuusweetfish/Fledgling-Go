@@ -165,6 +165,8 @@ cam_move_update:
   //检测是否出下边界
   vldr          s4, CAM_HEI
   vsub.f32      s3, s4, s3
+  vldrs         s4, 1.0
+  vsub.f32      s3, s4
   vcmpa.f32     s2, s3
   vaddgt.f32    s6, s0, s3
 camv_end:
