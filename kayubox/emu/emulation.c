@@ -60,6 +60,15 @@ static void handler_syscall(uc_engine *uc, uint32_t exc_index, void *user_data)
   uc_expect(uc_reg_write_batch, uc, (int *)regids, ptrs, 4);
 }
 
+/*
+void sys_probe(uc_engine *, void *);
+static void handler_code(struct uc_struct *uc, uint64_t address, uint32_t size, void *user_data)
+{
+  printf("%08x\n", (uint32_t)address);
+  sys_probe(uc, NULL);
+}
+*/
+
 void *emu_thread_fn(void *uc)
 {
   video_acquire_context();
@@ -95,6 +104,8 @@ void run_emulation(
   uc_hook hook_mem, hook_syscall;
   uc_expect(uc_hook_add, uc, &hook_mem, UC_HOOK_MEM_INVALID, handler_mem, NULL, 1, 0);
   uc_expect(uc_hook_add, uc, &hook_syscall, UC_HOOK_INTR, handler_syscall, NULL, 1, 0);
+  //uc_hook hook_code;
+  //uc_expect(uc_hook_add, uc, &hook_code, UC_HOOK_CODE, handler_code, NULL, 0x80010a20, 0x80010a88);
 
   // Map memory
   void *user_mem = malloc(PROG_MEMSIZE);

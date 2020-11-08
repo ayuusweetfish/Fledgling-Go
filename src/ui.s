@@ -29,6 +29,9 @@ init_label:
 
 
 drawLabel:
+  bx    lr
+
+/*
   push  {r4, lr}
   // 画分
   ldr   r0, =st_score
@@ -40,14 +43,14 @@ drawLabel:
   ldr   r0, [r4]
   ldr   r1, =charbuf2
   vldrs s0, 80.0
-  bl    kx_label_print
+  //bl    kx_label_print
   ldr   r0, [r4]
   ldr   r1, =#0xee2222ff
   vldr  s0, TEXT_SCORE_X
   vldr  s1, TEXT_SCORE_Y
   vldrs s2, 0.00125
   vldrs s3, 0.00208333
-  bl    kx_label_draw
+  //bl    kx_label_draw
   // 画combo
   ldr   r0, =st_combo
   ldr   r0, [r0]
@@ -58,17 +61,18 @@ drawLabel:
   ldr   r0, [r4]
   ldr   r1, =charbuf
   vldrs s0, 80.0
-  bl    kx_label_print
+  //bl    kx_label_print
   ldr   r0, [r4]
   ldr   r1, =#0x22ee22ff
   vldr  s0, TEXT_COMBO_X
   vldr  s1, TEXT_COMBO_Y
   vldrs s2, 0.00125
   vldrs s3, 0.00208333
-  bl    kx_label_draw
+  //bl    kx_label_draw
 
   pop   {r4, lr}
   bx    lr
+*/
 
 
 .section .data

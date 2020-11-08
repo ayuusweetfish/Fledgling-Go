@@ -30,7 +30,24 @@
   bl    init_yBirdList
   pop   {r0-r1}
 
+  // 创建鸟们
+  bl    init_birdTexture
+  bl    init_all_animseqs
+  bl    init_decorations
+  bl    init_birdPlus
+  bl    init_label
+
+  ldr   r0, =bg_png
+  ldr   r1, =bg_png_size
+  bl    kx_image
+  ldr   r1, =idtx_bg
+  str   r0, [r1]
+
+  bl    sfx_init
+
   // 播放音乐
+  ldr   r0, =stray_bin
+  bl    map_loader
   mov   r0, r1
   mov   r1, r2
   mov   r2, #0
@@ -51,21 +68,6 @@
   ldr   r2, =0
   svc   #0x211  // trk_config
 
-  bl    sfx_init
-
-  ldr   r0, =bg_png
-  ldr   r1, =bg_png_size
-  bl    kx_image
-  ldr   r1, =idtx_bg
-  str   r0, [r1]
-
-
-  // 创建鸟们
-  bl    init_birdTexture
-  bl    init_all_animseqs
-  bl    init_decorations
-  bl    init_birdPlus
-  bl    init_label
 
 main_loop:
   ldr   r0, =#0xffffeeff

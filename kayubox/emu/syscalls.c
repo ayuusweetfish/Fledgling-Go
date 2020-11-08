@@ -71,7 +71,7 @@ static void sys_probe_min(SYSCALL_ARGS)
   );
 }
 
-static void sys_probe(SYSCALL_ARGS)
+void sys_probe(SYSCALL_ARGS)
 {
   uint32_t regs[17];
   read_regs(uc, regs, 0, 17);
