@@ -2,12 +2,20 @@
 
 title   "Stray Toy's Adventure!!"
 #audio   "Stray Toy's Adventure.ogg"
-audio   "Stray Toy's Adventure_0.875.ogg"
+#audio   "Stray Toy's Adventure_0.875.ogg"
+audio   "silence.ogg"
 
-#tempo   256.0
-#offset  1.169
-tempo   224.0
-offset  1.336
+#tempo   224.0
+#offset  1.336
+tempo   60.0
+offset  1.5
+
+.rept 200
+lead  2
+seq   u..d..f..
+lead  3
+seq   u..d..f..
+.endr
 
 
 # Theme A
