@@ -26,7 +26,7 @@ CAM_X_OFF:
 CAM_WID:
   .float  5.0
 CAM_HEI:
-  .float  5.0
+  .float  4.0
 
 // 衍生的常量定义
 // 这里的值是由上面的有用常量经过简单的计算得出的。如果修改上面的有用常量，应当按照公式对应修改这些内容
@@ -35,15 +35,15 @@ _CWH:
 _CXA:
   .float  -1.50 // (CAM_X_OFF - (CAM_WID / 2))
 _CHH:
-  .float  2.5  // (CAM_HEI / 2)
+  .float  2.0  // (CAM_HEI / 2)
 _CYA:
-  .float  2.5 // (CAM_HEI / 2)
+  .float  2.0 // (CAM_HEI / 2)
 _CKSR: // 由于相机对世界坐标系存在缩放，如果一个物体想维持正方形的形状，就在调用coord_g2s_rect之前调用下keepImgSquare
-  .float  0.6 // ((3 / 5) * (CAM_WID / CAM_HEI)
+  .float  0.75 // ((3 / 5) * (CAM_WID / CAM_HEI)
 
 .section .data
 camera_y: // 相机的y 初始化为(CAM_HEI - 1) / 2
-  .float  2.0
+  .float  1.5
 
 .section .text
 keepImgSquare:

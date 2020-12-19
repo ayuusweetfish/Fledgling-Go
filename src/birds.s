@@ -202,8 +202,7 @@ gbdtx_me_ready:
   bne     gbdtx_end
   b       gbdtx_me_default
 gbdtx_me_flap_perfect:
-  cmp     r9, #POSE_FLAP_PERFECT // 考虑READY
-  cmpne   r9, #POSE_FLAP_GREAT
+  cmp     r9, #POSE_FLAP_PERFECT // 考虑PERFECT
   bne     gbdtx_me_flap_great
   ldr     r0, =animseq_flap_perfect
   vmov    s0, s15
@@ -213,8 +212,7 @@ gbdtx_me_flap_perfect:
   bne     gbdtx_end
   b       gbdtx_me_default
 gbdtx_me_flap_great:
-  cmp     r9, #POSE_FLAP_PERFECT // 考虑READY
-  cmpne   r9, #POSE_FLAP_GREAT
+  cmp     r9, #POSE_FLAP_GREAT // 考虑great
   bne     gbdtx_me_default
   ldr     r0, =animseq_flap_great
   vmov    s0, s15

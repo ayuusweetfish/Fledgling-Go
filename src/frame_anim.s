@@ -125,7 +125,7 @@ init_all_animseqs:
 animseq_upset:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres upset_0_png
   .int    0  // 表示结束
@@ -133,7 +133,7 @@ animseq_upset:
 animseq_bump:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres bump_0_png
   .int    0  // 表示结束
@@ -141,9 +141,9 @@ animseq_bump:
 animseq_flap_great:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.7
+  .float  2.0 // qwq
   .int    4
-  .float  0.7
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres great_flap_0_png
   importres great_flap_1_png
@@ -154,9 +154,9 @@ animseq_flap_great:
 animseq_flap_perfect:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.7
+  .float  2.0 // qwq
   .int    4
-  .float  0.7
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres perfect_flap_0_png
   importres perfect_flap_1_png
@@ -167,7 +167,7 @@ animseq_flap_perfect:
 animseq_flap_ready:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres flap_ready_0_png
   .int    0  // 表示结束
@@ -183,9 +183,9 @@ animseq_lean:
 animseq_perfect_sign:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.6
+  .float  2.0 // qwq
   .int    6
-  .float  0.6
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres perfectanim_0_png
   importres perfectanim_1_png
@@ -198,9 +198,9 @@ animseq_perfect_sign:
 animseq_great_sign:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.6
+  .float  2.0 // qwq
   .int    6
-  .float  0.6
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres greatanim_0_png
   importres greatanim_1_png
@@ -213,7 +213,7 @@ animseq_great_sign:
 animseq_bad_sign:
   .float  0.0 // 时间点
   .int    0   // 帧id
-  .float  0.5
+  .float  2.0 // qwq
   .int    -1  // 表示结束
   importres _32573487_png
   .int    0  // 表示结束
