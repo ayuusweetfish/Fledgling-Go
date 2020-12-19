@@ -14,16 +14,15 @@ offset  1.336
 lead  2
 seq   u...d...u...duuu
 seq   d...u...d...uddd
-lead  1
 seq   .u.d.d.u.u.d.d.u
-seq   .d.u.d.ufffff...
+seq   .d.u.d
+lead  3
+seq         ..fffff...
 
 # Intro "Now loading..."
-lead  2
+lead  3
 seq   ................
-seq   f.......
-lead  1
-seq           ......dd
+seq   f.............dd
 
 # Verse
 lead  1
@@ -33,7 +32,7 @@ seq   .d.u.d.u.d.u.duu
 seq   d
 lead  2
 seq    ...f...f.
-lead  1
+lead  3
 seq             .f..uu
 
 # Pre-chorus
@@ -41,24 +40,40 @@ seq   d...
 lead  2
 seq       ....u.d.d.u.
 seq   u.......d.u.d.d.
-seq   d...u...d...d...
+seq   d...u...d...d.
 lead  1
+seq                 ..
 seq   .d.u.d.u.d.u.d.u
 seq   .u.d.u.d.u.d.u.d
+lead  2
 seq   ..f..f.f..f..f.f
 seq   ..f..f.fffff.dd.
 
 # Interlude
-seq   fu.d.u.d.u.d.u.f
-seq   fd.u.d.u.d.u.fff
-seq   .f.d.u.d.u.d.u.f
-seq   fd.u.d.u.d.u.d.u
-seq   .........f..
+seq   f
+lead  1
+seq    u.d.u.d.u.d.u
 lead  2
-seq               ..dd
+seq                 .f
+seq   fd
+lead  1
+seq     .u.d.u.d.u
+lead  2
+seq               .fff
+seq   .f
+lead  1
+seq     .d.u.d.u.d.u
+lead  2
+seq                 .f
+seq   fd
+lead  1
+seq     .u.d.u.d.u.d.u
+seq   ....
+lead  2
+seq       .....f....dd
 
 # Theme B
-lead  1
+lead  3
 seq   .u.u.d.u.u.u.d.u
 seq   .f.f.f.ff....u..
 seq   .u.u.d.u.u.u.d.d
@@ -74,7 +89,7 @@ lead  2
 seq   u...d...u...duuu
 seq   d...u...d...uddd
 .endr
-lead  1
+lead  3
 seq   u...ddu.dduff...uuuu
 seq   .d.u.d.uf...f...f.f..f..
 
