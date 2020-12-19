@@ -56,7 +56,7 @@ drdeco_loop:
   vldm  r7!, {s0-s4}
   // 判断种类是大于0还是小于0
   cmp   r0, #0
-  ble   drdeco_bg
+  blt   drdeco_bg
 drdeco_normal:
   mov   r3, #8
   mul   r0, r3
