@@ -70,6 +70,12 @@
   res normal_1_png, NormalA01.png
 
   res bg_png, background.png
+  res bg_rainbow_0_png, rainbow_0.png
+  res bg_rainbow_1_png, rainbow_1.png
+  res bg_rainbow_2_png, rainbow_2.png
+  res bg_rainbow_3_png, rainbow_3.png
+  res bg_rainbow_4_png, rainbow_4.png
+  res bg_rainbow_5_png, rainbow_5.png
 
   res score_combo_png, score_combo.png
   res digits_png, digits.png
