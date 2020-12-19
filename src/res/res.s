@@ -33,7 +33,6 @@
   res cloud_1_png, cloud00-01.png
   res cloud_2_png, cloud01-00.png
   res cloud_3_png, cloud10-01.png
-  res npcbird_png, Otherbirds.png
   res mebird_png, Normal.png
   #res Mali_Regular_ttf, Mali-Regular.ttf
 
@@ -60,12 +59,13 @@
 
   res perfectanim_0_png, Perfect1.png
   res perfectanim_1_png, Perfect2.png
-  res greatanim_0_png, great1.png
-  res greatanim_1_png, great2.png
+  res greatanim_0_png, xingxing01.png
+  res greatanim_1_png, xingxing10.png
+  res greatanim_2_png, xingxing11.png
 
-  res otherbirds_0_png, Otherbirds.png
-  res otherbirds_1_png, otherbirdA01.png
-  res otherbirds_2_png, otherbirdA10.png
+  res otherbirds_0_png, otherbird01.png
+  res otherbirds_1_png, otherbird10.png
+  res otherbirds_2_png, otherbird11.png
   res normal_0_png, Normal.png
   res normal_1_png, NormalA01.png
 

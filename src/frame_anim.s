@@ -204,10 +204,10 @@ animseq_great_sign:
   .int    -1  // 表示结束
   importres greatanim_0_png
   importres greatanim_1_png
+  importres greatanim_2_png
   importres greatanim_0_png
   importres greatanim_1_png
-  importres greatanim_0_png
-  importres greatanim_1_png
+  importres greatanim_2_png
   .int    0  // 表示结束
 
 animseq_bad_sign:
