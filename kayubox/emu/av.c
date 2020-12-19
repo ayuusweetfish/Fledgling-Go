@@ -97,9 +97,16 @@ uint64_t av_rand()
 
 static GLFWwindow *window;
 
+static void glfw_fbsz_callback(GLFWwindow *window, int w, int h)
+{
+  glViewport(0, 0, w, h);
+}
+
 void video_init()
 {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+  glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 
   if (!glfwInit()) {
     fprintf(stderr, "glfwInit() failed\n");
@@ -111,6 +118,8 @@ void video_init()
     fprintf(stderr, "glfwCreateWindow() failed\n");
     exit(1);
   }
+
+  glfwSetFramebufferSizeCallback(window, glfw_fbsz_callback);
 
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
