@@ -94,14 +94,15 @@ drdeco_end:
 
 .section .data
 decoration_count:
-  .int 4
+  .int 5
 decoration_list:
   importres cloud_0_png
   importres cloud_1_png
   importres cloud_2_png
   importres cloud_3_png
+  importres cloud_in_you_png
 extra_bg_count:
-  .int 7
+  .int 10
 extra_bg_list:
   importres cloud_0_png
   importres bg_rainbow_0_png
@@ -110,3 +111,6 @@ extra_bg_list:
   importres bg_rainbow_3_png
   importres bg_rainbow_4_png
   importres bg_rainbow_5_png
+  importres bg_rainbow_6_png
+  importres bg_rainbow_7_png
+  importres bg_rainbow_8_png

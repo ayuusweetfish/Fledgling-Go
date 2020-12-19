@@ -33,6 +33,7 @@
   res cloud_1_png, cloud00-01.png
   res cloud_2_png, cloud01-00.png
   res cloud_3_png, cloud10-01.png
+  res cloud_in_you_png, in_you.png
   res mebird_png, Normal.png
   #res Mali_Regular_ttf, Mali-Regular.ttf
 
@@ -76,6 +77,9 @@
   res bg_rainbow_3_png, rainbow_3.png
   res bg_rainbow_4_png, rainbow_4.png
   res bg_rainbow_5_png, rainbow_5.png
+  res bg_rainbow_6_png, rainbow_6.png
+  res bg_rainbow_7_png, rainbow_7.png
+  res bg_rainbow_8_png, rainbow_8.png
 
   res score_combo_png, score_combo.png
   res digits_png, digits.png
