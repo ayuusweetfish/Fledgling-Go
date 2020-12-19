@@ -50,20 +50,21 @@ drawLabel:
   push  {lr}
   
   // 绘制 score, combo
+  // 实际大小 3:2，换算至屏幕坐标系为 (3:2) / (5:3) = 9:10
   ldr   r3, =tex_id_score_combo
   ldr   r3, [r3]
   vldrs s0, -0.97
   vldrs s1,  0.97
   vldrs s4, -0.97
-  vldrs s5,  0.67
+  vldrs s5,  0.57
   vldrs s8, -0.61
   vldrs s9,  0.97
   bl    fillSWhenDrawFullTexture
   bl    draw_square
 
-  // Score: (-0.61, 0.97)
-  // Combo: (-0.61, 0.82)
-  // 0.09 * 0.15
+  // Score: (-0.69, 0.97)
+  // Combo: (-0.69, 0.77)
+  // 0.12 * 0.2
 // 画分
   ldr   r0, =st_score
   ldr   r0, [r0]
@@ -71,11 +72,11 @@ drawLabel:
   mov   r2, #10
   bl    itoa
   ldr   r7, =charbuf
-  vldrs   s0, -0.76
+  vldrs   s0, -0.69
   vldrs   s1, 0.97
-  vldrs   s4, -0.76
-  vldrs   s5, 0.82
-  vldrs   s8, -0.67
+  vldrs   s4, -0.69
+  vldrs   s5, 0.77
+  vldrs   s8, -0.57
   vldrs   s9, 0.97
   vldrs   s2, 0.0
   vldrs   s6, 0.1
@@ -97,7 +98,7 @@ ll1:
   ldr   r2, =0xffffffff
   ldr   r3, =tex_id_digits
   ldr   r3, [r3]
-  vldrs s15, 0.05
+  vldrs s15, 0.075
   vadd.f32 s0, s15
   vadd.f32 s4, s15
   vadd.f32 s8, s15
@@ -114,12 +115,12 @@ ll2:
   mov   r2, #10
   bl    itoa
   ldr   r7, =charbuf
-  vldrs   s0, -0.76
-  vldrs   s1, 0.82
-  vldrs   s4, -0.76
-  vldrs   s5, 0.67
-  vldrs   s8, -0.67
-  vldrs   s9, 0.82
+  vldrs   s0, -0.69
+  vldrs   s1, 0.77
+  vldrs   s4, -0.69
+  vldrs   s5, 0.57
+  vldrs   s8, -0.57
+  vldrs   s9, 0.77
   vldrs   s2, 0.0
   vldrs   s6, 0.1
   vldrs   s10, 0.9
@@ -140,7 +141,7 @@ ll3:
   ldr   r2, =0xffffffff
   ldr   r3, =tex_id_digits
   ldr   r3, [r3]
-  vldrs s15, 0.05
+  vldrs s15, 0.075
   vadd.f32 s0, s15
   vadd.f32 s4, s15
   vadd.f32 s8, s15
