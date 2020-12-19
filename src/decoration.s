@@ -101,7 +101,7 @@ decoration_list:
   importres cloud_2_png
   importres cloud_3_png
 extra_bg_count:
-  .int 6
+  .int 7
 extra_bg_list:
   importres cloud_0_png
   importres bg_rainbow_0_png

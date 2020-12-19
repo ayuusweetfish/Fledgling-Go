@@ -1,16 +1,15 @@
 .include "map.i"
 
 title   "Stray Toy's Adventure!!"
-#audio   "Stray Toy's Adventure.ogg"
-#audio   "Stray Toy's Adventure_0.875.ogg"
-audio   "silence.ogg"
+audio   "Stray Toy's Adventure_0.875.ogg"
+#audio   "silence.ogg"
 
-#tempo   224.0
-#offset  1.336
-tempo   60.0
-offset  1.5
+tempo   224.0
+offset  1.336
+#tempo   60.0
+#offset  1.5
 
-.rept 200
+.rept 0 #200
 lead  2
 seq   u..d..f..
 lead  3
@@ -25,7 +24,7 @@ seq   d...u...d...uddd
 seq   .u.d.d.u.u.d.d.u
 seq   .d.u.d
 lead  3
-seq         ..fffff...
+seq         ..f.......
 
 # Intro "Now loading..."
 lead  3
@@ -39,9 +38,9 @@ seq   .d.u.d.u.d.u.duu
 seq   .d.u.d.u.d.u.duu
 seq   d
 lead  2
-seq    ...f...f.
+seq    ...f
 lead  3
-seq             .f..uu
+seq        ...f..f..uu
 
 # Pre-chorus
 seq   d...
@@ -52,14 +51,16 @@ seq   d...u...d...d.
 lead  1
 seq                 ..
 seq   .d.u.d.u.d.u.d.u
-seq   .u.d.u.d.u.d.u.d
+seq   .u.d.u.d
 lead  2
+seq           .u.d.u.d
+lead  3
 seq   ..f..f.f..f..f.f
 seq   ..f..f.fffff.dd.
 
 # Interlude
 seq   f
-lead  1
+lead  2
 seq    u.d.u.d.u.d.u
 lead  2
 seq                 .f
@@ -102,6 +103,22 @@ seq   u...ddu.dduff...uuuu
 seq   .d.u.d.uf...f...f.f..f..
 
 seq_end
+
+# Rainbow at the end of Theme A
+decor -1,x=56,y=0,w=1
+decor -2,x=57,y=0,w=1
+decor -3,x=58,y=0,w=1
+decor -4,x=59,y=0,w=1
+decor -5,x=60,y=0,w=4
+decor -6,x=64,y=0,w=16
+decor -5,x=80,y=0,w=16
+
+# Rainbow at the end of Pre-chorus
+decor -1,x=264,y=0,w=1
+decor -2,x=265,y=0,w=1
+decor -3,x=266,y=0,w=1
+decor -4,x=267,y=0,w=1
+decor -5,x=268,y=0,w=4
 
 decor 1,3.8459,0.0724,0,0.9809,0.9809
 decor 2,5.2635,3.6321,0,0.6472,0.6472
