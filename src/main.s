@@ -2,6 +2,7 @@
 .include "constants.s"
 
 .global map_seq
+.global map_seq_len
 .global map_bpm
 .global map_deco
 .global map_deco_len

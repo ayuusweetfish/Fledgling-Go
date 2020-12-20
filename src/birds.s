@@ -479,11 +479,18 @@ calHeadBirdXAndUpdateCurLead:
   ldr           r0, =st_time
   vldr          s0, [r0]
   bl            floor_f32
-  ldr           r1, =map_seq
-  ldr           r1, [r1]
   // 如果时间小于0，视为0
   cmp           r0, #0
   movlt         r0, #0
+  // 如果时间大于等于 map_seq_len，视为 map_seq_len - 1
+  ldr           r1, =map_seq_len
+  ldr           r1, [r1]
+  sub           r1, #1
+  cmp           r0, r1
+  movgt         r0, r1
+  // 计算地址
+  ldr           r1, =map_seq
+  ldr           r1, [r1]
   add           r1, r0
   ldrb          r1, [r1]
   lsr           r1, #4

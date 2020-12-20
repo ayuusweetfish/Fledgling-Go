@@ -38,6 +38,11 @@ drawReminder:
   vldr      s0, [r0]
   bl        floor_f32
   mov       r6, r0 // r6自己时间取整
+  // 如果已经超过总时长，那么不用画
+  ldr       r5, =map_seq_len
+  ldr       r5, [r5]
+  cmp       r6, r5
+  bge       drrmd_end
   ldr       r0, =curLead
   vldr      s1, [r0]
   vadd.f32  s0, s1

@@ -99,6 +99,8 @@ seq   d...u...d...uddd
 lead  3
 seq   u...ddu.dduff...uuuu
 seq   .d.u.d.uf...f...f.f..f..
+lead  4
+seq   ..
 
 seq_end
 

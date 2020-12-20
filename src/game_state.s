@@ -703,6 +703,11 @@ get_note:
   // 边界：音符时刻 < 0
   cmp   r2, #0
   blt   9f
+  // 边界：音符时刻 > 总长
+  ldr   r0, =map_seq_len
+  ldr   r0, [r0]
+  cmp   r2, r0
+  bge   9f
 
   // 取出当前音符
   ldr   r0, =map_seq
