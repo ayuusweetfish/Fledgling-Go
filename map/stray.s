@@ -61,19 +61,17 @@ seq   ..f..f.fffff.dd.
 # Interlude
 seq   f
 lead  2
-seq    u.d.u.d.u.d.u
-lead  2
-seq                 .f
+seq    u.d.u.d.u.d.u.f
 seq   fd
 lead  1
-seq     .u.d.u.d.u
+seq     .u.d.u.d
 lead  2
-seq               .fff
+seq             .u.fff
 seq   .f
 lead  1
-seq     .d.u.d.u.d.u
+seq     .d.u.d.u
 lead  2
-seq                 .f
+seq             .d.u.f
 seq   fd
 lead  1
 seq     .u.d.u.d.u.d.u
@@ -122,6 +120,10 @@ decor -2,x=265,y=0,w=1
 decor -3,x=266,y=0,w=1
 decor -4,x=267,y=0,w=1
 decor -5,x=268,y=0,w=4
+decor -6,x=272,y=0,w=0.3
+decor -7,x=272.3,y=0,w=0.3
+decor -8,x=272.6,y=0,w=0.3
+decor -9,x=272.9,y=0,w=0.3
 
 decor 1,3.8459,0.0724,0,0.9809,0.9809
 decor 2,5.2635,3.6321,0,0.6472,0.6472
