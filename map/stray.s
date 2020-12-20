@@ -125,6 +125,26 @@ decor -7,x=272.3,y=0,w=0.3
 decor -8,x=272.6,y=0,w=0.3
 decor -9,x=272.9,y=0,w=0.3
 
+# Rainbow flash at end of Interlude (bars 85-86)
+decor -1,x=343.0,y=0,w=0.1
+decor -2,x=343.1,y=0,w=0.1
+decor -3,x=343.2,y=0,w=0.1
+decor -4,x=343.3,y=0,w=0.1
+decor -5,x=343.4,y=0,w=0.1
+decor -6,x=343.5,y=0,w=0.1
+decor -7,x=343.6,y=0,w=0.1
+decor -8,x=343.7,y=0,w=0.1
+decor -9,x=343.8,y=0,w=0.1
+decor -1,x=344.0,y=0,w=0.1
+decor -2,x=344.1,y=0,w=0.1
+decor -3,x=344.2,y=0,w=0.1
+decor -4,x=344.3,y=0,w=0.1
+decor -5,x=344.4,y=0,w=0.1
+decor -6,x=344.5,y=0,w=0.1
+decor -7,x=344.6,y=0,w=0.1
+decor -8,x=344.7,y=0,w=0.1
+decor -9,x=344.8,y=0,w=0.1
+
 decor 1,3.8459,0.0724,0,0.9809,0.9809
 decor 2,5.2635,3.6321,0,0.6472,0.6472
 decor 1,5.9234,-3.2827,0,0.7418,0.7418
