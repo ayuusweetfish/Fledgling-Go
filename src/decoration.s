@@ -93,6 +93,7 @@ drdeco_end:
   bx    lr
 
 .section .data
+.align 2
 decoration_count:
   .int 5
 decoration_list:

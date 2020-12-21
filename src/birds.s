@@ -522,6 +522,7 @@ calHeadBirdXAndUpdateCurLead:
 
 
 .section .data
+.align 2
 curLead:
   .float  0.0
 curSeqY:
@@ -577,8 +578,10 @@ idtx_mebird1:
   .int    0
 
 .section .data
+.align 2
 last_valid_note:
   .int    0
 
 .section .bss
+.align 2
 .comm   yBirdList   8000 // 足够放2000个float的空间，第i个位置是表示在第i拍开始的时刻鸟应该在的位置。

@@ -65,6 +65,7 @@
 .global st_s_flap
 
 .data
+.align 2
 st_time:  .float  0.0
 st_pose:  .int    POSE_NORMAL
 st_ago:   .float  0
@@ -80,6 +81,7 @@ st_s_bump:    .byte 0
 st_s_upset:   .byte 0
 st_s_flap:    .byte 0
 ready_is_perfect: .byte -1
+.align 2
 frame_time: .float 0.0
 
 .text

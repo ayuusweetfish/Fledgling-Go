@@ -1,4 +1,5 @@
 .data
+.align 2
 perfect:  .int  0
 great:    .int  0
 bump:     .int  0

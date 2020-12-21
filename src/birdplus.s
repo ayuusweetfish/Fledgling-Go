@@ -290,6 +290,7 @@ tryPlayStarAccordingToStSound:
 
 
 .section .data
+.align 2
 idtx_upReminder:
   importres   upreminder_png
 idtx_downReminder:

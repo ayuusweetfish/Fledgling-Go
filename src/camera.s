@@ -42,6 +42,7 @@ _CKSR: // 由于相机对世界坐标系存在缩放，如果一个物体想维�
   .float  0.75 // ((3 / 5) * (CAM_WID / CAM_HEI)
 
 .section .data
+.align 2
 camera_y: // 相机的y 初始化为(CAM_HEI - 1) / 2
   .float  1.5
 

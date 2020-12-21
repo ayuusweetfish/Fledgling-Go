@@ -198,6 +198,7 @@ ll4:
 
 
 .section .data
+.align 2
 tex_id_score_combo: .int  0
 tex_id_digits:      .int  0
 /*

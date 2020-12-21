@@ -212,6 +212,7 @@ game_time_to_tempo:
 
 
 .section .data
+.align 2
 game_systime: // 游戏进行期间的时间戳。游戏进行期间会每帧增长累加
   .int  0 // 低32位
   .int  0 // 高32位
