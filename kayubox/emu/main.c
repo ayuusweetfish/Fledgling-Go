@@ -108,12 +108,12 @@ end:
 
 int main(int argc, char *argv[])
 {
-  if (argc < 2) {
+  if (argc >= 3) {
     print_usage(argv[0]);
     exit(0);
   }
 
-  const char *prog_path = argv[1];
+  const char *prog_path = (argc >= 2 ? argv[1] : "a.bin");
   long len = -1;
   void *contents = read_file(prog_path, &len);
   if (contents == NULL) exit(1);

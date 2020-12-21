@@ -97,9 +97,14 @@ uint64_t av_rand()
 
 static GLFWwindow *window;
 
+
 static void glfw_fbsz_callback(GLFWwindow *window, int w, int h)
 {
   glViewport(0, 0, w, h);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(0, w, 0, h, -1, 1);
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void video_init()
