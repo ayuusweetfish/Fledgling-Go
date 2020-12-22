@@ -19,16 +19,6 @@
 //     ldr   r0, =_img_example //通过 = 即可得到资源的二进制的地址
 //     ldr   r1, =_img_example_size // xxx_size是个立即数，因此建议通过ldr r, =xxx_size比较方便
 .section .rodata
-  res _32573480_png, 32573480.png
-  res _32573481_png, 32573481.png
-  res _32573487_png, 32573487.png
-  res _32573491_png, 32573491.png
-  res _32573493_png, 32573493.png
-  res _32573496_png, 32573496.png
-  res _32573498_png, 32573498.png
-  res _32573499_png, 32573499.png
-  res _32573502_png, 32573502.png
-  res _32573503_png, 32573503.png
   res cloud_0_png, cloud00-00.png
   res cloud_1_png, cloud00-01.png
   res cloud_2_png, cloud01-00.png

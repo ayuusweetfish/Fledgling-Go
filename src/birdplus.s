@@ -18,13 +18,13 @@ init_birdPlus:
   ldr   r0, =idtx_flapReminder
   bl    init_imported_res
   // 顺便初始化星星
-  ldr   r0, =_32573487_png
-  ldr   r1, =_32573487_png_size
+  ldr   r0, =bg_rainbow_0_png
+  ldr   r1, =bg_rainbow_0_png_size
   bl    kx_image
   ldr   r3, =idtx_star_perfect
   str   r0, [r3]
-  ldr   r0, =_32573491_png
-  ldr   r1, =_32573491_png_size
+  ldr   r0, =bg_rainbow_0_png
+  ldr   r1, =bg_rainbow_0_png_size
   bl    kx_image
   ldr   r3, =idtx_star_great
   str   r0, [r3]

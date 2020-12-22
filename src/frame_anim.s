@@ -216,6 +216,6 @@ animseq_bad_sign:
   .int    0   // 帧id
   .float  2.0 // qwq
   .int    -1  // 表示结束
-  importres _32573487_png
+  importres bg_rainbow_0_png
   .int    0  // 表示结束
 
