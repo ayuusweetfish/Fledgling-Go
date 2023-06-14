@@ -2,9 +2,13 @@
 
 「在头鸟的引领下与周围的鸟群一同在云层间起舞」—— 受《节奏天国》启发的节奏类小游戏。
 
-课程作业小组成员 @kuriko1023 @Starrah @ayuusweetfish
+![游戏截图](doc/screenshot.jpg)
 
 [**可执行程序**](https://github.com/ayuusweetfish/Fledgling-Go/releases) | [**录像**](https://ayu.land/fledgling/Fledgling_Go_RPi.mp4)
+
+课程作业小组成员 @kuriko1023 @Starrah @ayuusweetfish
+
+游戏音轨：[**Stray Toy's Adventure!!**](https://soundcloud.com/umecha24909/stray-toys-adventure) by 梅干茶漬け
 
 ## 技术细节
 
@@ -27,13 +31,17 @@ kayubox 的系统调用文档位于 `doc/syscalls.txt`。其在树莓派上的�
 
 “Following the leading bird, dance with the flock among the clouds” — a rhythm game inspired by *Rhythm Heaven*.
 
-Course project members: @kuriko1023 @Starrah @ayuusweetfish
+![Game screenshot](doc/screenshot.jpg)
 
 [**Executable**](https://github.com/ayuusweetfish/Fledgling-Go/releases) | [**Video**](https://ayu.land/fledgling/Fledgling_Go_RPi.mp4)
 
+Course project members: @kuriko1023 @Starrah @ayuusweetfish
+
+Track in the game: [**Stray Toy's Adventure!!**](https://soundcloud.com/umecha24909/stray-toys-adventure) by 梅干茶漬け
+
 ## Technical Details
 
-The game logic is written in ARMv6 assembly and runs in a custom single-tasking OS environment named **kayubox**. kayubox programs access functionalities such as video/audio output and button presses through a set of system calls. They can run on the Raspberry Pi Zero single board computer or be debugged on desktop computers with an emulator. With the [Circle](https://github.com/rsta2/circle) library, the Raspberry Pi version run directly on bare metal without depending on a complex desktop OS, and games can be swapped by simply copying files on the SD card.
+The game logic is written in ARMv6 assembly and runs in a custom single-tasking OS environment named **kayubox**. kayubox programs access functionalities such as video/audio output and button presses through a set of system calls. They can run on the Raspberry Pi Zero single board computer or be debugged on desktop computers with an emulator. With the [Circle](https://github.com/rsta2/circle) library, the Raspberry Pi version runs directly on bare metal without depending on a complex desktop OS, and games can be swapped by simply copying files on the SD card.
 
 Documentation for kayubox system calls is at `doc/syscalls.txt`. For now, we leave the implementation of the kayubox environment on Raspberry Pi to the reader as an exercise.
 
